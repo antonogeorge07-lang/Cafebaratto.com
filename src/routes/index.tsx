@@ -308,23 +308,26 @@ function Index() {
       </section>
 
       {/* VISIT */}
-      <section id="visit" className="bg-coffee-900 py-24 text-oak-50 lg:py-32">
+      <section id="visit" className="bg-oak-100 py-24 text-coffee-900 lg:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div id="space" className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
             <div>
-              <h2 className="font-serif text-4xl sm:text-5xl">Come say hi.</h2>
-              <p className="mt-6 max-w-md text-oak-100/80">
+              <p className="text-sm uppercase tracking-[0.25em] text-oak-700">Visit Us</p>
+              <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                Come <em className="font-normal text-oak-600">say hi.</em>
+              </h2>
+              <p className="mt-6 max-w-md text-coffee-900/70">
                 Find us on Carrer de Vinatea, just a short walk from the Central Market. We're open
                 early to pour your perfect morning cup.
               </p>
 
               <div className="mt-10 space-y-6">
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-50/10 text-oak-300">
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-300 text-coffee-900">
                     <MapPin className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm uppercase tracking-widest text-oak-300">Location</p>
+                    <p className="text-sm uppercase tracking-widest text-oak-700">Location</p>
                     <p className="mt-1 leading-relaxed">
                       C. de Vinatea, 20<br />
                       46001 València, Spain
@@ -332,11 +335,11 @@ function Index() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-50/10 text-oak-300">
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-300 text-coffee-900">
                     <Clock className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm uppercase tracking-widest text-oak-300">Hours</p>
+                    <p className="text-sm uppercase tracking-widest text-oak-700">Hours</p>
                     <p className="mt-1 leading-relaxed">
                       Mon – Fri: 7:00 AM – 10:00 PM<br />
                       Sat – Sun: 9:00 AM – 10:00 PM
@@ -346,7 +349,7 @@ function Index() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl">
+            <div className="relative overflow-hidden rounded-3xl ring-1 ring-oak-200">
               <img
                 src={hero}
                 alt="Inside Cafeteria Baratto"
@@ -355,7 +358,7 @@ function Index() {
                 height={1200}
                 className="h-[480px] w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-coffee-900/60 to-transparent" />
               <p className="absolute bottom-6 left-6 font-serif text-2xl text-oak-50">
                 See you soon!
               </p>
