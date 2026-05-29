@@ -17,13 +17,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Exceptional coffee, hearty Spanish breakfasts and a sunny terrace near Valencia's Central Market. Open every day on Carrer de Vinatea.",
+          "Exceptional coffee and hearty Spanish breakfasts right next to the children's park, near Valencia's Central Market. Open every day on Carrer de Vinatea.",
       },
       { property: "og:title", content: "Cafeteria Baratto — Valencia" },
       {
         property: "og:description",
         content:
-          "Your neighborhood retreat near Valencia's Central Market. Exceptional coffee, breakfast and a welcoming terrace.",
+          "Your neighborhood retreat right next to the children's park. Exceptional coffee, breakfast and a welcoming spot for families.",
       },
       { property: "og:image", content: hero },
     ],
@@ -123,15 +123,15 @@ function Index() {
               Cafeteria <em className="font-normal text-oak-600">Baratto</em>
             </h1>
             <p className="mt-6 max-w-lg text-lg text-coffee-900/70">
-              Your neighborhood retreat near the Central Market. Exceptional coffee, delicious
-              breakfasts, and a welcoming terrace to watch the city go by.
+              Your neighborhood retreat right next to the children's park. Exceptional coffee,
+              delicious breakfasts, and a relaxed spot while the little ones play.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <a
                 href="#visit"
                 className="rounded-full bg-coffee-900 px-6 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950"
               >
-                Find our terrace
+                Find the cafe
               </a>
               <a
                 href="#menu"
@@ -195,8 +195,8 @@ function Index() {
               },
               {
                 icon: Sun,
-                title: "Sunny Terrace",
-                body: "Soak up Valencia's golden light on our charming terrace — the perfect spot to read, talk, or watch the street.",
+                title: "Beside the Park",
+                body: "Right next to the children's park — sip your coffee while the little ones play in the sun.",
               },
             ].map(({ icon: Icon, title, body }) => (
               <article
@@ -281,14 +281,14 @@ function Index() {
             </p>
             <p className="mt-4 text-coffee-900/75">
               Whether you're stopping by for a quick, expertly pulled espresso before work, or
-              lingering over a hearty breakfast on our terrace, our friendly staff and warm
-              ambiance make every visit memorable.
+              settling in for a hearty breakfast while the kids play in the park next door, our
+              friendly staff and warm ambiance make every visit memorable.
             </p>
 
             <ul className="mt-8 space-y-3">
               {[
                 "Consistently rated for outstanding, delicious coffee.",
-                "Spacious outdoor seating to soak up the Spanish sun.",
+                "Right beside the children's park — perfect for families.",
                 "Located steps from Valencia's top attractions.",
               ].map((t) => (
                 <li key={t} className="flex items-start gap-3 text-coffee-900/80">
