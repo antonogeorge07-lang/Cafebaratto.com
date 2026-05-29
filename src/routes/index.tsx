@@ -396,6 +396,8 @@ function Index() {
           © {new Date().getFullYear()} Cafeteria Baratto. All rights reserved.
         </p>
       </footer>
+
+      <MascotCompanion />
     </div>
   );
 }
