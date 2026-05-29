@@ -229,7 +229,8 @@ function Index() {
               { src: breakfast, alt: "Spanish tostadas and orange juice" },
               { src: pastry, alt: "Fresh pastries in a basket" },
               { src: latte, alt: "Barista pouring latte art" },
-              { src: terrace, alt: "Outdoor terrace seating", span: "col-span-2" },
+              { src: storefront, alt: "Cafeteria Baratto storefront", span: "col-span-2" },
+              { src: mascot, alt: "Baratto coffee mascot" },
             ].map((img, i) => (
               <div
                 key={i}
@@ -254,8 +255,8 @@ function Index() {
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10">
           <div className="relative">
             <img
-              src={terrace}
-              alt="Cafe terrace in Valencia"
+              src={storefront}
+              alt="Cafeteria Baratto storefront in Valencia"
               loading="lazy"
               width={1200}
               height={1200}
