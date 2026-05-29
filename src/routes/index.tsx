@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Coffee, Croissant, Sun, MapPin, Clock, Star, Instagram, Twitter, Menu } from "lucide-react";
 import { useState } from "react";
-import hero from "@/assets/hero.jpg";
-import coffee from "@/assets/coffee.jpg";
+import hero from "@/assets/interior.jpg";
+import storefront from "@/assets/storefront.jpg";
+import coffee from "@/assets/espresso-pull.jpg";
 import breakfast from "@/assets/breakfast.jpg";
-import terrace from "@/assets/terrace.jpg";
 import pastry from "@/assets/pastry.jpg";
-import latte from "@/assets/latte.jpg";
+import latte from "@/assets/portafilter.jpg";
+import mascot from "@/assets/mascot.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -228,7 +229,8 @@ function Index() {
               { src: breakfast, alt: "Spanish tostadas and orange juice" },
               { src: pastry, alt: "Fresh pastries in a basket" },
               { src: latte, alt: "Barista pouring latte art" },
-              { src: terrace, alt: "Outdoor terrace seating", span: "col-span-2" },
+              { src: storefront, alt: "Cafeteria Baratto storefront", span: "col-span-2" },
+              { src: mascot, alt: "Baratto coffee mascot" },
             ].map((img, i) => (
               <div
                 key={i}
@@ -253,8 +255,8 @@ function Index() {
         <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10">
           <div className="relative">
             <img
-              src={terrace}
-              alt="Cafe terrace in Valencia"
+              src={storefront}
+              alt="Cafeteria Baratto storefront in Valencia"
               loading="lazy"
               width={1200}
               height={1200}
