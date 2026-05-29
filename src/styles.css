@@ -130,6 +130,23 @@
   animation: float 6s ease-in-out infinite;
 }
 
+@keyframes mascotBob {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50%      { transform: translateY(-6px) rotate(2deg); }
+}
+.mascot-bob {
+  animation: mascotBob 4s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.35s ease-out both;
+}
+
 .hero-pattern {
   background-color: #faf6ef;
   background-image: radial-gradient(#e6dccb 1px, transparent 1px);
