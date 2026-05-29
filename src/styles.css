@@ -28,18 +28,19 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  --color-oak-50: #fcf9f4;
-  --color-oak-100: #f7f1e5;
-  --color-oak-200: #eee0cb;
-  --color-oak-300: #e1c6a7;
-  --color-oak-400: #d2a67e;
-  --color-oak-500: #c58b5e;
-  --color-oak-600: #b8744f;
-  --color-oak-700: #9a5c43;
-  --color-oak-800: #7e4d3a;
-  --color-oak-900: #664032;
-  --color-coffee-900: #2c1e16;
-  --color-coffee-950: #1a110c;
+  /* Qwetch-inspired cream + pastel palette */
+  --color-oak-50: #faf6ef;
+  --color-oak-100: #f1ebdf;
+  --color-oak-200: #e6dccb;
+  --color-oak-300: #f4c8d1;   /* pastel pink accent */
+  --color-oak-400: #ecb1be;
+  --color-oak-500: #f1c14b;   /* butter yellow (stars) */
+  --color-oak-600: #c97a8a;
+  --color-oak-700: #6b4a52;
+  --color-oak-800: #3a2a30;
+  --color-oak-900: #1f1518;
+  --color-coffee-900: #161616; /* near-black text & dark surfaces */
+  --color-coffee-950: #0b0b0b;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
