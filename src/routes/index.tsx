@@ -7,7 +7,8 @@ import coffee from "@/assets/espresso-pull.jpg";
 import breakfast from "@/assets/breakfast.jpg";
 import pastry from "@/assets/pastry.jpg";
 import latte from "@/assets/portafilter.jpg";
-import mascot from "@/assets/mascot.jpg";
+import mascot from "@/assets/mascot-cutout.png";
+import { MascotCompanion } from "@/components/MascotCompanion";
 
 export const Route = createFileRoute("/")({
   head: () => ({
