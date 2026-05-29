@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Coffee, Croissant, Sun, MapPin, Clock, Star, Instagram, Twitter, Menu } from "lucide-react";
 import { useState } from "react";
-import hero from "@/assets/hero.jpg";
-import coffee from "@/assets/coffee.jpg";
+import hero from "@/assets/interior.jpg";
+import storefront from "@/assets/storefront.jpg";
+import coffee from "@/assets/espresso-pull.jpg";
 import breakfast from "@/assets/breakfast.jpg";
-import terrace from "@/assets/terrace.jpg";
 import pastry from "@/assets/pastry.jpg";
-import latte from "@/assets/latte.jpg";
+import latte from "@/assets/portafilter.jpg";
+import mascot from "@/assets/mascot.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
