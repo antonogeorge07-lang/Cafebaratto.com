@@ -7,7 +7,7 @@ const MESSAGES: Record<string, { title: string; body: string }> = {
   ritual: { title: "My morning ritual ☕", body: "Espresso pulled to order. Try the cortado." },
   menu: { title: "Hungry?", body: "Tostadas, pastries, the works. I recommend everything." },
   story: { title: "Our little corner", body: "Steps from the Central Market. Locals call it home." },
-  visit: { title: "Come say hi!", body: "I'll be on the terrace. The sun is perfect today." },
+  visit: { title: "Come say hi!", body: "I'll be by the children's park, cup in hand." },
 };
 
 const SECTION_IDS = ["top", "ritual", "menu", "story", "visit"];
