@@ -65,13 +65,13 @@ function Index() {
       {/* NAV */}
       <header className="absolute inset-x-0 top-0 z-30">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 lg:px-10">
-          <a href="#top" className="font-serif text-2xl font-semibold text-oak-50">
+          <a href="#top" className="font-serif text-2xl font-semibold text-coffee-900">
             Baratto
           </a>
-          <ul className="hidden items-center gap-8 text-sm text-oak-100 md:flex">
+          <ul className="hidden items-center gap-8 text-sm text-coffee-900/80 md:flex">
             {NAV.map((i) => (
               <li key={i.href}>
-                <a href={i.href} className="transition hover:text-oak-300">
+                <a href={i.href} className="transition hover:text-coffee-900">
                   {i.label}
                 </a>
               </li>
@@ -79,21 +79,21 @@ function Index() {
           </ul>
           <a
             href="#visit"
-            className="hidden rounded-full bg-oak-50 px-5 py-2.5 text-sm font-medium text-coffee-900 transition hover:bg-oak-200 md:inline-block"
+            className="hidden rounded-full bg-coffee-900 px-5 py-2.5 text-sm font-medium text-oak-50 transition hover:bg-coffee-950 md:inline-block"
           >
             Visit Us
           </a>
           <button
             aria-label="Open menu"
             onClick={() => setOpen((o) => !o)}
-            className="rounded-md p-2 text-oak-50 md:hidden"
+            className="rounded-md p-2 text-coffee-900 md:hidden"
           >
             <Menu className="h-6 w-6" />
           </button>
         </nav>
         {open && (
-          <div className="mx-6 rounded-2xl bg-coffee-950/95 p-6 backdrop-blur md:hidden">
-            <ul className="space-y-3 text-oak-100">
+          <div className="mx-6 rounded-2xl bg-oak-50/95 p-6 shadow-lg ring-1 ring-oak-200 backdrop-blur md:hidden">
+            <ul className="space-y-3 text-coffee-900">
               {NAV.map((i) => (
                 <li key={i.href}>
                   <a href={i.href} onClick={() => setOpen(false)}>
@@ -102,7 +102,7 @@ function Index() {
                 </li>
               ))}
               <li>
-                <a href="#visit" onClick={() => setOpen(false)} className="text-oak-300">
+                <a href="#visit" onClick={() => setOpen(false)} className="text-coffee-900/70">
                   Visit Us
                 </a>
               </li>
@@ -112,36 +112,36 @@ function Index() {
       </header>
 
       {/* HERO */}
-      <section id="top" className="hero-pattern relative overflow-hidden text-oak-50">
+      <section id="top" className="hero-pattern relative overflow-hidden text-coffee-900">
         <div className="mx-auto grid max-w-7xl gap-12 px-6 pt-32 pb-24 lg:grid-cols-2 lg:items-center lg:gap-8 lg:px-10 lg:pt-40 lg:pb-32">
           <div className="fade-in-up">
-            <p className="mb-6 text-sm uppercase tracking-[0.25em] text-oak-300">
+            <p className="mb-6 text-sm uppercase tracking-[0.25em] text-oak-700">
               Carrer de Vinatea, Valencia
             </p>
             <h1 className="font-serif text-5xl leading-[1.05] sm:text-6xl lg:text-7xl">
-              Cafeteria <em className="font-normal text-oak-300">Baratto</em>
+              Cafeteria <em className="font-normal text-oak-600">Baratto</em>
             </h1>
-            <p className="mt-6 max-w-lg text-lg text-oak-100/90">
+            <p className="mt-6 max-w-lg text-lg text-coffee-900/70">
               Your neighborhood retreat near the Central Market. Exceptional coffee, delicious
               breakfasts, and a welcoming terrace to watch the city go by.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <a
                 href="#visit"
-                className="rounded-full bg-oak-50 px-6 py-3 text-sm font-medium text-coffee-900 transition hover:bg-oak-200"
+                className="rounded-full bg-coffee-900 px-6 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950"
               >
                 Find our terrace
               </a>
               <a
                 href="#menu"
-                className="rounded-full border border-oak-300/40 px-6 py-3 text-sm font-medium text-oak-100 transition hover:border-oak-300 hover:text-oak-50"
+                className="rounded-full border border-coffee-900/20 px-6 py-3 text-sm font-medium text-coffee-900 transition hover:border-coffee-900/60"
               >
                 Explore the menu
               </a>
             </div>
           </div>
           <div className="relative fade-in-up delay-200">
-            <div className="hover-float overflow-hidden rounded-3xl shadow-2xl ring-1 ring-oak-900/40">
+            <div className="hover-float overflow-hidden rounded-3xl shadow-xl ring-1 ring-oak-200">
               <img
                 src={hero}
                 alt="Sunlit interior of Cafeteria Baratto in Valencia"
@@ -150,16 +150,16 @@ function Index() {
                 className="h-[480px] w-full object-cover sm:h-[560px]"
               />
             </div>
-            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-oak-50 p-5 text-coffee-900 shadow-xl sm:block">
+            <div className="absolute -bottom-6 -left-6 hidden rounded-2xl bg-oak-300 p-5 text-coffee-900 shadow-xl sm:block">
               <div className="flex items-center gap-3">
                 <div className="flex">
                   {[0, 1, 2, 3, 4].map((i) => (
-                    <Star key={i} className="h-4 w-4 fill-oak-500 text-oak-500" />
+                    <Star key={i} className="h-4 w-4 fill-coffee-900 text-coffee-900" />
                   ))}
                 </div>
                 <div>
                   <p className="text-sm font-semibold">4.9 rating</p>
-                  <p className="text-xs text-coffee-900/60">From hundreds of locals</p>
+                  <p className="text-xs text-coffee-900/70">From hundreds of locals</p>
                 </div>
               </div>
             </div>
@@ -308,23 +308,26 @@ function Index() {
       </section>
 
       {/* VISIT */}
-      <section id="visit" className="bg-coffee-900 py-24 text-oak-50 lg:py-32">
+      <section id="visit" className="bg-oak-100 py-24 text-coffee-900 lg:py-32">
         <div className="mx-auto max-w-7xl px-6 lg:px-10">
           <div id="space" className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
             <div>
-              <h2 className="font-serif text-4xl sm:text-5xl">Come say hi.</h2>
-              <p className="mt-6 max-w-md text-oak-100/80">
+              <p className="text-sm uppercase tracking-[0.25em] text-oak-700">Visit Us</p>
+              <h2 className="mt-4 font-serif text-4xl sm:text-5xl">
+                Come <em className="font-normal text-oak-600">say hi.</em>
+              </h2>
+              <p className="mt-6 max-w-md text-coffee-900/70">
                 Find us on Carrer de Vinatea, just a short walk from the Central Market. We're open
                 early to pour your perfect morning cup.
               </p>
 
               <div className="mt-10 space-y-6">
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-50/10 text-oak-300">
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-300 text-coffee-900">
                     <MapPin className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm uppercase tracking-widest text-oak-300">Location</p>
+                    <p className="text-sm uppercase tracking-widest text-oak-700">Location</p>
                     <p className="mt-1 leading-relaxed">
                       C. de Vinatea, 20<br />
                       46001 València, Spain
@@ -332,11 +335,11 @@ function Index() {
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
-                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-50/10 text-oak-300">
+                  <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-oak-300 text-coffee-900">
                     <Clock className="h-5 w-5" />
                   </span>
                   <div>
-                    <p className="text-sm uppercase tracking-widest text-oak-300">Hours</p>
+                    <p className="text-sm uppercase tracking-widest text-oak-700">Hours</p>
                     <p className="mt-1 leading-relaxed">
                       Mon – Fri: 7:00 AM – 10:00 PM<br />
                       Sat – Sun: 9:00 AM – 10:00 PM
@@ -346,7 +349,7 @@ function Index() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-3xl">
+            <div className="relative overflow-hidden rounded-3xl ring-1 ring-oak-200">
               <img
                 src={hero}
                 alt="Inside Cafeteria Baratto"
@@ -355,7 +358,7 @@ function Index() {
                 height={1200}
                 className="h-[480px] w-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/80 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-coffee-900/60 to-transparent" />
               <p className="absolute bottom-6 left-6 font-serif text-2xl text-oak-50">
                 See you soon!
               </p>
