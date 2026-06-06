@@ -87,8 +87,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "Lovable App" },
       { name: "twitter:description", content: "Digital Leap Forward is an application for managing ICT and Digitalisation Support within an organization." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2054ed2e-4399-413f-9422-bfe288e4f9db/id-preview-b84f818b--2694da8b-2e39-40c7-aa7b-7862a798f940.lovable.app-1780090608032.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/2054ed2e-4399-413f-9422-bfe288e4f9db/id-preview-b84f818b--2694da8b-2e39-40c7-aa7b-7862a798f940.lovable.app-1780090608032.png" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/IhwmU8z6PYOYigVNuAu720meRnF3/social-images/social-1780729548761-WhatsApp_Image_2026-05-30_at_13.34.47.webp" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/IhwmU8z6PYOYigVNuAu720meRnF3/social-images/social-1780729548761-WhatsApp_Image_2026-05-30_at_13.34.47.webp" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
