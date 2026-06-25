@@ -350,7 +350,7 @@ function MenuSection() {
 
   const pills: { id: Category | "all"; label: string }[] = [
     { id: "all", label: t("cat_all") },
-    ...CATEGORIES.map((c) => ({ id: c, label: t(`cat_${c}` as keyof typeof T_KEYS) })),
+    ...CATEGORIES.map((c) => ({ id: c, label: t(`cat_${c}` as any) })),
   ];
 
   return (
@@ -411,7 +411,7 @@ function MenuSection() {
                           className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
                         >
                           <Icon className="h-3 w-3" />
-                          {t(M.key as keyof typeof T_KEYS)}
+                          {t(M.key as any)}
                         </span>
                       );
                     })}
@@ -426,11 +426,7 @@ function MenuSection() {
   );
 }
 
-// type helper for translation keys used dynamically
-const T_KEYS = {
-  cat_coffee: 0, cat_breakfast: 0, cat_paninis: 0, cat_cocktails: 0, cat_desserts: 0,
-  diet_vegan: 0, diet_gf: 0, diet_nuts: 0, diet_veg: 0,
-};
+// (helper removed — keys cast inline)
 
 /* ------------------------- Story ------------------------- */
 
