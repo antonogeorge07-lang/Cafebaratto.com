@@ -22,6 +22,7 @@ import mascot from "@/assets/mascot-cutout.png";
 
 import { I18nProvider, useI18n, type Lang } from "@/lib/i18n";
 import { MENU, CATEGORIES, type Category, type Diet } from "@/lib/menu-data";
+import { useLiveMenu } from "@/lib/useLiveMenu";
 import { OpenStatusBadge } from "@/components/OpenStatusBadge";
 import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
@@ -93,6 +94,8 @@ function Page() {
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
 
+  const live = useLiveMenu();
+
   return (
     <div className="min-h-screen bg-oak-50 text-coffee-900">
       <StickyHeader
@@ -106,7 +109,7 @@ function Page() {
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <MenuSection />
+        <MenuSection live={live} />
         <StorySection />
         <VisitSection />
         <Newsletter />
@@ -115,7 +118,12 @@ function Page() {
       <SiteFooter />
 
       <ReservationModal open={bookOpen} onClose={() => setBookOpen(false)} />
-      <OrderModal open={orderOpen} onClose={() => setOrderOpen(false)} lang={lang} />
+      <OrderModal
+        open={orderOpen}
+        onClose={() => setOrderOpen(false)}
+        lang={lang}
+        items={live.items.length > 0 ? live.items : MENU}
+      />
       <MascotCompanion />
 
       {/* Mobile sticky action bar */}
@@ -343,10 +351,14 @@ const DIET_META: Record<Diet, { icon: React.ComponentType<{ className?: string }
   veg: { icon: Salad, key: "diet_veg" },
 };
 
-function MenuSection() {
+function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
   const { t, lang } = useI18n();
   const [cat, setCat] = useState<Category | "all">("all");
-  const items = useMemo(() => (cat === "all" ? MENU : MENU.filter((m) => m.category === cat)), [cat]);
+  const source = live.items.length > 0 ? live.items : MENU;
+  const items = useMemo(
+    () => (cat === "all" ? source : source.filter((m) => m.category === cat)),
+    [cat, source],
+  );
 
   const pills: { id: Category | "all"; label: string }[] = [
     { id: "all", label: t("cat_all") },
@@ -361,6 +373,15 @@ function MenuSection() {
           <h2 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("menu_title")}</h2>
           <p className="mt-4 text-coffee-900/70">{t("menu_sub")}</p>
         </div>
+
+        {live.error && (
+          <div
+            role="alert"
+            className="mx-auto mt-8 max-w-2xl rounded-2xl border border-oak-300 bg-oak-50 px-4 py-3 text-center text-sm text-coffee-900/80"
+          >
+            {t("menu_sync_alert")}
+          </div>
+        )}
 
         <div className="mt-10 flex flex-wrap justify-center gap-2">
           {pills.map((p) => (
@@ -379,47 +400,71 @@ function MenuSection() {
         </div>
 
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((m) => (
-            <li
-              key={m.id}
-              className="group overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="aspect-[5/3] overflow-hidden">
-                <img
-                  src={m.image}
-                  alt={m.name[lang]}
-                  loading="lazy"
-                  className="size-full object-cover transition duration-700 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-serif text-lg text-coffee-900">{m.name[lang]}</h3>
-                  <span className="shrink-0 text-sm tabular-nums text-coffee-900/60">
-                    €{m.price.toFixed(2)}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-sm text-coffee-900/70">{m.desc[lang]}</p>
-                {m.diet.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {m.diet.map((d) => {
-                      const M = DIET_META[d];
-                      const Icon = M.icon;
-                      return (
-                        <span
-                          key={d}
-                          className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
-                        >
-                          <Icon className="h-3 w-3" />
-                          {t(M.key as any)}
-                        </span>
-                      );
-                    })}
+          {live.loading
+            ? Array.from({ length: 6 }).map((_, i) => (
+                <li
+                  key={`sk-${i}`}
+                  className="overflow-hidden rounded-3xl border border-oak-200 bg-oak-50"
+                >
+                  <div className="aspect-[5/3] animate-pulse bg-oak-200" />
+                  <div className="space-y-2 p-5">
+                    <div className="h-4 w-2/3 animate-pulse rounded bg-oak-200" />
+                    <div className="h-3 w-full animate-pulse rounded bg-oak-200/70" />
+                    <div className="h-3 w-5/6 animate-pulse rounded bg-oak-200/70" />
                   </div>
-                )}
-              </div>
-            </li>
-          ))}
+                </li>
+              ))
+            : items.map((m) => {
+                const oos = m.stock === false;
+                return (
+                  <li
+                    key={m.id}
+                    className={`group overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 transition hover:-translate-y-1 hover:shadow-xl ${
+                      oos ? "opacity-60 grayscale" : ""
+                    }`}
+                  >
+                    <div className="relative aspect-[5/3] overflow-hidden">
+                      <img
+                        src={m.image}
+                        alt={m.name[lang]}
+                        loading="lazy"
+                        className="size-full object-cover transition duration-700 group-hover:scale-105"
+                      />
+                      {oos && (
+                        <span className="absolute left-3 top-3 rounded-full bg-coffee-900/85 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-oak-50">
+                          {t("out_of_stock")}
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <h3 className="font-serif text-lg text-coffee-900">{m.name[lang]}</h3>
+                        <span className="shrink-0 text-sm tabular-nums text-coffee-900/60">
+                          €{m.price.toFixed(2)}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm text-coffee-900/70">{m.desc[lang]}</p>
+                      {m.diet.length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-1.5">
+                          {m.diet.map((d) => {
+                            const M = DIET_META[d];
+                            const Icon = M.icon;
+                            return (
+                              <span
+                                key={d}
+                                className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
+                              >
+                                <Icon className="h-3 w-3" />
+                                {t(M.key as any)}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
         </ul>
       </div>
     </section>

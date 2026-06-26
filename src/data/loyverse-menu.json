@@ -1,0 +1,14 @@
+[
+  { "id": "espresso", "item_name": "Espresso", "category_id": "coffee", "default_price": 1.6, "in_stock": true, "sku": "BRT-COF-001" },
+  { "id": "cappuccino", "item_name": "Cappuccino", "category_id": "coffee", "default_price": 2.2, "in_stock": true, "sku": "BRT-COF-002" },
+  { "id": "flatwhite", "item_name": "Flat White", "category_id": "coffee", "default_price": 2.6, "in_stock": false, "sku": "BRT-COF-003" },
+  { "id": "tostada", "item_name": "Tostada con tomate", "category_id": "breakfast", "default_price": 3.8, "in_stock": true, "sku": "BRT-BRK-001" },
+  { "id": "cornetto", "item_name": "Cornetto", "category_id": "breakfast", "default_price": 2.4, "in_stock": true, "sku": "BRT-BRK-002" },
+  { "id": "panini-prosciutto", "item_name": "Panini Prosciutto", "category_id": "paninis", "default_price": 7.5, "in_stock": true, "sku": "BRT-PAN-001" },
+  { "id": "panini-caprese", "item_name": "Panini Caprese", "category_id": "paninis", "default_price": 6.8, "in_stock": true, "sku": "BRT-PAN-002" },
+  { "id": "panini-vegano", "item_name": "Panini Verde", "category_id": "paninis", "default_price": 6.5, "in_stock": false, "sku": "BRT-PAN-003" },
+  { "id": "negroni", "item_name": "Negroni", "category_id": "cocktails", "default_price": 8.5, "in_stock": true, "sku": "BRT-CKT-001" },
+  { "id": "spritz", "item_name": "Aperol Spritz", "category_id": "cocktails", "default_price": 7.0, "in_stock": true, "sku": "BRT-CKT-002" },
+  { "id": "tiramisu", "item_name": "Tiramisú", "category_id": "desserts", "default_price": 4.8, "in_stock": true, "sku": "BRT-DES-001" },
+  { "id": "cannoli", "item_name": "Cannoli Siciliani", "category_id": "desserts", "default_price": 4.2, "in_stock": true, "sku": "BRT-DES-002" }
+]

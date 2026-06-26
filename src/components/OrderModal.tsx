@@ -1,18 +1,51 @@
 import { useMemo, useState } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
-import { MENU } from "@/lib/menu-data";
+import { MENU, type MenuItem } from "@/lib/menu-data";
 
-export function OrderModal({ open, onClose, lang }: { open: boolean; onClose: () => void; lang: Lang }) {
+export function OrderModal({
+  open,
+  onClose,
+  lang,
+  items,
+}: {
+  open: boolean;
+  onClose: () => void;
+  lang: Lang;
+  items?: MenuItem[];
+}) {
   const { t } = useI18n();
+  const list = items && items.length > 0 ? items : MENU;
   const [qty, setQty] = useState<Record<string, number>>({});
   const [done, setDone] = useState(false);
 
   const subtotal = useMemo(
-    () => MENU.reduce((s, m) => s + (qty[m.id] ?? 0) * m.price, 0),
-    [qty],
+    () => list.reduce((s, m) => s + (qty[m.id] ?? 0) * m.price, 0),
+    [qty, list],
   );
   const hasItems = subtotal > 0;
+
+  const handleCheckout = () => {
+    if (!hasItems) return;
+    const payload = {
+      orderId: `ORD-${Date.now()}`,
+      placedAt: new Date().toISOString(),
+      lineItems: list
+        .filter((m) => (qty[m.id] ?? 0) > 0)
+        .map((m) => ({
+          id: m.id,
+          name: m.name.en,
+          qty: qty[m.id],
+          unitPrice: m.price,
+          lineTotal: +(m.price * (qty[m.id] ?? 0)).toFixed(2),
+        })),
+      subtotal: +subtotal.toFixed(2),
+      currency: "EUR",
+    };
+    // eslint-disable-next-line no-console
+    console.log("[LOYVERSE BACKOFFICE SIMULATION RUNNING: Dispatching payload...]", payload);
+    setDone(true);
+  };
 
   if (!open) return null;
   return (
@@ -32,15 +65,25 @@ export function OrderModal({ open, onClose, lang }: { open: boolean; onClose: ()
         ) : (
           <>
             <ul className="flex-1 overflow-y-auto p-5">
-              {MENU.map((m) => {
+              {list.map((m) => {
                 const n = qty[m.id] ?? 0;
+                const oos = m.stock === false;
                 return (
                   <li
                     key={m.id}
-                    className="flex items-center justify-between gap-3 border-b border-oak-100 py-3 last:border-b-0"
+                    className={`flex items-center justify-between gap-3 border-b border-oak-100 py-3 last:border-b-0 ${
+                      oos ? "opacity-50" : ""
+                    }`}
                   >
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-coffee-900">{m.name[lang]}</p>
+                      <p className="truncate text-sm font-medium text-coffee-900">
+                        {m.name[lang]}
+                        {oos && (
+                          <span className="ml-2 rounded-full bg-oak-200 px-2 py-0.5 text-[10px] uppercase tracking-wider text-coffee-900/60">
+                            {t("out_of_stock")}
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-coffee-900/60">€{m.price.toFixed(2)}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
@@ -58,7 +101,8 @@ export function OrderModal({ open, onClose, lang }: { open: boolean; onClose: ()
                         type="button"
                         aria-label="Increase"
                         onClick={() => setQty((q) => ({ ...q, [m.id]: n + 1 }))}
-                        className="grid h-8 w-8 place-items-center rounded-full bg-coffee-900 text-oak-50"
+                        disabled={oos}
+                        className="grid h-8 w-8 place-items-center rounded-full bg-coffee-900 text-oak-50 disabled:cursor-not-allowed disabled:bg-oak-300 disabled:text-coffee-900/40"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
@@ -73,7 +117,7 @@ export function OrderModal({ open, onClose, lang }: { open: boolean; onClose: ()
                 <span className="font-serif text-2xl text-coffee-900">€{subtotal.toFixed(2)}</span>
               </div>
               <button
-                onClick={() => hasItems && setDone(true)}
+                onClick={handleCheckout}
                 disabled={!hasItems}
                 className="w-full rounded-full bg-coffee-900 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950 disabled:opacity-40"
               >

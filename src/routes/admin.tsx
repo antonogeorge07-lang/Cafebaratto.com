@@ -20,6 +20,7 @@ import {
 } from "recharts";
 
 import { MENU, type MenuItem } from "@/lib/menu-data";
+import { toLoyverseUpdate } from "@/utils/loyverseMapper";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -33,22 +34,24 @@ export const Route = createFileRoute("/admin")({
 
 /* ------------------------- Mock data ------------------------- */
 
-// 30 days of simulated sales (EUR)
-const SALES = Array.from({ length: 30 }, (_, i) => {
-  const d = new Date();
-  d.setDate(d.getDate() - (29 - i));
+// Deterministic 30-day sales seed (no Date.now / Math.random — safe for SSR hydration).
+const DAY_LABELS = [
+  "Day 1","Day 2","Day 3","Day 4","Day 5","Day 6","Day 7","Day 8","Day 9","Day 10",
+  "Day 11","Day 12","Day 13","Day 14","Day 15","Day 16","Day 17","Day 18","Day 19","Day 20",
+  "Day 21","Day 22","Day 23","Day 24","Day 25","Day 26","Day 27","Day 28","Day 29","Day 30",
+];
+const SALES = DAY_LABELS.map((day, i) => {
   const base = 380 + Math.sin(i / 3) * 70 + (i % 7 < 2 ? 90 : 0);
-  const noise = Math.round(Math.random() * 60);
-  return {
-    day: d.toLocaleDateString(undefined, { month: "short", day: "numeric" }),
-    sales: Math.max(120, Math.round(base + noise)),
-    tickets: Math.round((base + noise) / 6),
-  };
+  const pseudoNoise = ((i * 53) % 60); // deterministic
+  const sales = Math.max(120, Math.round(base + pseudoNoise));
+  return { day, sales, tickets: Math.round(sales / 6) };
 });
 
 const TOTAL = SALES.reduce((s, r) => s + r.sales, 0);
 const TICKETS = SALES.reduce((s, r) => s + r.tickets, 0);
 const AVG = TOTAL / TICKETS;
+
+const GCP_SYNC_ENDPOINT = "http://your-gcp-ip:3000/api/menu/update";
 
 /* ------------------------- Component ------------------------- */
 
@@ -67,8 +70,33 @@ function Admin() {
     [items, query],
   );
 
-  const toggleStock = (id: string) =>
-    setItems((prev) => prev.map((i) => (i.id === id ? { ...i, stock: !i.stock } : i)));
+  const toggleStock = (id: string) => {
+    setItems((prev) => {
+      const next = prev.map((i) => (i.id === id ? { ...i, stock: !i.stock } : i));
+      const target = next.find((i) => i.id === id);
+      if (target) {
+        const payload = toLoyverseUpdate({ id: target.id, price: target.price, stock: target.stock });
+        // Mock secure outbound sync to GCP bridge — fire & forget, never breaks UI.
+        // eslint-disable-next-line no-console
+        console.log("[LOYVERSE BACKOFFICE SIMULATION RUNNING: Dispatching payload...]", {
+          endpoint: GCP_SYNC_ENDPOINT,
+          method: "POST",
+          payload,
+        });
+        try {
+          void fetch(GCP_SYNC_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            mode: "no-cors",
+          }).catch(() => {});
+        } catch {
+          /* swallow — simulation only */
+        }
+      }
+      return next;
+    });
+  };
 
   const updatePrice = (id: string, price: number) =>
     setItems((prev) => prev.map((i) => (i.id === id ? { ...i, price } : i)));
