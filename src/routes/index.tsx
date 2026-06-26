@@ -94,6 +94,8 @@ function Page() {
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
 
+  const live = useLiveMenu();
+
   return (
     <div className="min-h-screen bg-oak-50 text-coffee-900">
       <StickyHeader
@@ -107,7 +109,7 @@ function Page() {
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <MenuSection />
+        <MenuSection live={live} />
         <StorySection />
         <VisitSection />
         <Newsletter />
@@ -116,7 +118,12 @@ function Page() {
       <SiteFooter />
 
       <ReservationModal open={bookOpen} onClose={() => setBookOpen(false)} />
-      <OrderModal open={orderOpen} onClose={() => setOrderOpen(false)} lang={lang} />
+      <OrderModal
+        open={orderOpen}
+        onClose={() => setOrderOpen(false)}
+        lang={lang}
+        items={live.items.length > 0 ? live.items : MENU}
+      />
       <MascotCompanion />
 
       {/* Mobile sticky action bar */}
