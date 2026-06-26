@@ -22,6 +22,7 @@ import mascot from "@/assets/mascot-cutout.png";
 
 import { I18nProvider, useI18n, type Lang } from "@/lib/i18n";
 import { MENU, CATEGORIES, type Category, type Diet } from "@/lib/menu-data";
+import { useLiveMenu } from "@/lib/useLiveMenu";
 import { OpenStatusBadge } from "@/components/OpenStatusBadge";
 import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
