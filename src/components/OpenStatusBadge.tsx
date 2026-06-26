@@ -11,22 +11,26 @@ function isOpen(d = new Date()) {
 
 export function OpenStatusBadge({ className = "" }: { className?: string }) {
   const { t } = useI18n();
-  const [open, setOpen] = useState(() => isOpen());
+  const [mounted, setMounted] = useState(false);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
+    setMounted(true);
+    setOpen(isOpen());
     const id = setInterval(() => setOpen(isOpen()), 60_000);
     return () => clearInterval(id);
   }, []);
+  const showOpen = mounted && open;
   return (
     <span
       className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-medium ${
-        open ? "bg-sage-100 text-sage-700" : "bg-oak-200 text-coffee-900/70"
+        showOpen ? "bg-sage-100 text-sage-700" : "bg-oak-200 text-coffee-900/70"
       } ${className}`}
     >
       <span
-        className={`h-2 w-2 rounded-full ${open ? "bg-sage-500 animate-pulse" : "bg-coffee-900/40"}`}
+        className={`h-2 w-2 rounded-full ${showOpen ? "bg-sage-500 animate-pulse" : "bg-coffee-900/40"}`}
         aria-hidden
       />
-      {open ? t("open_now") : t("closed_now")}
+      {mounted ? (showOpen ? t("open_now") : t("closed_now")) : t("closed_now")}
     </span>
   );
 }

@@ -66,6 +66,11 @@ export const T: Dict = {
   order_checkout: { es: "Tramitar pedido", en: "Checkout" },
   order_empty: { es: "Tu pedido está vacío.", en: "Your order is empty." },
   order_done: { es: "¡Pedido recibido!", en: "Order received!" },
+  out_of_stock: { es: "Agotado", en: "Out of stock" },
+  menu_sync_alert: {
+    es: "La carta digital se está sincronizando con la caja. Mostrando datos locales mientras tanto.",
+    en: "Digital menu is syncing with the POS. Showing local data in the meantime.",
+  },
 
   news_eyebrow: { es: "Únete al Baratto Club", en: "Join the Baratto Club" },
   news_title: { es: "Buen café en tu inbox", en: "Good coffee in your inbox" },
