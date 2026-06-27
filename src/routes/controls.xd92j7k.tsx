@@ -25,8 +25,12 @@ export const Route = createFileRoute("/controls/xd92j7k")({
       { name: "robots", content: "noindex,nofollow" },
     ],
   }),
-  component: Controls,
+  component: ControlsPage,
 });
+
+function ControlsPage() {
+  return (<><Controls /><DeleteGuardMount /></>);
+}
 
 const SECTIONS = [
   { id: "menu", label: "Menu", icon: Package, color: "from-amber-400 to-orange-500" },
@@ -662,10 +666,3 @@ function DeleteGuardMount() {
   );
 }
 
-// Inject DeleteGuard at the bottom of the page.
-const _orig = Controls;
-function _ControlsWrapped() {
-  return (<><_orig /><DeleteGuardMount /></>);
-}
-// Re-export wrapped component as the route's component.
-(Route.options as { component: typeof _ControlsWrapped }).component = _ControlsWrapped;
