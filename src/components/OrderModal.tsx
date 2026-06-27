@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { Minus, Plus, X } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { MENU, type MenuItem } from "@/lib/menu-data";
+import { addOrder } from "@/lib/admin-store";
 
 export function OrderModal({
   open,
@@ -27,23 +28,24 @@ export function OrderModal({
 
   const handleCheckout = () => {
     if (!hasItems) return;
-    const payload = {
-      orderId: `ORD-${Date.now()}`,
+    const order = {
+      id: `ORD-${Date.now()}`,
       placedAt: new Date().toISOString(),
       lineItems: list
         .filter((m) => (qty[m.id] ?? 0) > 0)
         .map((m) => ({
           id: m.id,
           name: m.name.en,
-          qty: qty[m.id],
+          qty: qty[m.id] ?? 0,
           unitPrice: m.price,
           lineTotal: +(m.price * (qty[m.id] ?? 0)).toFixed(2),
         })),
       subtotal: +subtotal.toFixed(2),
       currency: "EUR",
     };
+    addOrder(order);
     // eslint-disable-next-line no-console
-    console.log("[LOYVERSE BACKOFFICE SIMULATION RUNNING: Dispatching payload...]", payload);
+    console.log("[ORDER PLACED]", order);
     setDone(true);
   };
 
