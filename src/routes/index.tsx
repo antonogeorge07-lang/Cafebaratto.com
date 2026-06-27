@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import {
   Coffee,
@@ -188,9 +188,6 @@ function StickyHeader({
           <li>
             <button onClick={onBook} className="hover:text-coffee-900">{t("nav_book")}</button>
           </li>
-          <li>
-            <Link to="/admin" className="text-coffee-900/50 hover:text-coffee-900">Admin</Link>
-          </li>
         </ul>
 
         <div className="ml-auto flex items-center gap-2">
@@ -252,11 +249,6 @@ function StickyHeader({
               >
                 {t("nav_book")}
               </button>
-            </li>
-            <li>
-              <Link to="/admin" className="block rounded-lg px-3 py-2 text-coffee-900/60">
-                Admin
-              </Link>
             </li>
           </ul>
         </div>
