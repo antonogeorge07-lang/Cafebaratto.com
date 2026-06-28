@@ -1,4 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
+import { generateText, type ModelMessage } from "ai";
+
+import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
@@ -8,7 +11,9 @@ export const adminChat = createServerFn({ method: "POST" })
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("LOVABLE_API_KEY not configured");
 
-    const system: ChatMessage = {
+    const gateway = createLovableAiGatewayProvider(key);
+
+    const system: ModelMessage = {
       role: "system",
       content:
         "You are the admin assistant for Cafetería Baratto in Valencia. " +
@@ -18,24 +23,16 @@ export const adminChat = createServerFn({ method: "POST" })
         data.context,
     };
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${key}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [system, ...data.messages],
-      }),
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      if (res.status === 429) throw new Error("Rate limit reached. Please retry shortly.");
-      if (res.status === 402) throw new Error("AI credits exhausted. Add credits in Settings.");
-      throw new Error(`AI gateway error ${res.status}: ${txt.slice(0, 200)}`);
+    try {
+      const { text } = await generateText({
+        model: gateway.chatModel("google/gemini-3-flash-preview"),
+        messages: [system, ...data.messages] as ModelMessage[],
+      });
+      return { reply: text };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "AI assistant unavailable";
+      if (message.includes("429")) throw new Error("Rate limit reached. Please retry shortly.");
+      if (message.includes("402")) throw new Error("AI credits exhausted. Add credits in Settings.");
+      throw new Error(message);
     }
-    const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
-    return { reply: json.choices?.[0]?.message?.content ?? "" };
   });

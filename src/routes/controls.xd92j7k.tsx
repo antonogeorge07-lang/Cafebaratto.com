@@ -23,7 +23,9 @@ export const Route = createFileRoute("/controls/xd92j7k")({
     meta: [
       { title: "Baratto · Controls" },
       { name: "robots", content: "noindex,nofollow" },
+      { name: "googlebot", content: "noindex,nofollow,noarchive" },
     ],
+    links: [{ rel: "canonical", href: "https://www.cafebaratto.com/controls/xd92j7k" }],
   }),
   component: ControlsPage,
 });
