@@ -14,10 +14,14 @@ export interface MenuItem {
 
 import coffee from "@/assets/espresso-pull.jpg";
 import latte from "@/assets/portafilter.jpg";
-import breakfast from "@/assets/breakfast.jpg";
 import pastry from "@/assets/pastry.jpg";
-import interior from "@/assets/interior.jpg";
-import storefront from "@/assets/storefront.jpg";
+import piadina from "@/assets/food-piadina-bresaola.jpg";
+import cheeseBoard from "@/assets/food-cheese-board.jpg";
+import bruschetta from "@/assets/food-bruschetta.jpg";
+import aperitivo from "@/assets/food-aperitivo.jpg";
+import mortadella from "@/assets/food-mortadella-focaccia.jpg";
+import mozzaSticks from "@/assets/food-mozzarella-sticks.jpg";
+import focacciaTomato from "@/assets/food-focaccia-tomato.jpg";
 
 export const MENU: MenuItem[] = [
   {
@@ -57,7 +61,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Pan artesano, tomate, AOVE y sal Maldon.", en: "Artisan bread, grated tomato, EVOO, Maldon salt." },
     price: 3.8,
     diet: ["vegan"],
-    image: breakfast,
+    image: focacciaTomato,
     stock: true,
   },
   {
@@ -77,7 +81,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Prosciutto di Parma, mozzarella, rúcula.", en: "Prosciutto di Parma, mozzarella, rocket." },
     price: 7.5,
     diet: [],
-    image: interior,
+    image: piadina,
     stock: true,
   },
   {
@@ -87,7 +91,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Mozzarella, tomate, albahaca, pesto.", en: "Mozzarella, tomato, basil, pesto." },
     price: 6.8,
     diet: ["veg", "nuts"],
-    image: storefront,
+    image: mortadella,
     stock: true,
   },
   {
@@ -97,7 +101,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Hummus, berenjena asada, espinacas.", en: "Hummus, roasted eggplant, baby spinach." },
     price: 6.5,
     diet: ["vegan"],
-    image: breakfast,
+    image: bruschetta,
     stock: true,
   },
   {
@@ -107,7 +111,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Gin, Campari, vermouth rosso. Naranja.", en: "Gin, Campari, vermouth rosso. Orange peel." },
     price: 8.5,
     diet: ["vegan", "gf"],
-    image: interior,
+    image: aperitivo,
     stock: true,
   },
   {
@@ -117,7 +121,7 @@ export const MENU: MenuItem[] = [
     desc: { es: "Aperol, prosecco, soda, naranja.", en: "Aperol, prosecco, soda, orange." },
     price: 7.0,
     diet: ["vegan", "gf"],
-    image: storefront,
+    image: cheeseBoard,
     stock: true,
   },
   {
@@ -138,6 +142,16 @@ export const MENU: MenuItem[] = [
     price: 4.2,
     diet: ["veg", "nuts"],
     image: pastry,
+    stock: true,
+  },
+  {
+    id: "bocconcini",
+    category: "paninis",
+    name: { es: "Bocconcini di Mozzarella", en: "Mozzarella Sticks" },
+    desc: { es: "Mozzarella empanada, crujiente, salsa de calabaza.", en: "Breaded mozzarella, crisp, pumpkin dip." },
+    price: 5.5,
+    diet: ["veg"],
+    image: mozzaSticks,
     stock: true,
   },
 ];
