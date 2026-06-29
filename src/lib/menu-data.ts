@@ -144,6 +144,16 @@ export const MENU: MenuItem[] = [
     image: pastry,
     stock: true,
   },
+  {
+    id: "bocconcini",
+    category: "paninis",
+    name: { es: "Bocconcini di Mozzarella", en: "Mozzarella Sticks" },
+    desc: { es: "Mozzarella empanada, crujiente, salsa de calabaza.", en: "Breaded mozzarella, crisp, pumpkin dip." },
+    price: 5.5,
+    diet: ["veg"],
+    image: mozzaSticks,
+    stock: true,
+  },
 ];
 
 export const CATEGORIES: Category[] = ["coffee", "breakfast", "paninis", "cocktails", "desserts"];
