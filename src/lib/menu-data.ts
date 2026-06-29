@@ -14,10 +14,14 @@ export interface MenuItem {
 
 import coffee from "@/assets/espresso-pull.jpg";
 import latte from "@/assets/portafilter.jpg";
-import breakfast from "@/assets/breakfast.jpg";
 import pastry from "@/assets/pastry.jpg";
-import interior from "@/assets/interior.jpg";
-import storefront from "@/assets/storefront.jpg";
+import piadina from "@/assets/food-piadina-bresaola.jpg";
+import cheeseBoard from "@/assets/food-cheese-board.jpg";
+import bruschetta from "@/assets/food-bruschetta.jpg";
+import aperitivo from "@/assets/food-aperitivo.jpg";
+import mortadella from "@/assets/food-mortadella-focaccia.jpg";
+import mozzaSticks from "@/assets/food-mozzarella-sticks.jpg";
+import focacciaTomato from "@/assets/food-focaccia-tomato.jpg";
 
 export const MENU: MenuItem[] = [
   {
