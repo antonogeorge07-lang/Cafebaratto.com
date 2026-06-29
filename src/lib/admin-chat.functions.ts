@@ -13,20 +13,18 @@ export const adminChat = createServerFn({ method: "POST" })
 
     const gateway = createLovableAiGatewayProvider(key);
 
-    const system: ModelMessage = {
-      role: "system",
-      content:
-        "You are the admin assistant for Cafetería Baratto in Valencia. " +
-        "Answer concisely using the LIVE CONTEXT below. If asked about items, orders, " +
-        "or revenue, ground every answer in this data. Do not invent items.\n\n" +
-        "LIVE CONTEXT:\n" +
-        data.context,
-    };
+    const systemPrompt =
+      "You are the admin assistant for Cafetería Baratto in Valencia. " +
+      "Answer concisely using the LIVE CONTEXT below. If asked about items, orders, " +
+      "or revenue, ground every answer in this data. Do not invent items.\n\n" +
+      "LIVE CONTEXT:\n" +
+      data.context;
 
     try {
       const { text } = await generateText({
         model: gateway.chatModel("google/gemini-3-flash-preview"),
-        messages: [system, ...data.messages] as ModelMessage[],
+        system: systemPrompt,
+        messages: data.messages as ModelMessage[],
       });
       return { reply: text };
     } catch (error) {
