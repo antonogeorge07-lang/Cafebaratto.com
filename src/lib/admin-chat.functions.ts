@@ -23,7 +23,7 @@ export const adminChat = createServerFn({ method: "POST" })
     try {
       const { text } = await generateText({
         model: gateway.chatModel("google/gemini-3-flash-preview"),
-        system: systemPrompt,
+        instructions: systemPrompt,
         messages: data.messages as ModelMessage[],
       });
       return { reply: text };
