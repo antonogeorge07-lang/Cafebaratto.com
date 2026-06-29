@@ -28,9 +28,15 @@ export const adminChat = createServerFn({ method: "POST" })
       });
       return { reply: text };
     } catch (error) {
-      const message = error instanceof Error ? error.message : "AI assistant unavailable";
-      if (message.includes("429")) throw new Error("Rate limit reached. Please retry shortly.");
-      if (message.includes("402")) throw new Error("AI credits exhausted. Add credits in Settings.");
-      throw new Error(message);
+      const raw = error instanceof Error ? error.message : "AI assistant unavailable";
+      const status = (error as { statusCode?: number; status?: number })?.statusCode
+        ?? (error as { status?: number })?.status;
+      if (status === 429 || raw.includes("429") || /rate limit/i.test(raw)) {
+        throw new Error("Rate limit reached. Please retry in a moment.");
+      }
+      if (status === 402 || raw.includes("402") || /payment required|credits/i.test(raw)) {
+        throw new Error("AI credits exhausted for this workspace. Add credits in Lovable → Settings → Plans & credits.");
+      }
+      throw new Error(raw);
     }
   });
