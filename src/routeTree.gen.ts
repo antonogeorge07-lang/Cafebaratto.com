@@ -10,33 +10,71 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
+import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
+import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ControlsXd92j7kAuthRoute = ControlsXd92j7kAuthRouteImport.update({
+  id: '/controls/xd92j7k/_auth',
+  path: '/controls/xd92j7k',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ControlsXd92j7kAuthIndexRoute =
+  ControlsXd92j7kAuthIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ControlsXd92j7kAuthRoute,
+  } as any)
+const ControlsXd92j7kAuthSettingsRoute =
+  ControlsXd92j7kAuthSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => ControlsXd92j7kAuthRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/controls/xd92j7k'
+    | '/controls/xd92j7k/settings'
+    | '/controls/xd92j7k/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/controls/xd92j7k/settings' | '/controls/xd92j7k'
+  id:
+    | '__root__'
+    | '/'
+    | '/controls/xd92j7k/_auth'
+    | '/controls/xd92j7k/_auth/settings'
+    | '/controls/xd92j7k/_auth/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +86,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/controls/xd92j7k/_auth': {
+      id: '/controls/xd92j7k/_auth'
+      path: '/controls/xd92j7k'
+      fullPath: '/controls/xd92j7k'
+      preLoaderRoute: typeof ControlsXd92j7kAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/controls/xd92j7k/_auth/': {
+      id: '/controls/xd92j7k/_auth/'
+      path: '/'
+      fullPath: '/controls/xd92j7k/'
+      preLoaderRoute: typeof ControlsXd92j7kAuthIndexRouteImport
+      parentRoute: typeof ControlsXd92j7kAuthRoute
+    }
+    '/controls/xd92j7k/_auth/settings': {
+      id: '/controls/xd92j7k/_auth/settings'
+      path: '/settings'
+      fullPath: '/controls/xd92j7k/settings'
+      preLoaderRoute: typeof ControlsXd92j7kAuthSettingsRouteImport
+      parentRoute: typeof ControlsXd92j7kAuthRoute
+    }
   }
 }
 
+interface ControlsXd92j7kAuthRouteChildren {
+  ControlsXd92j7kAuthSettingsRoute: typeof ControlsXd92j7kAuthSettingsRoute
+  ControlsXd92j7kAuthIndexRoute: typeof ControlsXd92j7kAuthIndexRoute
+}
+
+const ControlsXd92j7kAuthRouteChildren: ControlsXd92j7kAuthRouteChildren = {
+  ControlsXd92j7kAuthSettingsRoute: ControlsXd92j7kAuthSettingsRoute,
+  ControlsXd92j7kAuthIndexRoute: ControlsXd92j7kAuthIndexRoute,
+}
+
+const ControlsXd92j7kAuthRouteWithChildren =
+  ControlsXd92j7kAuthRoute._addFileChildren(ControlsXd92j7kAuthRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
