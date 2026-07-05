@@ -1,42 +1,21 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import {
-  Coffee,
-  MapPin,
-  Clock,
-  Phone,
-  Instagram,
-  Menu as MenuIcon,
-  Navigation,
-  X,
-  Leaf,
-  Wheat,
-  Nut,
-  Salad,
-  Mail,
-} from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Coffee, Sparkles } from "lucide-react";
 
 import hero from "@/assets/interior.jpg";
-import storefront from "@/assets/storefront.jpg";
 import mascot from "@/assets/mascot-cutout.png";
+import blendBag from "@/assets/coffee.jpg";
 
-import { I18nProvider, useI18n, type Lang } from "@/lib/i18n";
-import { MENU, CATEGORIES, type Category, type Diet } from "@/lib/menu-data";
+import { useI18n } from "@/lib/i18n";
 import { useLiveMenu } from "@/lib/useLiveMenu";
+import { MENU } from "@/lib/menu-data";
 import { OpenStatusBadge } from "@/components/OpenStatusBadge";
 import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
 import { MascotCompanion } from "@/components/MascotCompanion";
-
-const ADDRESS = "C. de Vinatea, 20, 46001 València, Spain";
-const PHONE = "+34 963 00 00 00";
-const PHONE_TEL = "+34963000000";
-const MAPS_DIR = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
-  "Cafeteria Baratto " + ADDRESS,
-)}`;
-const MAPS_EMBED = `https://maps.google.com/maps?q=${encodeURIComponent(
-  "Cafeteria Baratto, " + ADDRESS,
-)}&z=17&output=embed`;
+import { SiteHeader, SiteFooter, MAPS_DIR } from "@/components/SiteChrome";
+import { EditableText } from "@/components/EditableText";
+import { trackEvent } from "@/utils/analytics";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -45,7 +24,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis and signature cocktails. Open daily on C. de Vinatea.",
+          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails — plus our house coffee blends coming soon.",
       },
       { property: "og:title", content: "Cafetería Baratto — Valencia" },
       {
@@ -57,62 +36,23 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://cafebaratto.com/" },
     ],
     links: [{ rel: "canonical", href: "https://cafebaratto.com/" }],
-    scripts: [
-      {
-        type: "application/ld+json",
-        children: JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": "CafeOrCoffeeShop",
-          name: "Cafetería Baratto",
-          image: hero,
-          telephone: PHONE,
-          priceRange: "€",
-          address: {
-            "@type": "PostalAddress",
-            streetAddress: "C. de Vinatea, 20",
-            postalCode: "46001",
-            addressLocality: "València",
-            addressCountry: "ES",
-          },
-          servesCuisine: ["Italian", "Coffee", "Paninis", "Cocktails"],
-          openingHours: ["Mo-Fr 07:00-22:00", "Sa-Su 09:00-22:00"],
-          sameAs: ["https://instagram.com/cafebaratto"],
-        }),
-      },
-    ],
   }),
-  component: () => (
-    <I18nProvider>
-      <Page />
-    </I18nProvider>
-  ),
+  component: LandingPage,
 });
 
-function Page() {
-  const { t, lang, setLang } = useI18n();
-  const [menuOpen, setMenuOpen] = useState(false);
+function LandingPage() {
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
-
   const live = useLiveMenu();
 
   return (
     <div className="min-h-screen bg-oak-50 text-coffee-900">
-      <StickyHeader
-        menuOpen={menuOpen}
-        setMenuOpen={setMenuOpen}
-        lang={lang}
-        setLang={setLang}
-        onBook={() => setBookOpen(true)}
-        onOrder={() => setOrderOpen(true)}
-      />
+      <SiteHeader onBook={() => setBookOpen(true)} onOrder={() => setOrderOpen(true)} />
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <MenuSection live={live} />
-        <StorySection />
-        <VisitSection />
-        <Newsletter />
+        <BlendsComingSoon />
+        <MenuBridge />
       </main>
 
       <SiteFooter />
@@ -121,7 +61,7 @@ function Page() {
       <OrderModal
         open={orderOpen}
         onClose={() => setOrderOpen(false)}
-        lang={lang}
+        lang="en"
         items={live.items.length > 0 ? live.items : MENU}
       />
       <MascotCompanion />
@@ -129,149 +69,20 @@ function Page() {
       {/* Mobile sticky action bar */}
       <div className="fixed inset-x-0 bottom-0 z-30 border-t border-oak-200 bg-oak-50/95 px-4 py-3 backdrop-blur md:hidden">
         <div className="flex gap-2">
-          <button
-            onClick={() => setOrderOpen(true)}
-            className="flex-1 rounded-full border border-coffee-900/20 py-2.5 text-sm font-medium text-coffee-900"
+          <Link
+            to="/menu"
+            className="flex-1 rounded-full border border-coffee-900/20 py-2.5 text-center text-sm font-medium text-coffee-900"
           >
-            {t("nav_order")}
-          </button>
+            Menu
+          </Link>
           <button
             onClick={() => setBookOpen(true)}
             className="flex-1 rounded-full bg-coffee-900 py-2.5 text-sm font-medium text-oak-50"
           >
-            {t("nav_book")}
+            Book
           </button>
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ------------------------- Header ------------------------- */
-
-function StickyHeader({
-  menuOpen,
-  setMenuOpen,
-  lang,
-  setLang,
-  onBook,
-  onOrder,
-}: {
-  menuOpen: boolean;
-  setMenuOpen: (b: boolean) => void;
-  lang: Lang;
-  setLang: (l: Lang) => void;
-  onBook: () => void;
-  onOrder: () => void;
-}) {
-  const { t } = useI18n();
-  return (
-    <header className="sticky top-0 z-40 border-b border-oak-200/60 bg-oak-50/85 backdrop-blur">
-      <nav className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:px-6 lg:px-10">
-        <a href="#top" className="flex shrink-0 items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-coffee-900 text-oak-50">
-            <Coffee className="h-4 w-4" />
-          </span>
-          <span className="font-serif text-xl font-semibold tracking-tight">Baratto</span>
-        </a>
-
-        <ul className="ml-6 hidden items-center gap-6 text-sm text-coffee-900/80 md:flex">
-          <li>
-            <a href="#menu" className="hover:text-coffee-900">{t("nav_menu")}</a>
-          </li>
-          <li>
-            <a href="#visit" className="hover:text-coffee-900">{t("nav_visit")}</a>
-          </li>
-          <li>
-            <button onClick={onOrder} className="hover:text-coffee-900">{t("nav_order")}</button>
-          </li>
-          <li>
-            <button onClick={onBook} className="hover:text-coffee-900">{t("nav_book")}</button>
-          </li>
-        </ul>
-
-        <div className="ml-auto flex items-center gap-2">
-          <LangToggle lang={lang} setLang={setLang} />
-          <a
-            href={MAPS_DIR}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full bg-coffee-900 px-3 py-2 text-xs font-medium text-oak-50 transition hover:bg-coffee-950 sm:px-4 sm:text-sm"
-          >
-            <Navigation className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("nav_directions")}</span>
-          </a>
-          <button
-            aria-label="Open menu"
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="rounded-md p-2 md:hidden"
-          >
-            {menuOpen ? <X className="h-5 w-5" /> : <MenuIcon className="h-5 w-5" />}
-          </button>
-        </div>
-      </nav>
-
-      {menuOpen && (
-        <div className="border-t border-oak-200 bg-oak-50 px-4 py-4 md:hidden">
-          <ul className="space-y-2 text-sm">
-            {[
-              { href: "#menu", label: t("nav_menu") },
-              { href: "#visit", label: t("nav_visit") },
-            ].map((i) => (
-              <li key={i.href}>
-                <a
-                  href={i.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="block rounded-lg px-3 py-2 hover:bg-oak-100"
-                >
-                  {i.label}
-                </a>
-              </li>
-            ))}
-            <li>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  onOrder();
-                }}
-                className="block w-full rounded-lg px-3 py-2 text-left hover:bg-oak-100"
-              >
-                {t("nav_order")}
-              </button>
-            </li>
-            <li>
-              <button
-                onClick={() => {
-                  setMenuOpen(false);
-                  onBook();
-                }}
-                className="block w-full rounded-lg px-3 py-2 text-left hover:bg-oak-100"
-              >
-                {t("nav_book")}
-              </button>
-            </li>
-          </ul>
-        </div>
-      )}
-    </header>
-  );
-}
-
-function LangToggle({ lang, setLang }: { lang: Lang; setLang: (l: Lang) => void }) {
-  return (
-    <div className="inline-flex overflow-hidden rounded-full border border-oak-300 text-xs">
-      {(["es", "en"] as Lang[]).map((l) => (
-        <button
-          key={l}
-          onClick={() => setLang(l)}
-          aria-pressed={lang === l}
-          className={`px-2.5 py-1 font-medium uppercase tracking-wider transition ${
-            lang === l ? "bg-coffee-900 text-oak-50" : "text-coffee-900/70 hover:bg-oak-200"
-          }`}
-        >
-          {l}
-        </button>
-      ))}
     </div>
   );
 }
@@ -287,28 +98,40 @@ function Hero({ onBook }: { onBook: () => void }) {
           <div className="mb-5 flex flex-wrap items-center gap-3">
             <OpenStatusBadge />
             <span className="text-xs uppercase tracking-[0.25em] text-oak-700">
-              {t("hero_eyebrow")}
+              <EditableText id="hero.eyebrow" initial={t("hero_eyebrow")} />
             </span>
           </div>
           <h1 className="font-serif text-4xl leading-[1.05] sm:text-5xl lg:text-6xl">
-            {t("hero_title_1")}
+            <EditableText id="hero.title1" as="span" initial={t("hero_title_1")} />
             <br />
-            <em className="font-normal text-oak-600">{t("hero_title_2")}</em>
+            <em className="font-normal text-oak-600">
+              <EditableText id="hero.title2" initial={t("hero_title_2")} />
+            </em>
           </h1>
-          <p className="mt-5 max-w-lg text-base text-coffee-900/75 sm:text-lg">{t("hero_sub")}</p>
+          <p className="mt-5 max-w-lg text-base text-coffee-900/75 sm:text-lg">
+            <EditableText id="hero.sub" initial={t("hero_sub")} />
+          </p>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a
-              href="#menu"
+            <Link
+              to="/menu"
               className="rounded-full bg-coffee-900 px-5 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950"
             >
               {t("hero_cta_menu")}
-            </a>
+            </Link>
             <button
               onClick={onBook}
               className="rounded-full border border-coffee-900/25 px-5 py-3 text-sm font-medium text-coffee-900 transition hover:border-coffee-900/60"
             >
               {t("hero_cta_book")}
             </button>
+            <a
+              href={MAPS_DIR}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full border border-coffee-900/15 px-5 py-3 text-sm font-medium text-coffee-900/80 transition hover:border-coffee-900/40"
+            >
+              Directions
+            </a>
           </div>
         </div>
 
@@ -334,327 +157,166 @@ function Hero({ onBook }: { onBook: () => void }) {
   );
 }
 
-/* ------------------------- Menu ------------------------- */
+/* ------------------------- Coming-Soon Blends + Waitlist ------------------------- */
 
-const DIET_META: Record<Diet, { icon: React.ComponentType<{ className?: string }>; key: string }> = {
-  vegan: { icon: Leaf, key: "diet_vegan" },
-  gf: { icon: Wheat, key: "diet_gf" },
-  nuts: { icon: Nut, key: "diet_nuts" },
-  veg: { icon: Salad, key: "diet_veg" },
-};
+const BLENDS = [
+  { id: "vinatea", name: "Vinatea Espresso", note: "Bittersweet · cacao · orange peel" },
+  { id: "carmen", name: "Carmen Blend", note: "Silky · almond · brown sugar" },
+  { id: "malva", name: "Malva Filter", note: "Bright · red berry · jasmine" },
+];
 
-function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
-  const { t, lang } = useI18n();
-  const [cat, setCat] = useState<Category | "all">("all");
-  const source = live.items.length > 0 ? live.items : MENU;
-  const items = useMemo(
-    () => (cat === "all" ? source : source.filter((m) => m.category === cat)),
-    [cat, source],
-  );
-
-  const pills: { id: Category | "all"; label: string }[] = [
-    { id: "all", label: t("cat_all") },
-    ...CATEGORIES.map((c) => ({ id: c, label: t(`cat_${c}` as any) })),
-  ];
-
+function BlendsComingSoon() {
   return (
-    <section id="menu" className="bg-oak-100 py-20 lg:py-28">
+    <section id="blends" className="bg-oak-100 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
-          <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("menu_eyebrow")}</p>
-          <h2 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("menu_title")}</h2>
-          <p className="mt-4 text-coffee-900/70">{t("menu_sub")}</p>
+          <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-oak-50">
+            <Sparkles className="h-3 w-3" /> Coming soon
+          </p>
+          <h2 className="mt-4 font-serif text-3xl sm:text-4xl lg:text-5xl">
+            <EditableText id="blends.title" initial="Our In-House Coffee Blends" />
+          </h2>
+          <p className="mt-4 text-coffee-900/70">
+            <EditableText
+              id="blends.sub"
+              initial="Three signature roasts developed with our Valencia roaster. Bagged, dated, delivered to your door."
+            />
+          </p>
         </div>
 
-        {live.error && (
-          <div
-            role="alert"
-            className="mx-auto mt-8 max-w-2xl rounded-2xl border border-oak-300 bg-oak-50 px-4 py-3 text-center text-sm text-coffee-900/80"
-          >
-            {t("menu_sync_alert")}
-          </div>
-        )}
-
-        <div className="mt-10 flex flex-wrap justify-center gap-2">
-          {pills.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setCat(p.id)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                cat === p.id
-                  ? "bg-coffee-900 text-oak-50"
-                  : "bg-oak-50 text-coffee-900/80 hover:bg-oak-200"
-              }`}
+        <ul className="mx-auto mt-12 grid max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {BLENDS.map((b) => (
+            <li
+              key={b.id}
+              className="group relative overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 shadow-sm"
             >
-              {p.label}
-            </button>
+              <div className="relative aspect-[4/5] overflow-hidden bg-oak-200">
+                <img
+                  src={blendBag}
+                  alt=""
+                  aria-hidden
+                  className="size-full object-cover blur-md brightness-90 saturate-150 transition duration-700 group-hover:blur-sm"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/60 via-transparent to-transparent" />
+                <span className="absolute right-3 top-3 rounded-full bg-oak-50/90 px-2.5 py-1 text-[10px] font-medium uppercase tracking-widest text-coffee-900">
+                  Preview
+                </span>
+              </div>
+              <div className="p-5">
+                <h3 className="font-serif text-xl text-coffee-900">{b.name}</h3>
+                <p className="mt-1 text-sm text-coffee-900/60">{b.note}</p>
+              </div>
+            </li>
           ))}
-        </div>
-
-        <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {live.loading
-            ? Array.from({ length: 6 }).map((_, i) => (
-                <li
-                  key={`sk-${i}`}
-                  className="overflow-hidden rounded-3xl border border-oak-200 bg-oak-50"
-                >
-                  <div className="aspect-[5/3] animate-pulse bg-oak-200" />
-                  <div className="space-y-2 p-5">
-                    <div className="h-4 w-2/3 animate-pulse rounded bg-oak-200" />
-                    <div className="h-3 w-full animate-pulse rounded bg-oak-200/70" />
-                    <div className="h-3 w-5/6 animate-pulse rounded bg-oak-200/70" />
-                  </div>
-                </li>
-              ))
-            : items.map((m) => {
-                const oos = m.stock === false;
-                return (
-                  <li
-                    key={m.id}
-                    className={`group overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 transition hover:-translate-y-1 hover:shadow-xl ${
-                      oos ? "opacity-60 grayscale" : ""
-                    }`}
-                  >
-                    <div className="relative aspect-[5/3] overflow-hidden">
-                      <img
-                        src={m.image}
-                        alt={m.name[lang]}
-                        loading="lazy"
-                        className="size-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                      {oos && (
-                        <span className="absolute left-3 top-3 rounded-full bg-coffee-900/85 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-oak-50">
-                          {t("out_of_stock")}
-                        </span>
-                      )}
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-serif text-lg text-coffee-900">{m.name[lang]}</h3>
-                        <span className="shrink-0 text-sm tabular-nums text-coffee-900/60">
-                          €{m.price.toFixed(2)}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 text-sm text-coffee-900/70">{m.desc[lang]}</p>
-                      {m.diet.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {m.diet.map((d) => {
-                            const M = DIET_META[d];
-                            const Icon = M.icon;
-                            return (
-                              <span
-                                key={d}
-                                className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
-                              >
-                                <Icon className="h-3 w-3" />
-                                {t(M.key as any)}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
         </ul>
+
+        <WaitlistForm />
       </div>
     </section>
   );
 }
 
-// (helper removed — keys cast inline)
+function WaitlistForm() {
+  const [email, setEmail] = useState("");
+  const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
-/* ------------------------- Story ------------------------- */
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
+    if (!ok) {
+      setState("error");
+      trackEvent("waitlist_signup", { status: "invalid" });
+      return;
+    }
+    setState("loading");
+    trackEvent("waitlist_signup", { status: "submitted", list: "in_house_blends" });
+    // Persist locally; real integration would post to a server function.
+    try {
+      const raw = JSON.parse(localStorage.getItem("baratto.waitlist.v1") || "[]") as string[];
+      if (!raw.includes(email.trim())) raw.push(email.trim());
+      localStorage.setItem("baratto.waitlist.v1", JSON.stringify(raw));
+    } catch {
+      /* ignore */
+    }
+    await new Promise((r) => setTimeout(r, 350));
+    setState("done");
+    trackEvent("waitlist_signup", { status: "confirmed", list: "in_house_blends" });
+  }
 
-function StorySection() {
-  const { t } = useI18n();
   return (
-    <section id="story" className="bg-oak-50 py-20 lg:py-28">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10">
-        <img
-          src={storefront}
-          alt="Cafetería Baratto storefront in Valencia"
-          loading="lazy"
-          className="h-[400px] w-full rounded-3xl object-cover shadow-xl lg:h-[520px]"
+    <div className="mx-auto mt-14 max-w-xl rounded-3xl border border-oak-200 bg-oak-50 p-6 text-center shadow-xl sm:p-8">
+      <p className="text-xs uppercase tracking-[0.25em] text-oak-700">Waitlist</p>
+      <h3 className="mt-2 font-serif text-2xl">
+        <EditableText id="waitlist.title" initial="Be first in line" />
+      </h3>
+      <p className="mt-2 text-sm text-coffee-900/70">
+        <EditableText
+          id="waitlist.sub"
+          initial="Drop your email — we'll ping you the day the first bags ship."
         />
-        <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("story_eyebrow")}</p>
-          <h2 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("story_title")}</h2>
-          <p className="mt-5 text-coffee-900/75">{t("story_body")}</p>
-        </div>
-      </div>
-    </section>
-  );
-}
+      </p>
 
-/* ------------------------- Visit ------------------------- */
-
-function VisitSection() {
-  const { t } = useI18n();
-  return (
-    <section id="visit" className="bg-oak-100 py-20 lg:py-28">
-      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr,1.1fr] lg:items-center lg:gap-12 lg:px-10">
-        <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("visit_eyebrow")}</p>
-          <h2 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("visit_title")}</h2>
-
-          <div className="mt-8 space-y-5">
-            <Detail icon={MapPin} label={t("visit_address")}>
-              <address className="not-italic">{ADDRESS}</address>
-            </Detail>
-            <Detail icon={Clock} label={t("visit_hours")}>
-              <p>{t("hours_weekday")}</p>
-              <p>{t("hours_weekend")}</p>
-              <OpenStatusBadge className="mt-2" />
-            </Detail>
-            <Detail icon={Phone} label={t("visit_phone")}>
-              <a href={`tel:${PHONE_TEL}`} className="underline-offset-4 hover:underline">
-                {PHONE}
-              </a>
-            </Detail>
-          </div>
-
-          <a
-            href={MAPS_DIR}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full bg-coffee-900 px-5 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950"
-          >
-            <Navigation className="h-4 w-4" />
-            {t("visit_directions")}
-          </a>
-        </div>
-
-        <div className="overflow-hidden rounded-3xl border border-oak-200 shadow-xl">
-          <iframe
-            title="Cafetería Baratto map"
-            src={MAPS_EMBED}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            className="block h-[360px] w-full lg:h-[480px]"
-          />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Detail({
-  icon: Icon,
-  label,
-  children,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-4">
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-oak-300 text-coffee-900">
-        <Icon className="h-5 w-5" />
-      </span>
-      <div className="min-w-0">
-        <p className="text-xs uppercase tracking-widest text-oak-700">{label}</p>
-        <div className="mt-1 leading-relaxed text-coffee-900/85">{children}</div>
-      </div>
+      <form onSubmit={submit} className="mt-5 flex flex-col gap-3 sm:flex-row">
+        <label className="sr-only" htmlFor="waitlist-email">Email</label>
+        <input
+          id="waitlist-email"
+          type="email"
+          required
+          maxLength={120}
+          value={email}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (state !== "idle") setState("idle");
+          }}
+          placeholder="you@email.com"
+          className="flex-1 rounded-full border border-oak-300 bg-oak-50 px-4 py-3 text-sm text-coffee-900 outline-none focus:border-coffee-900/60"
+        />
+        <button
+          type="submit"
+          disabled={state === "loading"}
+          className="rounded-full bg-coffee-900 px-5 py-3 text-sm font-semibold text-oak-50 transition hover:bg-coffee-950 disabled:opacity-60"
+        >
+          {state === "loading" ? "Sending…" : "Notify me"}
+        </button>
+      </form>
+      {state === "done" && (
+        <p className="mt-3 text-sm text-sage-700">You're on the list. We'll be in touch.</p>
+      )}
+      {state === "error" && (
+        <p className="mt-3 text-sm text-oak-700">Please enter a valid email.</p>
+      )}
     </div>
   );
 }
 
-/* ------------------------- Newsletter ------------------------- */
+/* ------------------------- Menu bridge card ------------------------- */
 
-function Newsletter() {
-  const { t } = useI18n();
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<"idle" | "done" | "error">("idle");
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim());
-    setState(ok ? "done" : "error");
-  }
-
+function MenuBridge() {
   return (
-    <section className="bg-coffee-900 py-20 text-oak-50 lg:py-24">
-      <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-10">
-        <p className="text-xs uppercase tracking-[0.25em] text-oak-300">{t("news_eyebrow")}</p>
-        <h2 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("news_title")}</h2>
-        <p className="mt-4 text-oak-100/80">{t("news_sub")}</p>
-
-        <form onSubmit={submit} className="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
-          <label className="sr-only" htmlFor="news-email">Email</label>
-          <div className="relative flex-1">
-            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-coffee-900/50" />
-            <input
-              id="news-email"
-              type="email"
-              required
-              maxLength={120}
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                if (state !== "idle") setState("idle");
-              }}
-              placeholder={t("news_email")}
-              className="w-full rounded-full bg-oak-50 py-3 pl-9 pr-4 text-sm text-coffee-900 outline-none placeholder:text-coffee-900/40"
-            />
+    <section className="bg-oak-50 py-20 lg:py-24">
+      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-10">
+        <Link
+          to="/menu"
+          onClick={() => trackEvent("nav_bridge_click", { to: "/menu", surface: "landing_card" })}
+          className="group relative flex flex-col items-start gap-6 overflow-hidden rounded-3xl bg-coffee-900 p-8 text-oak-50 shadow-xl transition hover:shadow-2xl sm:flex-row sm:items-center sm:p-10"
+        >
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-oak-50/10 text-oak-50">
+            <Coffee className="h-6 w-6" />
+          </span>
+          <div className="flex-1">
+            <p className="text-xs uppercase tracking-[0.25em] text-oak-300">The full menu</p>
+            <h3 className="mt-1 font-serif text-2xl sm:text-3xl">
+              Espresso, paninis, cocktails & desserts
+            </h3>
+            <p className="mt-2 max-w-xl text-sm text-oak-100/80">
+              Filter by category. Prices in euros. Updated live from the counter.
+            </p>
           </div>
-          <button
-            type="submit"
-            className="rounded-full bg-oak-300 px-5 py-3 text-sm font-semibold text-coffee-900 transition hover:bg-oak-400"
-          >
-            {t("news_submit")}
-          </button>
-        </form>
-        {state === "done" && <p className="mt-3 text-sm text-sage-100">{t("news_done")}</p>}
-        {state === "error" && <p className="mt-3 text-sm text-oak-300">{t("news_invalid")}</p>}
+          <span className="inline-flex items-center gap-2 rounded-full bg-oak-50 px-4 py-2.5 text-sm font-semibold text-coffee-900 transition group-hover:bg-oak-100">
+            View the menu <ArrowRight className="h-4 w-4" />
+          </span>
+        </Link>
       </div>
     </section>
-  );
-}
-
-/* ------------------------- Footer ------------------------- */
-
-function SiteFooter() {
-  const { t } = useI18n();
-  return (
-    <footer className="bg-coffee-950 py-12 pb-24 text-oak-100/80 md:pb-12">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 sm:px-6 lg:grid-cols-3 lg:px-10">
-        <div>
-          <p className="font-serif text-2xl text-oak-50">Baratto</p>
-          <p className="mt-2 text-sm">{t("footer_tagline")}</p>
-          <div className="mt-4"><OpenStatusBadge /></div>
-        </div>
-
-        <div className="text-sm">
-          <p className="mb-2 text-xs uppercase tracking-widest text-oak-300">{t("visit_address")}</p>
-          <address className="not-italic">{ADDRESS}</address>
-          <p className="mt-3">
-            <a href={`tel:${PHONE_TEL}`} className="hover:text-oak-50">{PHONE}</a>
-          </p>
-        </div>
-
-        <div className="text-sm">
-          <p className="mb-2 text-xs uppercase tracking-widest text-oak-300">{t("visit_hours")}</p>
-          <p>{t("hours_weekday")}</p>
-          <p>{t("hours_weekend")}</p>
-          <div className="mt-4 flex gap-3">
-            <a
-              href="https://instagram.com/cafebaratto"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Instagram"
-              className="grid h-9 w-9 place-items-center rounded-full border border-oak-100/20 hover:border-oak-300 hover:text-oak-300"
-            >
-              <Instagram className="h-4 w-4" />
-            </a>
-          </div>
-        </div>
-      </div>
-      <p className="mx-auto mt-10 max-w-7xl px-4 text-xs text-oak-100/50 sm:px-6 lg:px-10">
-        © {new Date().getFullYear()} Cafetería Baratto. {t("footer_rights")}
-      </p>
-    </footer>
   );
 }
