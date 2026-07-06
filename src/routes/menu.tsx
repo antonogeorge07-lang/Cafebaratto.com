@@ -63,14 +63,20 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
   const { t, lang } = useI18n();
   const [cat, setCat] = useState<Category | "all">("all");
   const source = live.items.length > 0 ? live.items : MENU;
+  const activeSource = useMemo(() => source.filter((m) => m.stock !== false), [source]);
   const items = useMemo(
-    () => (cat === "all" ? source : source.filter((m) => m.category === cat)),
-    [cat, source],
+    () => (cat === "all" ? activeSource : activeSource.filter((m) => m.category === cat)),
+    [cat, activeSource],
+  );
+
+  const availableCategories = useMemo(
+    () => CATEGORIES.filter((category) => activeSource.some((item) => item.category === category)),
+    [activeSource],
   );
 
   const pills: { id: Category | "all"; label: string }[] = [
     { id: "all", label: t("cat_all") },
-    ...CATEGORIES.map((c) => ({ id: c, label: t(`cat_${c}` as never) })),
+    ...availableCategories.map((c) => ({ id: c, label: t(`cat_${c}` as never) })),
   ];
 
   return (
@@ -91,7 +97,6 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
           </div>
         )}
 
-        {/* Fixed-height pill bar prevents CLS on wrap changes */}
         <div className="mt-10 min-h-[52px]">
           <div className="flex flex-wrap justify-center gap-2">
             {pills.map((p) => (
@@ -114,8 +119,6 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
           </div>
         </div>
 
-        {/* Fixed card proportions eliminate cumulative layout shift on category swap.
-            aspect-[5/3] image + min-h on body = each card is a stable box. */}
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {live.loading
             ? Array.from({ length: 6 }).map((_, i) => (
@@ -131,61 +134,52 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
                   </div>
                 </li>
               ))
-            : items.map((m) => {
-                const oos = m.stock === false;
-                return (
-                  <li
-                    key={m.id}
-                    className={`group overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 transition hover:-translate-y-1 hover:shadow-xl ${
-                      oos ? "opacity-60 grayscale" : ""
-                    }`}
-                  >
-                    <div className="relative aspect-[5/3] overflow-hidden">
-                      <img
-                        src={m.image}
-                        alt={m.name[lang]}
-                        loading="lazy"
-                        width={800}
-                        height={480}
-                        className="size-full object-cover transition duration-700 group-hover:scale-105"
-                      />
-                      {oos && (
-                        <span className="absolute left-3 top-3 rounded-full bg-coffee-900/85 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-oak-50">
-                          {t("out_of_stock")}
-                        </span>
-                      )}
+            : items.map((m) => (
+                <li
+                  key={m.id}
+                  className="group overflow-hidden rounded-3xl border border-oak-200 bg-oak-50 transition hover:-translate-y-1 hover:shadow-xl"
+                >
+                  <div className="relative aspect-[5/3] overflow-hidden">
+                    <img
+                      src={m.image}
+                      alt={m.name[lang]}
+                      loading="lazy"
+                      width={800}
+                      height={480}
+                      className="size-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                  </div>
+                  <div className="min-h-[128px] p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-serif text-lg text-coffee-900">{m.name[lang]}</h3>
+                      <span className="shrink-0 text-sm tabular-nums text-coffee-900/60">
+                        €{m.price.toFixed(2)}
+                      </span>
                     </div>
-                    <div className="min-h-[128px] p-5">
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-serif text-lg text-coffee-900">{m.name[lang]}</h3>
-                        <span className="shrink-0 text-sm tabular-nums text-coffee-900/60">
-                          €{m.price.toFixed(2)}
-                        </span>
+                    <p className="mt-1.5 text-sm text-coffee-900/70">{m.desc[lang]}</p>
+                    {m.diet.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-1.5">
+                        {m.diet.map((d) => {
+                          const M = DIET_META[d];
+                          const Icon = M.icon;
+                          return (
+                            <span
+                              key={d}
+                              className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
+                            >
+                              <Icon className="h-3 w-3" />
+                              {t(M.key as never)}
+                            </span>
+                          );
+                        })}
                       </div>
-                      <p className="mt-1.5 text-sm text-coffee-900/70">{m.desc[lang]}</p>
-                      {m.diet.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {m.diet.map((d) => {
-                            const M = DIET_META[d];
-                            const Icon = M.icon;
-                            return (
-                              <span
-                                key={d}
-                                className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
-                              >
-                                <Icon className="h-3 w-3" />
-                                {t(M.key as never)}
-                              </span>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
+                    )}
+                  </div>
+                </li>
+              ))}
         </ul>
       </div>
     </section>
   );
 }
+
