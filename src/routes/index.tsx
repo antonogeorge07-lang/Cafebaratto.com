@@ -168,7 +168,7 @@ const BLENDS = [
 
 function BlendsComingSoon() {
   return (
-    <section id="blends" className="bg-oak-100 py-12 lg:py-16">
+    <section id="blends" className="bg-oak-100 py-8 lg:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-oak-50">
@@ -185,13 +185,13 @@ function BlendsComingSoon() {
           </p>
         </div>
 
-        <ul className="mx-auto mt-8 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mx-auto mt-6 grid max-w-4xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {BLENDS.map((b) => (
             <li
               key={b.id}
-              className="group relative overflow-hidden rounded-2xl border border-oak-200 bg-oak-50 shadow-sm"
+              className="group relative overflow-hidden rounded-xl border border-oak-200 bg-oak-50 shadow-sm"
             >
-              <div className="relative aspect-[4/3] overflow-hidden bg-oak-200">
+              <div className="relative aspect-square overflow-hidden bg-oak-200">
                 <img
                   src={blendBag}
                   alt=""
@@ -199,13 +199,13 @@ function BlendsComingSoon() {
                   className="size-full object-cover blur-md brightness-90 saturate-150 transition duration-700 group-hover:blur-sm"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/60 via-transparent to-transparent" />
-                <span className="absolute right-2.5 top-2.5 rounded-full bg-oak-50/90 px-2 py-0.5 text-[10px] font-medium uppercase tracking-widest text-coffee-900">
+                <span className="absolute right-2 top-2 rounded-full bg-oak-50/90 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-coffee-900">
                   Preview
                 </span>
               </div>
-              <div className="p-3">
-                <h3 className="font-serif text-lg text-coffee-900">{b.name}</h3>
-                <p className="mt-0.5 text-xs text-coffee-900/60">{b.note}</p>
+              <div className="p-2.5">
+                <h3 className="font-serif text-base text-coffee-900">{b.name}</h3>
+                <p className="mt-0.5 text-[11px] text-coffee-900/60">{b.note}</p>
               </div>
             </li>
           ))}
@@ -245,19 +245,18 @@ function WaitlistForm() {
   }
 
   return (
-    <div className="mx-auto mt-8 max-w-lg rounded-2xl border border-oak-200 bg-oak-50 p-4 text-center shadow-lg sm:p-5">
-      <p className="text-[11px] uppercase tracking-[0.25em] text-oak-700">Waitlist</p>
-      <h3 className="mt-1 font-serif text-xl">
+    <div className="mx-auto mt-6 max-w-md rounded-xl border border-oak-200 bg-oak-50 px-3 py-3 text-center shadow-md sm:px-4">
+      <h3 className="font-serif text-base">
         <EditableText id="waitlist.title" initial="Be first in line" />
       </h3>
-      <p className="mt-1 text-xs text-coffee-900/70">
+      <p className="mt-0.5 text-[11px] text-coffee-900/70">
         <EditableText
           id="waitlist.sub"
           initial="Drop your email we'll ping you the day the first bags ship."
         />
       </p>
 
-      <form onSubmit={submit} className="mt-3 flex flex-col gap-2 sm:flex-row">
+      <form onSubmit={submit} className="mt-2 flex flex-col gap-1.5 sm:flex-row">
         <label className="sr-only" htmlFor="waitlist-email">Email</label>
         <input
           id="waitlist-email"
@@ -270,21 +269,21 @@ function WaitlistForm() {
             if (state !== "idle") setState("idle");
           }}
           placeholder="you@email.com"
-          className="flex-1 rounded-full border border-oak-300 bg-oak-50 px-4 py-2 text-sm text-coffee-900 outline-none focus:border-coffee-900/60"
+          className="flex-1 rounded-full border border-oak-300 bg-oak-50 px-3 py-1.5 text-xs text-coffee-900 outline-none focus:border-coffee-900/60"
         />
         <button
           type="submit"
           disabled={state === "loading"}
-          className="rounded-full bg-coffee-900 px-4 py-2 text-sm font-semibold text-oak-50 transition hover:bg-coffee-950 disabled:opacity-60"
+          className="rounded-full bg-coffee-900 px-3 py-1.5 text-xs font-semibold text-oak-50 transition hover:bg-coffee-950 disabled:opacity-60"
         >
           {state === "loading" ? "Sending…" : "Notify me"}
         </button>
       </form>
       {state === "done" && (
-        <p className="mt-2 text-xs text-sage-700">You're on the list. We'll be in touch.</p>
+        <p className="mt-1.5 text-[11px] text-sage-700">You're on the list. We'll be in touch.</p>
       )}
       {state === "error" && (
-        <p className="mt-2 text-xs text-oak-700">Please enter a valid email.</p>
+        <p className="mt-1.5 text-[11px] text-oak-700">Please enter a valid email.</p>
       )}
     </div>
   );
