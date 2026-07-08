@@ -9,12 +9,18 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 
+const OwnerRoute = OwnerRouteImport.update({
+  id: '/owner',
+  path: '/owner',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -46,6 +52,7 @@ const ControlsXd92j7kAuthSettingsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
+  '/owner': typeof OwnerRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
@@ -53,6 +60,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
+  '/owner': typeof OwnerRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
@@ -60,6 +68,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
+  '/owner': typeof OwnerRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
@@ -69,15 +78,22 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/menu'
+    | '/owner'
     | '/controls/xd92j7k'
     | '/controls/xd92j7k/settings'
     | '/controls/xd92j7k/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/menu' | '/controls/xd92j7k/settings' | '/controls/xd92j7k'
+  to:
+    | '/'
+    | '/menu'
+    | '/owner'
+    | '/controls/xd92j7k/settings'
+    | '/controls/xd92j7k'
   id:
     | '__root__'
     | '/'
     | '/menu'
+    | '/owner'
     | '/controls/xd92j7k/_auth'
     | '/controls/xd92j7k/_auth/settings'
     | '/controls/xd92j7k/_auth/'
@@ -86,11 +102,19 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MenuRoute: typeof MenuRoute
+  OwnerRoute: typeof OwnerRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/owner': {
+      id: '/owner'
+      path: '/owner'
+      fullPath: '/owner'
+      preLoaderRoute: typeof OwnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -145,6 +169,7 @@ const ControlsXd92j7kAuthRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MenuRoute: MenuRoute,
+  OwnerRoute: OwnerRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
