@@ -24,8 +24,8 @@ export const T: Dict = {
   menu_eyebrow: { es: "La Carta", en: "The Menu" },
   menu_title: { es: "Hecho con amor italiano", en: "Made with Italian love" },
   menu_sub: {
-    es: "Selecciona una categoría. Toda la carta, sin PDFs.",
-    en: "Pick a category. Full menu, zero PDFs.",
+    es: "",
+    en: "",
   },
   cat_all: { es: "Todo", en: "All" },
   cat_coffee: { es: "Café", en: "Coffee" },
