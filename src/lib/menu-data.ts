@@ -128,7 +128,7 @@ export const MENU: MenuItem[] = [
     id: "tiramisu",
     category: "desserts",
     name: { es: "Tiramisú", en: "Tiramisù" },
-    desc: { es: "Mascarpone, espresso, cacao. Receta de la nonna.", en: "Mascarpone, espresso, cocoa. Nonna's recipe." },
+    desc: { es: "Mascarpone, espresso, cacao. Receta de la nonna. ¨Hecho al momento¨", en: "Mascarpone, espresso, cocoa. Nonna's recipe. ¨Made to Order¨" },
     price: 4.8,
     diet: ["veg"],
     image: pastry,
