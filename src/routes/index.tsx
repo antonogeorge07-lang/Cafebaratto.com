@@ -252,7 +252,7 @@ function WaitlistForm() {
       <p className="mt-2 text-sm text-coffee-900/70">
         <EditableText
           id="waitlist.sub"
-          initial="Drop your email — we'll ping you the day the first bags ship."
+          initial="Drop your email we'll ping you the day the first bags ship."
         />
       </p>
 
