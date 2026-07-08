@@ -11,6 +11,26 @@ import { sha256 } from "@/lib/crypto";
 
 const SESSION_KEY = "baratto.admin.session.v1";
 const MASTER_HASH_KEY = "baratto.masterhash.v1";
+const PROFILE_KEY = "baratto.owner.profile.v1";
+
+export type OwnerProfile = { name: string; email: string };
+
+function readProfile(): OwnerProfile {
+  if (typeof window === "undefined") return { name: "", email: "" };
+  try {
+    const raw = localStorage.getItem(PROFILE_KEY);
+    if (!raw) return { name: "", email: "" };
+    const p = JSON.parse(raw);
+    return { name: p.name ?? "", email: p.email ?? "" };
+  } catch {
+    return { name: "", email: "" };
+  }
+}
+
+export function hasOwnerAccount(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!localStorage.getItem(MASTER_HASH_KEY);
+}
 
 type Ctx = {
   isAuthenticated: boolean;
