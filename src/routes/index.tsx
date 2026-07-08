@@ -20,17 +20,17 @@ import { trackEvent } from "@/utils/analytics";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cafetería Baratto — Italian espresso, paninis & cocktails in Valencia" },
+      { title: "Cafetería Baratto Italian espresso, paninis & cocktails in Valencia" },
       {
         name: "description",
         content:
-          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails — plus our house coffee blends coming soon.",
+          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails plus our house coffee blends coming soon.",
       },
-      { property: "og:title", content: "Cafetería Baratto — Valencia" },
+      { property: "og:title", content: "Cafetería Baratto Italian espresso, paninis & cocktails in Valencia" },
       {
         property: "og:description",
         content:
-          "Authentic Italian espresso, paninis and signature cocktails in the heart of Valencia.",
+          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails plus our house coffee blends coming soon.",
       },
       { property: "og:image", content: hero },
       { property: "og:url", content: "https://cafebaratto.com/" },
