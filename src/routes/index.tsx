@@ -51,8 +51,9 @@ function LandingPage() {
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <BlendsComingSoon />
         <MenuBridge />
+        <BlendsComingSoon />
+
       </main>
 
       <SiteFooter />
