@@ -37,6 +37,12 @@ type Ctx = {
   isEditMode: boolean;
   setEditMode: (v: boolean) => void;
   validateToken: (token: string) => Promise<boolean>;
+  createAccount: (input: { name: string; email: string; password: string }) => Promise<boolean>;
+  changePassword: (current: string, next: string) => Promise<boolean>;
+  updateProfile: (p: Partial<OwnerProfile>) => void;
+  deleteAccount: (current: string) => Promise<boolean>;
+  profile: OwnerProfile;
+  hasAccount: boolean;
   signOut: () => void;
 };
 
@@ -45,8 +51,42 @@ const AdminSessionContext = createContext<Ctx>({
   isEditMode: false,
   setEditMode: () => {},
   validateToken: async () => false,
+  createAccount: async () => false,
+  changePassword: async () => false,
+  updateProfile: () => {},
+  deleteAccount: async () => false,
+  profile: { name: "", email: "" },
+  hasAccount: false,
   signOut: () => {},
 });
+
+function readSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function AdminSessionProvider({ children }: { children: ReactNode }) {
+  const [isAuthenticated, setAuth] = useState(false);
+  const [isEditMode, setEditMode] = useState(false);
+  const [profile, setProfile] = useState<OwnerProfile>({ name: "", email: "" });
+  const [hasAccount, setHasAccount] = useState(false);
+
+  useEffect(() => {
+    setAuth(readSession());
+    setProfile(readProfile());
+    setHasAccount(hasOwnerAccount());
+    const onStorage = () => {
+      setAuth(readSession());
+      setProfile(readProfile());
+      setHasAccount(hasOwnerAccount());
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
 function readSession(): boolean {
   if (typeof window === "undefined") return false;
