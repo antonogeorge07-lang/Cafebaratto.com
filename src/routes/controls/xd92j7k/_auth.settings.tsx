@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, Eye, EyeOff, KeyRound } from "lucide-react";
+import { Check, Eye, EyeOff, KeyRound, UserCog, Trash2 } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
+import { useAdminSession } from "@/context/AdminSessionContext";
 
 const TOKEN_KEY = "baratto.loyverse_access_token.v1";
 
