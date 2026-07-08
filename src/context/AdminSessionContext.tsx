@@ -15,6 +15,15 @@ const PROFILE_KEY = "baratto.owner.profile.v1";
 
 export type OwnerProfile = { name: string; email: string };
 
+function readSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return sessionStorage.getItem(SESSION_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
 function readProfile(): OwnerProfile {
   if (typeof window === "undefined") return { name: "", email: "" };
   try {
@@ -30,6 +39,11 @@ function readProfile(): OwnerProfile {
 export function hasOwnerAccount(): boolean {
   if (typeof window === "undefined") return false;
   return !!localStorage.getItem(MASTER_HASH_KEY);
+}
+
+// Server-safe read used by route beforeLoad guards. Returns false during SSR.
+export function isAuthenticatedClient(): boolean {
+  return readSession();
 }
 
 type Ctx = {
@@ -60,15 +74,6 @@ const AdminSessionContext = createContext<Ctx>({
   signOut: () => {},
 });
 
-function readSession(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setAuth] = useState(false);
   const [isEditMode, setEditMode] = useState(false);
@@ -88,35 +93,16 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
-function readSession(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-export function AdminSessionProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setAuth] = useState(false);
-  const [isEditMode, setEditMode] = useState(false);
-
-  useEffect(() => {
-    setAuth(readSession());
-    const onStorage = () => setAuth(readSession());
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
-
   const validateToken = useCallback(async (token: string) => {
     if (typeof window === "undefined") return false;
     const stored = localStorage.getItem(MASTER_HASH_KEY);
     if (!stored) {
-      // First-run: set the master hash from this token so the owner can lock later.
+      // First-run fallback: set the master hash from this token.
       const h = await sha256(token);
       localStorage.setItem(MASTER_HASH_KEY, h);
       sessionStorage.setItem(SESSION_KEY, "1");
       setAuth(true);
+      setHasAccount(true);
       return true;
     }
     const incoming = await sha256(token);
@@ -128,6 +114,62 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     return ok;
   }, []);
 
+  const createAccount = useCallback(
+    async ({ name, email, password }: { name: string; email: string; password: string }) => {
+      if (typeof window === "undefined") return false;
+      if (localStorage.getItem(MASTER_HASH_KEY)) return false; // account already exists
+      if (!password || password.length < 6) return false;
+      const h = await sha256(password);
+      localStorage.setItem(MASTER_HASH_KEY, h);
+      const p: OwnerProfile = { name: name.trim(), email: email.trim() };
+      localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+      sessionStorage.setItem(SESSION_KEY, "1");
+      setProfile(p);
+      setHasAccount(true);
+      setAuth(true);
+      return true;
+    },
+    [],
+  );
+
+  const changePassword = useCallback(async (current: string, next: string) => {
+    if (typeof window === "undefined") return false;
+    if (!next || next.length < 6) return false;
+    const stored = localStorage.getItem(MASTER_HASH_KEY);
+    if (!stored) return false;
+    const cur = await sha256(current);
+    if (cur !== stored) return false;
+    const nxt = await sha256(next);
+    localStorage.setItem(MASTER_HASH_KEY, nxt);
+    return true;
+  }, []);
+
+  const updateProfile = useCallback((patch: Partial<OwnerProfile>) => {
+    setProfile((prev) => {
+      const next = { name: patch.name ?? prev.name, email: patch.email ?? prev.email };
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+  }, []);
+
+  const deleteAccount = useCallback(async (current: string) => {
+    if (typeof window === "undefined") return false;
+    const stored = localStorage.getItem(MASTER_HASH_KEY);
+    if (!stored) return false;
+    const cur = await sha256(current);
+    if (cur !== stored) return false;
+    localStorage.removeItem(MASTER_HASH_KEY);
+    localStorage.removeItem(PROFILE_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
+    setAuth(false);
+    setEditMode(false);
+    setProfile({ name: "", email: "" });
+    setHasAccount(false);
+    return true;
+  }, []);
+
   const signOut = useCallback(() => {
     if (typeof window !== "undefined") sessionStorage.removeItem(SESSION_KEY);
     setAuth(false);
@@ -135,8 +177,31 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<Ctx>(
-    () => ({ isAuthenticated, isEditMode, setEditMode, validateToken, signOut }),
-    [isAuthenticated, isEditMode, validateToken, signOut],
+    () => ({
+      isAuthenticated,
+      isEditMode,
+      setEditMode,
+      validateToken,
+      createAccount,
+      changePassword,
+      updateProfile,
+      deleteAccount,
+      profile,
+      hasAccount,
+      signOut,
+    }),
+    [
+      isAuthenticated,
+      isEditMode,
+      validateToken,
+      createAccount,
+      changePassword,
+      updateProfile,
+      deleteAccount,
+      profile,
+      hasAccount,
+      signOut,
+    ],
   );
 
   return (
@@ -146,9 +211,4 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
 
 export function useAdminSession() {
   return useContext(AdminSessionContext);
-}
-
-// Server-safe read used by route beforeLoad guards. Returns false during SSR.
-export function isAuthenticatedClient(): boolean {
-  return readSession();
 }
