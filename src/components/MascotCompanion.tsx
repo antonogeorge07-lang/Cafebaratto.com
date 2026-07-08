@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import mascot from "@/assets/mascot-cutout.png";
 
 const MESSAGES: Record<string, { title: string; body: string }> = {
-  top: { title: "¡Hola! I'm Vito 👋", body: "Welcome to Baratto. Scroll on — I'll show you around." },
+  top: { title: "¡Hola! I'm Vito 👋", body: "Welcome to Baratto. Scroll on I'll show you around." },
   ritual: { title: "My morning ritual ☕", body: "Espresso pulled to order. Try the cortado." },
   menu: { title: "Hungry?", body: "Tostadas, pastries, the works. I recommend everything." },
   story: { title: "Our little corner", body: "Steps from the Central Market. Locals call it home." },
