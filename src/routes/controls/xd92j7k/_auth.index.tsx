@@ -17,7 +17,10 @@ import {
   Check,
   X,
   Pencil,
+  ImagePlus,
 } from "lucide-react";
+import { useRef } from "react";
+
 import { trackEvent } from "@/utils/analytics";
 import {
   getMenu,
