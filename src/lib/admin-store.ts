@@ -6,6 +6,7 @@ const MENU_KEY = "baratto.menu.v1";
 const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const PASS_KEY = "baratto.masterhash.v1";
+const BOOKINGS_KEY = "baratto.bookings.v1";
 const CHANNEL = "baratto-sync";
 
 export type OrderStatus = "active" | "fulfilled" | "history";
@@ -121,7 +122,49 @@ export function setOrderStatus(id: string, status: OrderStatus) {
   broadcast();
 }
 
-/* ------------- Currency ------------- */
+/* ------------- Bookings (table & event) ------------- */
+export type BookingKind = "table" | "event";
+export type Booking = {
+  id: string;
+  kind: BookingKind;
+  name: string;
+  contact: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  partySize: number;
+  notes?: string;
+  eventType?: string;
+  createdAt: string;
+};
+
+export function getBookings(): Booking[] {
+  if (!isBrowser()) return [];
+  try {
+    const raw = localStorage.getItem(BOOKINGS_KEY);
+    return raw ? (JSON.parse(raw) as Booking[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addBooking(b: Omit<Booking, "id" | "createdAt">) {
+  if (!isBrowser()) return;
+  const list = getBookings();
+  const next: Booking = {
+    ...b,
+    id: `BKG-${Date.now()}`,
+    createdAt: new Date().toISOString(),
+  };
+  list.unshift(next);
+  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(list.slice(0, 500)));
+  broadcast();
+  return next;
+}
+
+export function getBookingsForDate(date: string): Booking[] {
+  return getBookings().filter((b) => b.date === date);
+}
+
 export function getCurrency(): Currency {
   if (!isBrowser()) return "EUR";
   return (localStorage.getItem(CURRENCY_KEY) as Currency) ?? "EUR";
