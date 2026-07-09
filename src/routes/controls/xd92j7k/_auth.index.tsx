@@ -1,6 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -12,9 +10,6 @@ import {
   YAxis,
 } from "recharts";
 import {
-  BarChart3,
-  ExternalLink,
-  RefreshCw,
   TrendingUp,
   Package,
   DollarSign,
@@ -22,27 +17,45 @@ import {
   Check,
   X,
   Pencil,
-  PlugZap,
-  AlertTriangle,
 } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
-import { getMenu, setMenu, subscribe, FX, getCurrency } from "@/lib/admin-store";
-import type { MenuItem } from "@/lib/menu-data";
 import {
-  getLoyverseMenu,
-  getLoyverseSalesTrend,
-  type IntegrationResult,
-} from "@/lib/loyverse.functions";
-
-const LOYVERSE_URL = "https://r.loyverse.com/dashboard/";
+  getMenu,
+  setMenu,
+  subscribe,
+  getOrders,
+  FX,
+  getCurrency,
+} from "@/lib/admin-store";
+import type { MenuItem } from "@/lib/menu-data";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/")({
   component: DashboardPage,
 });
 
+type TrendPoint = { day: string; sales: number; orders: number };
+
+function buildTrend(): TrendPoint[] {
+  const orders = getOrders();
+  const days: TrendPoint[] = [];
+  const today = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    const dayOrders = orders.filter((o) => o.placedAt.slice(0, 10) === key);
+    days.push({
+      day: d.toLocaleDateString("en", { month: "short", day: "numeric" }),
+      sales: dayOrders.reduce((s, o) => s + o.subtotal, 0),
+      orders: dayOrders.length,
+    });
+  }
+  return days;
+}
+
 function DashboardPage() {
-  const [reloadKey, setReloadKey] = useState(0);
   const [items, setItems] = useState<MenuItem[]>(() => getMenu());
+  const [trend, setTrend] = useState<TrendPoint[]>(() => buildTrend());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{ name: string; price: string; category: string }>({
     name: "",
@@ -50,50 +63,18 @@ function DashboardPage() {
     category: "",
   });
 
-  const fetchTrend = useServerFn(getLoyverseSalesTrend);
-  const fetchMenu = useServerFn(getLoyverseMenu);
-
-  const trendQuery = useQuery({
-    queryKey: ["loyverse", "trend"],
-    queryFn: () => fetchTrend(),
-    refetchOnWindowFocus: false,
-  });
-  const menuQuery = useQuery({
-    queryKey: ["loyverse", "menu"],
-    queryFn: () => fetchMenu(),
-    refetchOnWindowFocus: false,
-  });
-
   useEffect(() => {
-    trackEvent("dashboard_external_click", { tool: "loyverse_reporting" });
-    const unsub = subscribe(() => setItems(getMenu()));
+    trackEvent("admin_dashboard_view", {});
+    const unsub = subscribe(() => {
+      setItems(getMenu());
+      setTrend(buildTrend());
+    });
     return unsub;
   }, []);
-
-  // When Loyverse returns live items, mirror them into the local store so
-  // the rest of the admin (and the public site) stay in sync.
-  useEffect(() => {
-    if (menuQuery.data?.configured && menuQuery.data.data.length) {
-      setMenu(menuQuery.data.data);
-      setItems(menuQuery.data.data);
-    }
-  }, [menuQuery.data]);
 
   const currency = getCurrency();
   const sym = FX[currency].symbol;
   const rate = FX[currency].rate;
-
-  const trend = useMemo(() => {
-    const live = extract(trendQuery.data);
-    if (live?.length) {
-      return live.map((d) => ({
-        day: new Date(d.day).toLocaleDateString("en", { month: "short", day: "numeric" }),
-        sales: d.sales,
-        orders: d.orders,
-      }));
-    }
-    return [];
-  }, [trendQuery.data]);
 
   const kpi = useMemo(() => {
     const totalSales = trend.reduce((s, d) => s + d.sales, 0);
@@ -107,9 +88,9 @@ function DashboardPage() {
     };
   }, [trend, items]);
 
+  const hasSales = kpi.totalOrders > 0;
+
   function toggleStock(id: string) {
-    // TODO(loyverse): PATCH /v1.0/items/{id} via a dedicated server fn once
-    // write scopes are enabled on the API token.
     const next = items.map((i) => (i.id === id ? { ...i, stock: !(i.stock ?? true) } : i));
     setItems(next);
     setMenu(next);
@@ -136,28 +117,15 @@ function DashboardPage() {
     setEditingId(null);
   }
 
-  const integrationLive =
-    !!trendQuery.data?.configured || !!menuQuery.data?.configured;
-
   return (
     <main className="mx-auto max-w-6xl px-5 py-8 space-y-8">
-      <IntegrationBanner
-        trend={trendQuery.data}
-        menu={menuQuery.data}
-        loading={trendQuery.isFetching || menuQuery.isFetching}
-        onRetry={() => {
-          trendQuery.refetch();
-          menuQuery.refetch();
-        }}
-      />
-
       {/* KPI row */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard
           icon={<DollarSign className="h-4 w-4" />}
           label="Sales · 30d"
           value={
-            integrationLive
+            hasSales
               ? `${sym}${(kpi.totalSales * rate).toLocaleString("en", { maximumFractionDigits: 0 })}`
               : "—"
           }
@@ -166,13 +134,13 @@ function DashboardPage() {
         <KpiCard
           icon={<ShoppingBag className="h-4 w-4" />}
           label="Orders · 30d"
-          value={integrationLive ? kpi.totalOrders.toLocaleString() : "—"}
+          value={hasSales ? kpi.totalOrders.toLocaleString() : "—"}
           accent="text-emerald-400"
         />
         <KpiCard
           icon={<TrendingUp className="h-4 w-4" />}
           label="Avg ticket"
-          value={integrationLive ? `${sym}${(kpi.avgTicket * rate).toFixed(2)}` : "—"}
+          value={hasSales ? `${sym}${(kpi.avgTicket * rate).toFixed(2)}` : "—"}
           accent="text-sky-400"
         />
         <KpiCard
@@ -190,13 +158,15 @@ function DashboardPage() {
             <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Analytics</p>
             <h2 className="mt-1 text-lg font-semibold tracking-tight">Sales trend · last 30 days</h2>
             <p className="mt-0.5 text-xs text-zinc-500">
-              Sourced from <code className="text-zinc-400">GET /v1.0/receipts</code>.
+              Aggregated from orders placed via the in-house POS.
             </p>
           </div>
         </div>
         <div className="h-64 w-full">
-          {trend.length === 0 ? (
-            <EmptyChart loading={trendQuery.isFetching} />
+          {!hasSales ? (
+            <div className="grid h-full place-items-center text-xs text-zinc-500">
+              No sales yet — orders placed through the POS will appear here.
+            </div>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trend} margin={{ top: 8, right: 8, left: -12, bottom: 0 }}>
@@ -252,8 +222,7 @@ function DashboardPage() {
             <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Inventory</p>
             <h2 className="mt-1 text-lg font-semibold tracking-tight">Live items & stock</h2>
             <p className="mt-0.5 text-xs text-zinc-500">
-              Sourced from <code className="text-zinc-400">GET /v1.0/items</code>. Edits are
-              local until a write-scoped token is configured.
+              Edits publish instantly to the public menu.
             </p>
           </div>
           <span className="text-xs text-zinc-500">{items.length} items</span>
@@ -371,119 +340,7 @@ function DashboardPage() {
           </table>
         </div>
       </section>
-
-      {/* Loyverse iframe */}
-      <section className="space-y-3">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Live source</p>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">Loyverse Back Office</h2>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setReloadKey((k) => k + 1)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 text-xs text-zinc-300 hover:bg-white/5"
-            >
-              <RefreshCw className="h-3.5 w-3.5" /> Refresh
-            </button>
-            <a
-              href={LOYVERSE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-2 text-xs font-medium text-zinc-950 hover:bg-amber-400"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> Open
-            </a>
-          </div>
-        </div>
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-zinc-900/60 shadow-2xl">
-          <div className="flex items-center gap-2 border-b border-white/5 px-4 py-2.5 text-xs text-zinc-500">
-            <BarChart3 className="h-3.5 w-3.5" />
-            <span>{LOYVERSE_URL}</span>
-          </div>
-          <div className="relative aspect-[16/10] w-full bg-zinc-950">
-            <iframe
-              key={reloadKey}
-              title="Loyverse dashboard"
-              src={LOYVERSE_URL}
-              sandbox="allow-scripts allow-forms allow-same-origin allow-popups"
-              referrerPolicy="no-referrer"
-              className="absolute inset-0 h-full w-full"
-            />
-          </div>
-        </div>
-      </section>
     </main>
-  );
-}
-
-function extract<T>(r: IntegrationResult<T> | undefined): T | null {
-  if (!r || !r.configured) return null;
-  return r.data;
-}
-
-function IntegrationBanner({
-  trend,
-  menu,
-  loading,
-  onRetry,
-}: {
-  trend: IntegrationResult<unknown> | undefined;
-  menu: IntegrationResult<unknown> | undefined;
-  loading: boolean;
-  onRetry: () => void;
-}) {
-  const anyUnconfigured =
-    (trend && !trend.configured) || (menu && !menu.configured);
-  const errorMsg =
-    (trend && !trend.configured && trend.reason === "error" && trend.message) ||
-    (menu && !menu.configured && menu.reason === "error" && menu.message) ||
-    null;
-
-  if (!anyUnconfigured) {
-    return (
-      <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs text-emerald-300">
-        <PlugZap className="h-3.5 w-3.5" />
-        Loyverse connected · pulling live data from <code>/v1.0/items</code> and{" "}
-        <code>/v1.0/receipts</code>.
-      </div>
-    );
-  }
-
-  return (
-    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
-      <div className="flex items-start gap-3">
-        <AlertTriangle className="mt-0.5 h-4 w-4 text-amber-400" />
-        <div className="flex-1 text-xs text-amber-100/90">
-          <p className="font-semibold text-amber-200">
-            Loyverse integration not configured
-          </p>
-          <p className="mt-1 text-amber-100/70">
-            Add <code>LOYVERSE_API_TOKEN</code> as a server secret to stream live items and
-            receipts. Optional: <code>LOYVERSE_WEBHOOK_SECRET</code> to receive push updates
-            at <code>/api/public/loyverse-webhook</code>.
-          </p>
-          {errorMsg && (
-            <p className="mt-1 text-red-300">Last error: {errorMsg}</p>
-          )}
-        </div>
-        <button
-          onClick={onRetry}
-          disabled={loading}
-          className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 px-3 py-1.5 text-[11px] text-amber-200 hover:bg-amber-400/10 disabled:opacity-50"
-        >
-          <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Retry
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function EmptyChart({ loading }: { loading: boolean }) {
-  return (
-    <div className="grid h-full place-items-center rounded-2xl border border-dashed border-white/10 text-xs text-zinc-500">
-      {loading ? "Loading receipts…" : "No sales data yet — connect Loyverse to populate."}
-    </div>
   );
 }
 
@@ -499,12 +356,14 @@ function KpiCard({
   accent: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4">
-      <div className={`flex items-center gap-2 text-xs ${accent}`}>
+    <div className="rounded-2xl border border-white/10 bg-zinc-900/60 p-4 shadow-lg">
+      <div className={`inline-flex items-center gap-1.5 text-[11px] uppercase tracking-widest ${accent}`}>
         {icon}
-        <span className="uppercase tracking-widest text-[10px] text-zinc-500">{label}</span>
+        {label}
       </div>
-      <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-100">{value}</p>
+      <div className="mt-2 text-2xl font-semibold tracking-tight text-zinc-100 tabular-nums">
+        {value}
+      </div>
     </div>
   );
 }
