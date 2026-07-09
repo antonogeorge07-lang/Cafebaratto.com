@@ -34,6 +34,23 @@ export const Route = createFileRoute("/api/public/loyverse-webhook")({
   server: {
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: CORS }),
+      // Health probe — visiting the URL in a browser (GET) returns JSON
+      // status instead of a blank page. Never leaks the secret value.
+      GET: async () => {
+        const configured = Boolean(process.env.LOYVERSE_WEBHOOK_SECRET);
+        return new Response(
+          JSON.stringify({
+            ok: true,
+            endpoint: "loyverse-webhook",
+            method: "POST",
+            configured,
+            hint: configured
+              ? "Send POST with X-Loyverse-Signature header (HMAC-SHA256 of raw body)."
+              : "Set LOYVERSE_WEBHOOK_SECRET to enable signature verification.",
+          }),
+          { status: 200, headers: { "Content-Type": "application/json", ...CORS } },
+        );
+      },
       POST: async ({ request }) => {
         const secret = process.env.LOYVERSE_WEBHOOK_SECRET;
         if (!secret) {
