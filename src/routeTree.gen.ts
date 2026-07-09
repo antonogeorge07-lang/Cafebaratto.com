@@ -13,6 +13,7 @@ import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
+import { Route as ApiPublicLoyverseWebhookRouteImport } from './routes/api/public/loyverse-webhook'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 
@@ -36,6 +37,12 @@ const ControlsXd92j7kAuthRoute = ControlsXd92j7kAuthRouteImport.update({
   path: '/controls/xd92j7k',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicLoyverseWebhookRoute =
+  ApiPublicLoyverseWebhookRouteImport.update({
+    id: '/api/public/loyverse-webhook',
+    path: '/api/public/loyverse-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ControlsXd92j7kAuthIndexRoute =
   ControlsXd92j7kAuthIndexRouteImport.update({
     id: '/',
@@ -53,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
+  '/api/public/loyverse-webhook': typeof ApiPublicLoyverseWebhookRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
@@ -61,6 +69,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
+  '/api/public/loyverse-webhook': typeof ApiPublicLoyverseWebhookRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
@@ -69,6 +78,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
+  '/api/public/loyverse-webhook': typeof ApiPublicLoyverseWebhookRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
@@ -79,6 +89,7 @@ export interface FileRouteTypes {
     | '/'
     | '/menu'
     | '/owner'
+    | '/api/public/loyverse-webhook'
     | '/controls/xd92j7k'
     | '/controls/xd92j7k/settings'
     | '/controls/xd92j7k/'
@@ -87,6 +98,7 @@ export interface FileRouteTypes {
     | '/'
     | '/menu'
     | '/owner'
+    | '/api/public/loyverse-webhook'
     | '/controls/xd92j7k/settings'
     | '/controls/xd92j7k'
   id:
@@ -94,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/menu'
     | '/owner'
+    | '/api/public/loyverse-webhook'
     | '/controls/xd92j7k/_auth'
     | '/controls/xd92j7k/_auth/settings'
     | '/controls/xd92j7k/_auth/'
@@ -103,6 +116,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   MenuRoute: typeof MenuRoute
   OwnerRoute: typeof OwnerRoute
+  ApiPublicLoyverseWebhookRoute: typeof ApiPublicLoyverseWebhookRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
 }
 
@@ -134,6 +148,13 @@ declare module '@tanstack/react-router' {
       path: '/controls/xd92j7k'
       fullPath: '/controls/xd92j7k'
       preLoaderRoute: typeof ControlsXd92j7kAuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/loyverse-webhook': {
+      id: '/api/public/loyverse-webhook'
+      path: '/api/public/loyverse-webhook'
+      fullPath: '/api/public/loyverse-webhook'
+      preLoaderRoute: typeof ApiPublicLoyverseWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/controls/xd92j7k/_auth/': {
@@ -170,6 +191,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   MenuRoute: MenuRoute,
   OwnerRoute: OwnerRoute,
+  ApiPublicLoyverseWebhookRoute: ApiPublicLoyverseWebhookRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
