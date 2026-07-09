@@ -259,12 +259,14 @@ function DashboardPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-[11px] uppercase tracking-widest text-zinc-500">
-                <th className="px-5 py-3 font-medium">Item</th>
+                <th className="px-5 py-3 font-medium">Photo</th>
+                <th className="px-3 py-3 font-medium">Item</th>
                 <th className="px-3 py-3 font-medium">Category</th>
                 <th className="px-3 py-3 font-medium">Price</th>
                 <th className="px-3 py-3 font-medium">Stock</th>
                 <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
+
             </thead>
             <tbody>
               {items.map((item) => {
@@ -273,6 +275,42 @@ function DashboardPage() {
                 return (
                   <tr key={item.id} className="border-t border-white/5 hover:bg-white/5">
                     <td className="px-5 py-3">
+                      <div className="relative h-12 w-12 overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={item.name.en}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="grid h-full w-full place-items-center text-zinc-600">
+                            <ImagePlus className="h-4 w-4" />
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => triggerUpload(item.id)}
+                          title="Upload photo"
+                          className="absolute inset-0 grid place-items-center bg-black/50 opacity-0 transition hover:opacity-100"
+                        >
+                          <ImagePlus className="h-4 w-4 text-white" />
+                        </button>
+                        <input
+                          ref={(el) => {
+                            fileInputs.current[item.id] = el;
+                          }}
+                          type="file"
+                          accept="image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            void handlePhoto(item.id, e.target.files?.[0]);
+                            e.target.value = "";
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td className="px-3 py-3">
+
                       {isEditing ? (
                         <input
                           value={draft.name}
