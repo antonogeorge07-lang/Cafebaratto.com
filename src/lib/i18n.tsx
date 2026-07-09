@@ -15,8 +15,8 @@ export const T: Dict = {
   hero_title_1: { es: "Espresso italiano,", en: "Italian espresso," },
   hero_title_2: { es: "paninis y cócteles.", en: "paninis & cocktails." },
   hero_sub: {
-    es: "Junto a la Plaza del Ayuntamiento. Desde 1992, sirviendo café de verdad, paninis recién hechos y cócteles de autor en el corazón de Valencia.",
-    en: "Steps from Plaza del Ayuntamiento. Since 1992, pouring real coffee, fresh-pressed paninis and signature cocktails in the heart of Valencia.",
+    es: "Tú eliges cómo empezar el día...",
+    en: "You Choose How to Start Your day...",
   },
   hero_cta_menu: { es: "Ver la carta", en: "Explore the menu" },
   hero_cta_book: { es: "Reservar mesa", en: "Book a table" },
