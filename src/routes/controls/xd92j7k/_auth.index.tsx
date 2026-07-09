@@ -185,10 +185,13 @@ function DashboardPage() {
                   fontSize: 12,
                   color: "#fafafa",
                 }}
-                formatter={(v: number, name) => [
-                  name === "sales" ? `${sym}${(v * rate).toFixed(0)}` : v,
-                  name === "sales" ? "Sales" : "Orders",
-                ]}
+                formatter={(v, name) => {
+                  const num = Number(v);
+                  return [
+                    name === "sales" ? `${sym}${(num * rate).toFixed(0)}` : num,
+                    name === "sales" ? "Sales" : "Orders",
+                  ];
+                }}
               />
               <Area
                 type="monotone"
