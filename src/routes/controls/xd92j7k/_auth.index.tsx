@@ -99,6 +99,31 @@ function DashboardPage() {
     setMenu(next);
   }
 
+  const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  function triggerUpload(id: string) {
+    fileInputs.current[id]?.click();
+  }
+
+  async function handlePhoto(id: string, file: File | undefined) {
+    if (!file) return;
+    if (!file.type.startsWith("image/")) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert("Image too large — max 4 MB.");
+      return;
+    }
+    const dataUrl = await new Promise<string>((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result));
+      r.onerror = () => rej(r.error);
+      r.readAsDataURL(file);
+    });
+    const next = items.map((i) => (i.id === id ? { ...i, image: dataUrl } : i));
+    setItems(next);
+    setMenu(next);
+  }
+
+
   function startEdit(item: MenuItem) {
     setEditingId(item.id);
     setDraft({ name: item.name.en, price: String(item.price), category: item.category });
