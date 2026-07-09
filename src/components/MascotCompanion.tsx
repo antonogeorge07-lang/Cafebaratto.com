@@ -7,7 +7,7 @@ import { BookingModal } from "@/components/BookingModal";
 import mascot from "@/assets/mascot-cutout.png";
 
 const MESSAGES: Record<string, { title: string; body: string }> = {
-  top: { title: "¡Hola! I'm Vito 👋", body: "Order, reserve a table or plan an event — tap me." },
+  top: { title: "¡Hola! I'm Vito 👋", body: "Order, reserve a table or plan an event tap me." },
   ritual: { title: "My morning ritual ☕", body: "Espresso pulled to order. Try the cortado." },
   menu: { title: "Hungry?", body: "Peek the menu or send an order straight to the bar." },
   story: { title: "Our little corner", body: "Steps from the Central Market. Locals call it home." },
