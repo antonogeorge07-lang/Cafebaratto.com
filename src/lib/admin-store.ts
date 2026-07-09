@@ -6,6 +6,7 @@ const MENU_KEY = "baratto.menu.v1";
 const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const PASS_KEY = "baratto.masterhash.v1";
+const BOOKINGS_KEY = "baratto.bookings.v1";
 const CHANNEL = "baratto-sync";
 
 export type OrderStatus = "active" | "fulfilled" | "history";
