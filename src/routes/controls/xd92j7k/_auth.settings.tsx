@@ -1,9 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Trash2, ShieldCheck } from "lucide-react";
+import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
-import { RecoveryCodeCard } from "@/components/RecoveryCodeCard";
+import {
+  getSettings,
+  setSettings,
+  subscribe,
+  DEFAULT_SETTINGS,
+  type SiteSettings,
+} from "@/lib/admin-store";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/settings")({
   component: SettingsPage,
@@ -15,60 +21,38 @@ function SettingsPage() {
       <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Setup</p>
       <h1 className="mt-1 text-2xl font-semibold tracking-tight">System settings</h1>
       <p className="mt-1 text-sm text-zinc-400">
-        Manage your owner account. All menu, pricing, POS, orders, bookings and
-        inventory changes are made from their dedicated admin sections.
+        Manage your owner account and control what visitors see on the public site.
       </p>
 
       <AccountSection />
+      <LandingVisibilitySection />
     </main>
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* Account                                                             */
+/* ------------------------------------------------------------------ */
+
 function AccountSection() {
-  const {
-    profile,
-    updateProfile,
-    changePassword,
-    deleteAccount,
-    signOut,
-    regenerateRecoveryCode,
-    hasRecoveryCode,
-  } = useAdminSession();
+  const { profile, updateProfile, changePassword, signOut } = useAdminSession();
   const navigate = useNavigate();
 
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
   const [profileSaved, setProfileSaved] = useState(false);
 
-  const [current, setCurrent] = useState("");
-  const [next, setNext] = useState("");
+  const [nextPw, setNextPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [pwMsg, setPwMsg] = useState<{ ok: boolean; text: string } | null>(null);
-
-  const [danger, setDanger] = useState("");
-  const [dangerErr, setDangerErr] = useState("");
-
-  const [recoveryPw, setRecoveryPw] = useState("");
-  const [recoveryErr, setRecoveryErr] = useState("");
-  const [issuedRecovery, setIssuedRecovery] = useState<string | null>(null);
-
-  const submitRegenerateRecovery = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setRecoveryErr("");
-    const code = await regenerateRecoveryCode(recoveryPw);
-    if (!code) return setRecoveryErr("Current password is incorrect.");
-    setRecoveryPw("");
-    setIssuedRecovery(code);
-    trackEvent("owner_recovery_code_regenerated", {});
-  };
 
   useEffect(() => {
     setName(profile.name);
     setEmail(profile.email);
   }, [profile.name, profile.email]);
 
-  const saveProfile = () => {
-    updateProfile({ name: name.trim(), email: email.trim() });
+  const saveProfile = async () => {
+    await updateProfile({ name: name.trim(), email: email.trim() });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 1600);
   };
@@ -76,21 +60,15 @@ function AccountSection() {
   const submitPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPwMsg(null);
-    if (next.length < 6) return setPwMsg({ ok: false, text: "New password must be at least 6 characters." });
-    if (next !== confirm) return setPwMsg({ ok: false, text: "Passwords do not match." });
-    const ok = await changePassword(current, next);
-    if (!ok) return setPwMsg({ ok: false, text: "Current password is incorrect." });
-    setCurrent(""); setNext(""); setConfirm("");
+    if (nextPw.length < 6)
+      return setPwMsg({ ok: false, text: "New password must be at least 6 characters." });
+    if (nextPw !== confirm) return setPwMsg({ ok: false, text: "Passwords do not match." });
+    const res = await changePassword(nextPw);
+    if (!res.ok) return setPwMsg({ ok: false, text: res.error ?? "Could not update password." });
+    setNextPw("");
+    setConfirm("");
     setPwMsg({ ok: true, text: "Password updated." });
     trackEvent("owner_password_changed", {});
-  };
-
-  const submitDelete = async () => {
-    setDangerErr("");
-    if (!confirm && !danger) return setDangerErr("Enter your password to confirm.");
-    const ok = await deleteAccount(danger);
-    if (!ok) return setDangerErr("Incorrect password.");
-    navigate({ to: "/" });
   };
 
   return (
@@ -102,7 +80,7 @@ function AccountSection() {
           </span>
           <div>
             <p className="text-sm font-semibold">Owner profile</p>
-            <p className="text-xs text-zinc-500">Displayed only to you on this device.</p>
+            <p className="text-xs text-zinc-500">Your account details.</p>
           </div>
         </div>
 
@@ -121,8 +99,8 @@ function AccountSection() {
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+              disabled
+              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-400 outline-none"
             />
           </div>
         </div>
@@ -148,23 +126,20 @@ function AccountSection() {
           </span>
           <div>
             <p className="text-sm font-semibold">Change password</p>
-            <p className="text-xs text-zinc-500">Update the password used to unlock Controls.</p>
+            <p className="text-xs text-zinc-500">
+              You're already signed in — pick a new password below. To reset a forgotten
+              password, use the magic link on the sign-in page.
+            </p>
           </div>
         </div>
 
         <form onSubmit={submitPassword} className="mt-6 grid gap-3">
           <input
             type="password"
-            value={current}
-            onChange={(e) => setCurrent(e.target.value)}
-            placeholder="Current password"
-            className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
-          />
-          <input
-            type="password"
-            value={next}
-            onChange={(e) => setNext(e.target.value)}
+            value={nextPw}
+            onChange={(e) => setNextPw(e.target.value)}
             placeholder="New password (min 6 characters)"
+            autoComplete="new-password"
             className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
           />
           <input
@@ -172,10 +147,13 @@ function AccountSection() {
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder="Confirm new password"
+            autoComplete="new-password"
             className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
           />
           {pwMsg && (
-            <p className={`text-xs ${pwMsg.ok ? "text-emerald-400" : "text-red-400"}`}>{pwMsg.text}</p>
+            <p className={`text-xs ${pwMsg.ok ? "text-emerald-400" : "text-red-400"}`}>
+              {pwMsg.text}
+            </p>
           )}
           <div className="flex items-center gap-3">
             <button
@@ -186,7 +164,10 @@ function AccountSection() {
             </button>
             <button
               type="button"
-              onClick={() => { signOut(); navigate({ to: "/" }); }}
+              onClick={async () => {
+                await signOut();
+                navigate({ to: "/" });
+              }}
               className="rounded-xl border border-white/10 px-4 py-2 text-xs text-zinc-400 hover:bg-white/5"
             >
               Sign out
@@ -194,81 +175,206 @@ function AccountSection() {
           </div>
         </form>
       </section>
-
-      <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
-        <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/20 text-amber-400">
-            <ShieldCheck className="h-4 w-4" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold">Recovery code</p>
-            <p className="text-xs text-zinc-500">
-              {hasRecoveryCode
-                ? "Generate a new recovery code. The previous code stops working immediately."
-                : "No recovery code is set yet. Generate one now so you can reset your password if you forget it."}
-            </p>
-          </div>
-        </div>
-
-        {issuedRecovery ? (
-          <div className="mt-6">
-            <RecoveryCodeCard
-              code={issuedRecovery}
-              title="Your new recovery code"
-              description="Store this somewhere safe. Your previous code no longer works and this one will not be shown again."
-              onDone={() => setIssuedRecovery(null)}
-            />
-          </div>
-        ) : (
-          <form onSubmit={submitRegenerateRecovery} className="mt-6 grid gap-3">
-            <input
-              type="password"
-              value={recoveryPw}
-              onChange={(e) => setRecoveryPw(e.target.value)}
-              placeholder="Confirm current password"
-              className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
-            />
-            {recoveryErr && <p className="text-xs text-red-400">{recoveryErr}</p>}
-            <button
-              type="submit"
-              className="w-fit rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-amber-400"
-            >
-              {hasRecoveryCode ? "Generate new recovery code" : "Generate recovery code"}
-            </button>
-          </form>
-        )}
-      </section>
-
-      <section className="mt-6 rounded-3xl border border-red-500/20 bg-red-500/5 p-6">
-        <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-red-500/20 text-red-400">
-            <Trash2 className="h-4 w-4" />
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-red-200">Delete owner account</p>
-            <p className="text-xs text-red-300/70">
-              Removes the master password and profile from this device. Cannot be undone.
-            </p>
-          </div>
-        </div>
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row">
-          <input
-            type="password"
-            value={danger}
-            onChange={(e) => setDanger(e.target.value)}
-            placeholder="Enter current password to confirm"
-            className="w-full rounded-xl border border-red-500/20 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-red-500/60"
-          />
-          <button
-            type="button"
-            onClick={submitDelete}
-            className="rounded-xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white hover:bg-red-500"
-          >
-            Delete account
-          </button>
-        </div>
-        {dangerErr && <p className="mt-2 text-xs text-red-300">{dangerErr}</p>}
-      </section>
     </>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Landing visibility (Special Offer + Menu)                           */
+/* ------------------------------------------------------------------ */
+
+function LandingVisibilitySection() {
+  const [s, setS] = useState<SiteSettings>(() => getSettings());
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    setS(getSettings());
+    const unsub = subscribe(() => setS(getSettings()));
+    return unsub;
+  }, []);
+
+  const update = (patch: Partial<SiteSettings>) => {
+    setSettings(patch);
+    setS((prev) => ({ ...prev, ...patch }));
+    setSaved(true);
+    trackEvent("site_settings_updated", { keys: Object.keys(patch) });
+    setTimeout(() => setSaved(false), 1200);
+  };
+
+  return (
+    <>
+      {/* Special Offer */}
+      <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/20 text-amber-400">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Special Offer banner</p>
+              <p className="text-xs text-zinc-500">
+                Shown on the landing page only when enabled.
+              </p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={s.offerEnabled}
+            onChange={(v) => update({ offerEnabled: v })}
+            label={s.offerEnabled ? "Visible" : "Hidden"}
+          />
+        </div>
+
+        <div className="mt-6 grid gap-3">
+          <LabeledInput
+            label="Headline"
+            value={s.offerHeadline}
+            onChange={(v) => update({ offerHeadline: v })}
+            placeholder={DEFAULT_SETTINGS.offerHeadline}
+          />
+          <LabeledTextarea
+            label="Description"
+            value={s.offerBody}
+            onChange={(v) => update({ offerBody: v })}
+            placeholder={DEFAULT_SETTINGS.offerBody}
+          />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <LabeledInput
+              label="Coupon code"
+              value={s.offerCode}
+              onChange={(v) => update({ offerCode: v.toUpperCase() })}
+              placeholder={DEFAULT_SETTINGS.offerCode}
+              className="font-mono uppercase tracking-widest"
+            />
+            <LabeledInput
+              label="CTA label"
+              value={s.offerCtaLabel}
+              onChange={(v) => update({ offerCtaLabel: v })}
+              placeholder={DEFAULT_SETTINGS.offerCtaLabel}
+            />
+          </div>
+          <LabeledInput
+            label="CTA link (URL or #anchor)"
+            value={s.offerCtaHref}
+            onChange={(v) => update({ offerCtaHref: v })}
+            placeholder={DEFAULT_SETTINGS.offerCtaHref}
+          />
+        </div>
+      </section>
+
+      {/* Menu visibility */}
+      <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/20 text-amber-400">
+              {s.menuVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+            </span>
+            <div>
+              <p className="text-sm font-semibold">Public menu</p>
+              <p className="text-xs text-zinc-500">
+                When hidden, /menu shows a friendly "temporarily unavailable" notice.
+              </p>
+            </div>
+          </div>
+          <ToggleSwitch
+            checked={s.menuVisible}
+            onChange={(v) => update({ menuVisible: v })}
+            label={s.menuVisible ? "Visible" : "Hidden"}
+          />
+        </div>
+        <p className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-zinc-950/50 px-3 py-2 text-[11px] text-zinc-400">
+          <ListChecks className="h-3.5 w-3.5" />
+          Per-item hide toggles are on each row of the Dashboard's inventory table.
+        </p>
+      </section>
+
+      {saved && (
+        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-emerald-400">
+          <Check className="h-3.5 w-3.5" /> Saved · live on the public site.
+        </p>
+      )}
+    </>
+  );
+}
+
+function ToggleSwitch({
+  checked,
+  onChange,
+  label,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className={`inline-flex items-center gap-2 rounded-full border px-1 py-1 text-[11px] transition ${
+        checked
+          ? "border-amber-500/60 bg-amber-500/20 text-amber-200"
+          : "border-white/10 bg-zinc-950 text-zinc-500"
+      }`}
+    >
+      <span
+        className={`grid h-5 w-5 place-items-center rounded-full transition ${
+          checked ? "translate-x-4 bg-amber-400" : "translate-x-0 bg-zinc-700"
+        }`}
+      />
+      <span className="pr-2">{label ?? (checked ? "On" : "Off")}</span>
+    </button>
+  );
+}
+
+function LabeledInput({
+  label,
+  value,
+  onChange,
+  placeholder,
+  className,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  className?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-[11px] uppercase tracking-widest text-zinc-500">{label}</span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className={`mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60 ${className ?? ""}`}
+      />
+    </label>
+  );
+}
+
+function LabeledTextarea({
+  label,
+  value,
+  onChange,
+  placeholder,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="text-[11px] uppercase tracking-widest text-zinc-500">{label}</span>
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={3}
+        className="mt-2 w-full resize-y rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+      />
+    </label>
   );
 }

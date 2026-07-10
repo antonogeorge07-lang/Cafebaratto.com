@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Leaf, Nut, Salad, Wheat } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Leaf, Nut, Salad, Wheat, EyeOff } from "lucide-react";
 
 import { useI18n } from "@/lib/i18n";
 import { useLiveMenu } from "@/lib/useLiveMenu";
-import { MENU, CATEGORIES, type Category, type Diet } from "@/lib/menu-data";
+import { MENU, categoryLabel, type Category, type Diet } from "@/lib/menu-data";
+import { getSettings, subscribe } from "@/lib/admin-store";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
@@ -40,12 +41,31 @@ const DIET_META: Record<Diet, { icon: React.ComponentType<{ className?: string }
 function MenuPage() {
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(() => getSettings().menuVisible);
   const live = useLiveMenu();
+
+  useEffect(() => {
+    setMenuVisible(getSettings().menuVisible);
+    const unsub = subscribe(() => setMenuVisible(getSettings().menuVisible));
+    return unsub;
+  }, []);
 
   return (
     <div className="min-h-screen bg-oak-50 text-coffee-900">
       <SiteHeader onBook={() => setBookOpen(true)} onOrder={() => setOrderOpen(true)} />
-      <MenuSection live={live} />
+      {menuVisible ? (
+        <MenuSection live={live} />
+      ) : (
+        <section className="mx-auto max-w-2xl px-4 py-24 text-center">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-oak-200 text-coffee-900/60">
+            <EyeOff className="h-5 w-5" />
+          </span>
+          <h1 className="mt-5 font-serif text-3xl">Menu temporarily unavailable</h1>
+          <p className="mt-3 text-sm text-coffee-900/70">
+            We're updating our offering. Please check back shortly.
+          </p>
+        </section>
+      )}
       <SiteFooter />
 
       <ReservationModal open={bookOpen} onClose={() => setBookOpen(false)} />
@@ -70,13 +90,13 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
   );
 
   const availableCategories = useMemo(
-    () => CATEGORIES.filter((category) => activeSource.some((item) => item.category === category)),
+    () => Array.from(new Set(activeSource.map((item) => item.category))),
     [activeSource],
   );
 
   const pills: { id: Category | "all"; label: string }[] = [
     { id: "all", label: t("cat_all") },
-    ...availableCategories.map((c) => ({ id: c, label: t(`cat_${c}` as never) })),
+    ...availableCategories.map((c) => ({ id: c, label: categoryLabel(c, lang) })),
   ];
 
   return (

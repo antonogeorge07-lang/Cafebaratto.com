@@ -1,12 +1,12 @@
-// Shared client-side store for menu overrides + live orders.
+// Shared client-side store for menu overrides + live orders + site settings.
 // Persisted to localStorage and broadcast across tabs via BroadcastChannel.
 import { MENU, type MenuItem } from "@/lib/menu-data";
 
 const MENU_KEY = "baratto.menu.v1";
 const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
-const PASS_KEY = "baratto.masterhash.v1";
 const BOOKINGS_KEY = "baratto.bookings.v1";
+const SETTINGS_KEY = "baratto.site.settings.v1";
 const CHANNEL = "baratto-sync";
 
 export type OrderStatus = "active" | "fulfilled" | "history";
@@ -26,6 +26,30 @@ export const FX: Record<Currency, { rate: number; symbol: string }> = {
   EUR: { rate: 1, symbol: "€" },
   USD: { rate: 1.08, symbol: "$" },
   GBP: { rate: 0.85, symbol: "£" },
+};
+
+/**
+ * Site-wide visibility & content settings controlled from the admin panel.
+ * Persisted with the same broadcast/subscribe mechanism as the menu.
+ */
+export type SiteSettings = {
+  offerEnabled: boolean;
+  offerHeadline: string;
+  offerBody: string;
+  offerCode: string;
+  offerCtaLabel: string;
+  offerCtaHref: string;
+  menuVisible: boolean;
+};
+
+export const DEFAULT_SETTINGS: SiteSettings = {
+  offerEnabled: false,
+  offerHeadline: "Happy Hour · 2×1 on Spritz",
+  offerBody: "Every Thursday, 6-8pm. Show this code at the counter to unlock the deal.",
+  offerCode: "SPRITZ2X1",
+  offerCtaLabel: "Book a table",
+  offerCtaHref: "#book",
+  menuVisible: true,
 };
 
 type Listener = () => void;
@@ -59,7 +83,13 @@ export function subscribe(fn: Listener) {
   getChannel(); // ensure channel attached
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
-      if (e.key === MENU_KEY || e.key === ORDERS_KEY || e.key === CURRENCY_KEY) emit();
+      if (
+        e.key === MENU_KEY ||
+        e.key === ORDERS_KEY ||
+        e.key === CURRENCY_KEY ||
+        e.key === SETTINGS_KEY
+      )
+        emit();
     };
     window.addEventListener("storage", storage);
     return () => {
@@ -83,6 +113,11 @@ export function getMenu(): MenuItem[] {
   }
 }
 
+/** Menu items visible on the public site (hidden ones filtered out). */
+export function getPublicMenu(): MenuItem[] {
+  return getMenu().filter((i) => !i.hidden);
+}
+
 export function setMenu(items: MenuItem[]) {
   if (!isBrowser()) return;
   localStorage.setItem(MENU_KEY, JSON.stringify(items));
@@ -92,6 +127,26 @@ export function setMenu(items: MenuItem[]) {
 export function resetMenu() {
   if (!isBrowser()) return;
   localStorage.removeItem(MENU_KEY);
+  broadcast();
+}
+
+/* ------------- Site settings ------------- */
+export function getSettings(): SiteSettings {
+  if (!isBrowser()) return DEFAULT_SETTINGS;
+  try {
+    const raw = localStorage.getItem(SETTINGS_KEY);
+    if (!raw) return DEFAULT_SETTINGS;
+    const parsed = JSON.parse(raw) as Partial<SiteSettings>;
+    return { ...DEFAULT_SETTINGS, ...parsed };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
+export function setSettings(patch: Partial<SiteSettings>) {
+  if (!isBrowser()) return;
+  const next = { ...getSettings(), ...patch };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
   broadcast();
 }
 
@@ -173,14 +228,4 @@ export function setCurrency(c: Currency) {
   if (!isBrowser()) return;
   localStorage.setItem(CURRENCY_KEY, c);
   broadcast();
-}
-
-/* ------------- Master password ------------- */
-export function getMasterHash(): string | null {
-  if (!isBrowser()) return null;
-  return localStorage.getItem(PASS_KEY);
-}
-export function setMasterHash(hash: string) {
-  if (!isBrowser()) return;
-  localStorage.setItem(PASS_KEY, hash);
 }
