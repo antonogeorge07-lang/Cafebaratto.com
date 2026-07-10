@@ -7,279 +7,182 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { sha256 } from "@/lib/crypto";
-
-const SESSION_KEY = "baratto.admin.session.v1";
-const MASTER_HASH_KEY = "baratto.masterhash.v1";
-const PROFILE_KEY = "baratto.owner.profile.v1";
-const RECOVERY_HASH_KEY = "baratto.recovery.v1";
+import type { Session } from "@supabase/supabase-js";
+import { supabase } from "@/integrations/supabase/client";
 
 export type OwnerProfile = { name: string; email: string };
 
-function readSession(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return sessionStorage.getItem(SESSION_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-function readProfile(): OwnerProfile {
-  if (typeof window === "undefined") return { name: "", email: "" };
-  try {
-    const raw = localStorage.getItem(PROFILE_KEY);
-    if (!raw) return { name: "", email: "" };
-    const p = JSON.parse(raw);
-    return { name: p.name ?? "", email: p.email ?? "" };
-  } catch {
-    return { name: "", email: "" };
-  }
-}
-
-export function hasOwnerAccount(): boolean {
-  if (typeof window === "undefined") return false;
-  return !!localStorage.getItem(MASTER_HASH_KEY);
-}
-
-// Server-safe read used by route beforeLoad guards. Returns false during SSR.
-export function isAuthenticatedClient(): boolean {
-  return readSession();
-}
-
-// Human-friendly recovery code: 4 groups of 4 chars (A-Z, 2-9). ~20 bits/group.
-function generateRecoveryCode(): string {
-  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  let out = "";
-  for (let i = 0; i < 16; i++) {
-    out += alphabet[bytes[i] % alphabet.length];
-    if (i % 4 === 3 && i < 15) out += "-";
-  }
-  return out;
-}
-
-function normalizeCode(code: string): string {
-  return code.replace(/[\s-]/g, "").toUpperCase();
-}
+type AuthResult = { ok: boolean; error?: string };
 
 type Ctx = {
   isAuthenticated: boolean;
+  isLoading: boolean;
   isEditMode: boolean;
   setEditMode: (v: boolean) => void;
-  validateToken: (token: string) => Promise<boolean>;
-  createAccount: (input: {
-    name: string;
-    email: string;
-    password: string;
-  }) => Promise<{ ok: boolean; recoveryCode?: string }>;
-  changePassword: (current: string, next: string) => Promise<boolean>;
-  updateProfile: (p: Partial<OwnerProfile>) => void;
-  deleteAccount: (current: string) => Promise<boolean>;
-  resetPasswordWithCode: (
-    code: string,
-    nextPassword: string,
-  ) => Promise<{ ok: boolean; recoveryCode?: string; error?: string }>;
-  regenerateRecoveryCode: (currentPassword: string) => Promise<string | null>;
-  hasRecoveryCode: boolean;
   profile: OwnerProfile;
-  hasAccount: boolean;
-  signOut: () => void;
+  signIn: (email: string, password: string) => Promise<AuthResult>;
+  signUp: (input: { name: string; email: string; password: string }) => Promise<AuthResult>;
+  signOut: () => Promise<void>;
+  updateProfile: (p: Partial<OwnerProfile>) => Promise<void>;
+  changePassword: (nextPassword: string) => Promise<AuthResult>;
+  sendPasswordResetEmail: (email: string) => Promise<AuthResult>;
 };
 
 const AdminSessionContext = createContext<Ctx>({
   isAuthenticated: false,
+  isLoading: true,
   isEditMode: false,
   setEditMode: () => {},
-  validateToken: async () => false,
-  createAccount: async () => ({ ok: false }),
-  changePassword: async () => false,
-  updateProfile: () => {},
-  deleteAccount: async () => false,
-  resetPasswordWithCode: async () => ({ ok: false }),
-  regenerateRecoveryCode: async () => null,
-  hasRecoveryCode: false,
   profile: { name: "", email: "" },
-  hasAccount: false,
-  signOut: () => {},
+  signIn: async () => ({ ok: false }),
+  signUp: async () => ({ ok: false }),
+  signOut: async () => {},
+  updateProfile: async () => {},
+  changePassword: async () => ({ ok: false }),
+  sendPasswordResetEmail: async () => ({ ok: false }),
 });
 
 export function AdminSessionProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setAuth] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setLoading] = useState(true);
   const [isEditMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState<OwnerProfile>({ name: "", email: "" });
-  const [hasAccount, setHasAccount] = useState(false);
-  const [hasRecoveryCode, setHasRecoveryCode] = useState(false);
+
+  // Load profile row for the current user (name comes from profiles, email from auth).
+  const hydrateProfile = useCallback(async (s: Session | null) => {
+    if (!s?.user) {
+      setProfile({ name: "", email: "" });
+      return;
+    }
+    const email = s.user.email ?? "";
+    const metaName =
+      (s.user.user_metadata as { name?: string } | null | undefined)?.name ?? "";
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("name, email")
+        .eq("id", s.user.id)
+        .maybeSingle();
+      if (data) {
+        setProfile({ name: data.name ?? metaName, email: data.email ?? email });
+      } else {
+        // First login after signup: ensure a profile row exists.
+        await supabase.from("profiles").upsert({
+          id: s.user.id,
+          name: metaName,
+          email,
+        });
+        setProfile({ name: metaName, email });
+      }
+    } catch {
+      setProfile({ name: metaName, email });
+    }
+  }, []);
 
   useEffect(() => {
-    const sync = () => {
-      setAuth(readSession());
-      setProfile(readProfile());
-      setHasAccount(hasOwnerAccount());
-      setHasRecoveryCode(!!localStorage.getItem(RECOVERY_HASH_KEY));
-    };
-    sync();
-    window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
-
-  const validateToken = useCallback(async (token: string) => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem(MASTER_HASH_KEY);
-    if (!stored) {
-      // First-run fallback: set the master hash from this token.
-      const h = await sha256(token);
-      localStorage.setItem(MASTER_HASH_KEY, h);
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuth(true);
-      setHasAccount(true);
-      return true;
-    }
-    const incoming = await sha256(token);
-    const ok = incoming === stored;
-    if (ok) {
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuth(true);
-    }
-    return ok;
-  }, []);
-
-  const createAccount = useCallback(
-    async ({ name, email, password }: { name: string; email: string; password: string }) => {
-      if (typeof window === "undefined") return { ok: false };
-      if (localStorage.getItem(MASTER_HASH_KEY)) return { ok: false };
-      if (!password || password.length < 6) return { ok: false };
-      const h = await sha256(password);
-      localStorage.setItem(MASTER_HASH_KEY, h);
-      const p: OwnerProfile = { name: name.trim(), email: email.trim() };
-      localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
-      const code = generateRecoveryCode();
-      const codeHash = await sha256(normalizeCode(code));
-      localStorage.setItem(RECOVERY_HASH_KEY, codeHash);
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setProfile(p);
-      setHasAccount(true);
-      setHasRecoveryCode(true);
-      setAuth(true);
-      return { ok: true, recoveryCode: code };
-    },
-    [],
-  );
-
-  const changePassword = useCallback(async (current: string, next: string) => {
-    if (typeof window === "undefined") return false;
-    if (!next || next.length < 6) return false;
-    const stored = localStorage.getItem(MASTER_HASH_KEY);
-    if (!stored) return false;
-    const cur = await sha256(current);
-    if (cur !== stored) return false;
-    const nxt = await sha256(next);
-    localStorage.setItem(MASTER_HASH_KEY, nxt);
-    return true;
-  }, []);
-
-  const updateProfile = useCallback((patch: Partial<OwnerProfile>) => {
-    setProfile((prev) => {
-      const next = { name: patch.name ?? prev.name, email: patch.email ?? prev.email };
-      try {
-        localStorage.setItem(PROFILE_KEY, JSON.stringify(next));
-      } catch {}
-      return next;
+    // Register listener FIRST, then read the current session (Supabase best practice).
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      // Defer supabase queries to avoid deadlocking the auth callback.
+      setTimeout(() => void hydrateProfile(s), 0);
     });
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+      void hydrateProfile(data.session);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, [hydrateProfile]);
+
+  const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   }, []);
 
-  const deleteAccount = useCallback(async (current: string) => {
-    if (typeof window === "undefined") return false;
-    const stored = localStorage.getItem(MASTER_HASH_KEY);
-    if (!stored) return false;
-    const cur = await sha256(current);
-    if (cur !== stored) return false;
-    localStorage.removeItem(MASTER_HASH_KEY);
-    localStorage.removeItem(PROFILE_KEY);
-    localStorage.removeItem(RECOVERY_HASH_KEY);
-    sessionStorage.removeItem(SESSION_KEY);
-    setAuth(false);
-    setEditMode(false);
-    setProfile({ name: "", email: "" });
-    setHasAccount(false);
-    setHasRecoveryCode(false);
-    return true;
-  }, []);
-
-  const resetPasswordWithCode = useCallback(
-    async (code: string, nextPassword: string) => {
-      if (typeof window === "undefined") return { ok: false, error: "Unavailable." };
-      const storedCode = localStorage.getItem(RECOVERY_HASH_KEY);
-      if (!storedCode) return { ok: false, error: "No recovery code is set on this device." };
-      if (!nextPassword || nextPassword.length < 6)
-        return { ok: false, error: "New password must be at least 6 characters." };
-      const incoming = await sha256(normalizeCode(code));
-      if (incoming !== storedCode) return { ok: false, error: "Recovery code is incorrect." };
-      const nxt = await sha256(nextPassword);
-      localStorage.setItem(MASTER_HASH_KEY, nxt);
-      // Rotate the recovery code after successful reset.
-      const newCode = generateRecoveryCode();
-      const newHash = await sha256(normalizeCode(newCode));
-      localStorage.setItem(RECOVERY_HASH_KEY, newHash);
-      sessionStorage.setItem(SESSION_KEY, "1");
-      setAuth(true);
-      setHasRecoveryCode(true);
-      return { ok: true, recoveryCode: newCode };
+  const signUp = useCallback(
+    async ({ name, email, password }: { name: string; email: string; password: string }): Promise<AuthResult> => {
+      const redirectTo =
+        typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: { name: name.trim() },
+          emailRedirectTo: redirectTo,
+        },
+      });
+      if (error) return { ok: false, error: error.message };
+      return { ok: true };
     },
     [],
   );
 
-  const regenerateRecoveryCode = useCallback(async (currentPassword: string) => {
-    if (typeof window === "undefined") return null;
-    const stored = localStorage.getItem(MASTER_HASH_KEY);
-    if (!stored) return null;
-    const cur = await sha256(currentPassword);
-    if (cur !== stored) return null;
-    const code = generateRecoveryCode();
-    const h = await sha256(normalizeCode(code));
-    localStorage.setItem(RECOVERY_HASH_KEY, h);
-    setHasRecoveryCode(true);
-    return code;
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    setEditMode(false);
   }, []);
 
-  const signOut = useCallback(() => {
-    if (typeof window !== "undefined") sessionStorage.removeItem(SESSION_KEY);
-    setAuth(false);
-    setEditMode(false);
+  const updateProfile = useCallback(
+    async (patch: Partial<OwnerProfile>) => {
+      if (!session?.user) return;
+      const next: OwnerProfile = {
+        name: patch.name ?? profile.name,
+        email: patch.email ?? profile.email,
+      };
+      setProfile(next);
+      await supabase
+        .from("profiles")
+        .upsert({ id: session.user.id, name: next.name, email: next.email });
+    },
+    [session, profile],
+  );
+
+  const changePassword = useCallback(async (nextPassword: string): Promise<AuthResult> => {
+    if (!nextPassword || nextPassword.length < 6) {
+      return { ok: false, error: "Password must be at least 6 characters." };
+    }
+    const { error } = await supabase.auth.updateUser({ password: nextPassword });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  }, []);
+
+  const sendPasswordResetEmail = useCallback(async (email: string): Promise<AuthResult> => {
+    if (typeof window === "undefined") return { ok: false, error: "Unavailable." };
+    const redirectTo = `${window.location.origin}/reset-password`;
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
   }, []);
 
   const value = useMemo<Ctx>(
     () => ({
-      isAuthenticated,
+      isAuthenticated: !!session,
+      isLoading,
       isEditMode,
       setEditMode,
-      validateToken,
-      createAccount,
-      changePassword,
-      updateProfile,
-      deleteAccount,
-      resetPasswordWithCode,
-      regenerateRecoveryCode,
-      hasRecoveryCode,
       profile,
-      hasAccount,
+      signIn,
+      signUp,
       signOut,
+      updateProfile,
+      changePassword,
+      sendPasswordResetEmail,
     }),
     [
-      isAuthenticated,
+      session,
+      isLoading,
       isEditMode,
-      validateToken,
-      createAccount,
-      changePassword,
-      updateProfile,
-      deleteAccount,
-      resetPasswordWithCode,
-      regenerateRecoveryCode,
-      hasRecoveryCode,
       profile,
-      hasAccount,
+      signIn,
+      signUp,
       signOut,
+      updateProfile,
+      changePassword,
+      sendPasswordResetEmail,
     ],
   );
 
