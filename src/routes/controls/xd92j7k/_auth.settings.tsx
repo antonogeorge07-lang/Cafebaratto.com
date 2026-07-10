@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Trash2 } from "lucide-react";
+import { Check, KeyRound, UserCog, Trash2, ShieldCheck } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
+import { RecoveryCodeCard } from "@/components/RecoveryCodeCard";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/settings")({
   component: SettingsPage,
