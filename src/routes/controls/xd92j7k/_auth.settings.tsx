@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Trash2 } from "lucide-react";
+import { Check, KeyRound, UserCog, Trash2, ShieldCheck } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
+import { RecoveryCodeCard } from "@/components/RecoveryCodeCard";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/settings")({
   component: SettingsPage,
@@ -24,7 +25,15 @@ function SettingsPage() {
 }
 
 function AccountSection() {
-  const { profile, updateProfile, changePassword, deleteAccount, signOut } = useAdminSession();
+  const {
+    profile,
+    updateProfile,
+    changePassword,
+    deleteAccount,
+    signOut,
+    regenerateRecoveryCode,
+    hasRecoveryCode,
+  } = useAdminSession();
   const navigate = useNavigate();
 
   const [name, setName] = useState(profile.name);
@@ -38,6 +47,20 @@ function AccountSection() {
 
   const [danger, setDanger] = useState("");
   const [dangerErr, setDangerErr] = useState("");
+
+  const [recoveryPw, setRecoveryPw] = useState("");
+  const [recoveryErr, setRecoveryErr] = useState("");
+  const [issuedRecovery, setIssuedRecovery] = useState<string | null>(null);
+
+  const submitRegenerateRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryErr("");
+    const code = await regenerateRecoveryCode(recoveryPw);
+    if (!code) return setRecoveryErr("Current password is incorrect.");
+    setRecoveryPw("");
+    setIssuedRecovery(code);
+    trackEvent("owner_recovery_code_regenerated", {});
+  };
 
   useEffect(() => {
     setName(profile.name);
@@ -170,6 +193,50 @@ function AccountSection() {
             </button>
           </div>
         </form>
+      </section>
+
+      <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/20 text-amber-400">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">Recovery code</p>
+            <p className="text-xs text-zinc-500">
+              {hasRecoveryCode
+                ? "Generate a new recovery code. The previous code stops working immediately."
+                : "No recovery code is set yet. Generate one now so you can reset your password if you forget it."}
+            </p>
+          </div>
+        </div>
+
+        {issuedRecovery ? (
+          <div className="mt-6">
+            <RecoveryCodeCard
+              code={issuedRecovery}
+              title="Your new recovery code"
+              description="Store this somewhere safe. Your previous code no longer works and this one will not be shown again."
+              onDone={() => setIssuedRecovery(null)}
+            />
+          </div>
+        ) : (
+          <form onSubmit={submitRegenerateRecovery} className="mt-6 grid gap-3">
+            <input
+              type="password"
+              value={recoveryPw}
+              onChange={(e) => setRecoveryPw(e.target.value)}
+              placeholder="Confirm current password"
+              className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+            />
+            {recoveryErr && <p className="text-xs text-red-400">{recoveryErr}</p>}
+            <button
+              type="submit"
+              className="w-fit rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-amber-400"
+            >
+              {hasRecoveryCode ? "Generate new recovery code" : "Generate recovery code"}
+            </button>
+          </form>
+        )}
       </section>
 
       <section className="mt-6 rounded-3xl border border-red-500/20 bg-red-500/5 p-6">
