@@ -232,9 +232,6 @@ function OwnerGate() {
           <button
             type="button"
             onClick={() => {
-              if (!confirm) {
-                setErr("");
-              }
               const sure = window.confirm(
                 "Reset this device's owner account? This wipes the stored password and profile so you can create a new account. App data (menu, orders, bookings) is not affected.",
               );
