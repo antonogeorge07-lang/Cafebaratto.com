@@ -48,6 +48,20 @@ function AccountSection() {
   const [danger, setDanger] = useState("");
   const [dangerErr, setDangerErr] = useState("");
 
+  const [recoveryPw, setRecoveryPw] = useState("");
+  const [recoveryErr, setRecoveryErr] = useState("");
+  const [issuedRecovery, setIssuedRecovery] = useState<string | null>(null);
+
+  const submitRegenerateRecovery = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryErr("");
+    const code = await regenerateRecoveryCode(recoveryPw);
+    if (!code) return setRecoveryErr("Current password is incorrect.");
+    setRecoveryPw("");
+    setIssuedRecovery(code);
+    trackEvent("owner_recovery_code_regenerated", {});
+  };
+
   useEffect(() => {
     setName(profile.name);
     setEmail(profile.email);
