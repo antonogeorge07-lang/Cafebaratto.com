@@ -15,6 +15,8 @@ import { OrderModal } from "@/components/OrderModal";
 import { MascotCompanion } from "@/components/MascotCompanion";
 import { SiteHeader, SiteFooter, MAPS_DIR } from "@/components/SiteChrome";
 import { EditableText } from "@/components/EditableText";
+import { SpecialOffer } from "@/components/SpecialOffer";
+import { getSettings, subscribe } from "@/lib/admin-store";
 import { trackEvent } from "@/utils/analytics";
 
 export const Route = createFileRoute("/")({
@@ -43,7 +45,14 @@ export const Route = createFileRoute("/")({
 function LandingPage() {
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(() => getSettings().menuVisible);
   const live = useLiveMenu();
+
+  useEffect(() => {
+    setMenuVisible(getSettings().menuVisible);
+    const unsub = subscribe(() => setMenuVisible(getSettings().menuVisible));
+    return unsub;
+  }, []);
 
   return (
     <div className="min-h-screen bg-oak-50 text-coffee-900">
@@ -51,7 +60,8 @@ function LandingPage() {
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <MenuBridge />
+        <SpecialOffer />
+        {menuVisible && <MenuBridge />}
         <BlendsComingSoon />
 
       </main>

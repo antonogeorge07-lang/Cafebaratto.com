@@ -18,8 +18,9 @@ import {
   X,
   Pencil,
   ImagePlus,
+  Eye,
+  EyeOff,
 } from "lucide-react";
-
 
 import { trackEvent } from "@/utils/analytics";
 import {
@@ -30,7 +31,7 @@ import {
   FX,
   getCurrency,
 } from "@/lib/admin-store";
-import type { MenuItem } from "@/lib/menu-data";
+import { BASE_CATEGORIES, categoryLabel, type MenuItem } from "@/lib/menu-data";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/")({
   component: DashboardPage,
@@ -60,10 +61,16 @@ function DashboardPage() {
   const [items, setItems] = useState<MenuItem[]>(() => getMenu());
   const [trend, setTrend] = useState<TrendPoint[]>(() => buildTrend());
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [draft, setDraft] = useState<{ name: string; price: string; category: string }>({
+  const [draft, setDraft] = useState<{
+    name: string;
+    price: string;
+    category: string;
+    subcategory: string;
+  }>({
     name: "",
     price: "",
     category: "",
+    subcategory: "",
   });
 
   useEffect(() => {
@@ -93,17 +100,21 @@ function DashboardPage() {
 
   const hasSales = kpi.totalOrders > 0;
 
-  function toggleStock(id: string) {
+  const toggleStock = (id: string) => {
     const next = items.map((i) => (i.id === id ? { ...i, stock: !(i.stock ?? true) } : i));
     setItems(next);
     setMenu(next);
-  }
+  };
+
+  const toggleHidden = (id: string) => {
+    const next = items.map((i) => (i.id === id ? { ...i, hidden: !(i.hidden ?? false) } : i));
+    setItems(next);
+    setMenu(next);
+  };
 
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  function triggerUpload(id: string) {
-    fileInputs.current[id]?.click();
-  }
+  const triggerUpload = (id: string) => fileInputs.current[id]?.click();
 
   async function handlePhoto(id: string, file: File | undefined) {
     if (!file) return;
@@ -123,30 +134,38 @@ function DashboardPage() {
     setMenu(next);
   }
 
-
-  function startEdit(item: MenuItem) {
+  const startEdit = (item: MenuItem) => {
     setEditingId(item.id);
-    setDraft({ name: item.name.en, price: String(item.price), category: item.category });
-  }
+    setDraft({
+      name: item.name.en,
+      price: String(item.price),
+      category: item.category,
+      subcategory: item.subcategory ?? "",
+    });
+  };
 
-  function saveEdit(id: string) {
+  const saveEdit = (id: string) => {
     const next = items.map((i) =>
       i.id === id
         ? {
             ...i,
             name: { ...i.name, en: draft.name || i.name.en },
             price: Number(draft.price) || i.price,
-            category: (draft.category || i.category) as MenuItem["category"],
+            category: draft.category || i.category,
+            subcategory: draft.subcategory.trim() || undefined,
           }
         : i,
     );
     setItems(next);
     setMenu(next);
     setEditingId(null);
-  }
+  };
+
+  const presetsFor = (key: string) =>
+    BASE_CATEGORIES.find((c) => c.key === key)?.presets ?? [];
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8 space-y-8">
+    <main className="mx-auto max-w-6xl space-y-8 px-5 py-8">
       {/* KPI row */}
       <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <KpiCard
@@ -248,9 +267,10 @@ function DashboardPage() {
         <div className="flex items-end justify-between gap-4 border-b border-white/5 px-5 py-4">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-zinc-500">Inventory</p>
-            <h2 className="mt-1 text-lg font-semibold tracking-tight">Live items & stock</h2>
+            <h2 className="mt-1 text-lg font-semibold tracking-tight">Live items, stock & visibility</h2>
             <p className="mt-0.5 text-xs text-zinc-500">
-              Edits publish instantly to the public menu.
+              Edits publish instantly to the public menu. Hidden items disappear from the site
+              but stay editable here.
             </p>
           </div>
           <span className="text-xs text-zinc-500">{items.length} items</span>
@@ -264,14 +284,15 @@ function DashboardPage() {
                 <th className="px-3 py-3 font-medium">Category</th>
                 <th className="px-3 py-3 font-medium">Price</th>
                 <th className="px-3 py-3 font-medium">Stock</th>
-                <th className="px-5 py-3 font-medium text-right">Actions</th>
+                <th className="px-3 py-3 font-medium">Visible</th>
+                <th className="px-5 py-3 text-right font-medium">Actions</th>
               </tr>
-
             </thead>
             <tbody>
               {items.map((item) => {
                 const isEditing = editingId === item.id;
                 const inStock = item.stock ?? true;
+                const visible = !(item.hidden ?? false);
                 return (
                   <tr key={item.id} className="border-t border-white/5 hover:bg-white/5">
                     <td className="px-5 py-3">
@@ -310,7 +331,6 @@ function DashboardPage() {
                       </div>
                     </td>
                     <td className="px-3 py-3">
-
                       {isEditing ? (
                         <input
                           value={draft.name}
@@ -326,21 +346,70 @@ function DashboardPage() {
                     </td>
                     <td className="px-3 py-3">
                       {isEditing ? (
-                        <select
-                          value={draft.category}
-                          onChange={(e) => setDraft((d) => ({ ...d, category: e.target.value }))}
-                          className="rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-sm capitalize outline-none"
-                        >
-                          {["coffee", "breakfast", "paninis", "cocktails", "desserts"].map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="min-w-[200px] space-y-1.5">
+                          <select
+                            value={
+                              BASE_CATEGORIES.find((c) => c.key === draft.category)
+                                ? draft.category
+                                : "custom"
+                            }
+                            onChange={(e) =>
+                              setDraft((d) => ({
+                                ...d,
+                                category: e.target.value,
+                                subcategory:
+                                  e.target.value === d.category ? d.subcategory : "",
+                              }))
+                            }
+                            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-sm outline-none"
+                          >
+                            {BASE_CATEGORIES.map((c) => (
+                              <option key={c.key} value={c.key}>
+                                {c.labelEn}
+                              </option>
+                            ))}
+                          </select>
+                          {draft.category === "custom" && (
+                            <input
+                              value={
+                                BASE_CATEGORIES.find((c) => c.key === draft.category)
+                                  ? ""
+                                  : ""
+                              }
+                              placeholder="Custom category key (e.g. brunch)"
+                              onChange={(e) =>
+                                setDraft((d) => ({
+                                  ...d,
+                                  category: e.target.value.trim() || "custom",
+                                }))
+                              }
+                              className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-xs outline-none focus:border-amber-500/60"
+                            />
+                          )}
+                          <input
+                            value={draft.subcategory}
+                            onChange={(e) =>
+                              setDraft((d) => ({ ...d, subcategory: e.target.value }))
+                            }
+                            placeholder="Sub-category (free text)"
+                            list={`presets-${item.id}`}
+                            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-xs outline-none focus:border-amber-500/60"
+                          />
+                          <datalist id={`presets-${item.id}`}>
+                            {presetsFor(draft.category).map((p) => (
+                              <option key={p} value={p} />
+                            ))}
+                          </datalist>
+                        </div>
                       ) : (
-                        <span className="rounded-full border border-white/10 px-2 py-0.5 text-xs capitalize text-zinc-300">
-                          {item.category}
-                        </span>
+                        <div className="flex flex-col gap-0.5">
+                          <span className="w-fit rounded-full border border-white/10 px-2 py-0.5 text-xs text-zinc-300">
+                            {categoryLabel(item.category)}
+                          </span>
+                          {item.subcategory && (
+                            <span className="text-[10px] text-zinc-500">{item.subcategory}</span>
+                          )}
+                        </div>
                       )}
                     </td>
                     <td className="px-3 py-3">
@@ -372,6 +441,20 @@ function DashboardPage() {
                           className={`h-1.5 w-1.5 rounded-full ${inStock ? "bg-emerald-400" : "bg-red-400"}`}
                         />
                         {inStock ? "In stock" : "Out of stock"}
+                      </button>
+                    </td>
+                    <td className="px-3 py-3">
+                      <button
+                        onClick={() => toggleHidden(item.id)}
+                        title={visible ? "Hide from public menu" : "Show on public menu"}
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition ${
+                          visible
+                            ? "bg-sky-500/15 text-sky-300 hover:bg-sky-500/25"
+                            : "bg-zinc-500/15 text-zinc-400 hover:bg-zinc-500/25"
+                        }`}
+                      >
+                        {visible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
+                        {visible ? "Visible" : "Hidden"}
                       </button>
                     </td>
                     <td className="px-5 py-3 text-right">
