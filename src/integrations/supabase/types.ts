@@ -40,7 +40,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      owner_exists: { Args: never; Returns: boolean }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
