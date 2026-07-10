@@ -25,7 +25,15 @@ function SettingsPage() {
 }
 
 function AccountSection() {
-  const { profile, updateProfile, changePassword, deleteAccount, signOut } = useAdminSession();
+  const {
+    profile,
+    updateProfile,
+    changePassword,
+    deleteAccount,
+    signOut,
+    regenerateRecoveryCode,
+    hasRecoveryCode,
+  } = useAdminSession();
   const navigate = useNavigate();
 
   const [name, setName] = useState(profile.name);
