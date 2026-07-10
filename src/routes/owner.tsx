@@ -168,6 +168,11 @@ function OwnerGate() {
 
         {mode === "forgot" && (
           <>
+            {!hasRecoveryCode && (
+              <div className="mb-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">
+                No recovery code exists for the account on this device (it was created before recovery codes were available). Sign in with your current password, then generate one from <span className="font-semibold">Controls → Settings → Recovery code</span>. If you've lost the password, you can reset this device's account below and create a new one.
+              </div>
+            )}
             <label className="text-[11px] uppercase tracking-widest text-zinc-500">Recovery code</label>
             <input
               type="text"
@@ -177,7 +182,8 @@ function OwnerGate() {
               placeholder="XXXX-XXXX-XXXX-XXXX"
               autoComplete="off"
               spellCheck={false}
-              className="mb-3 mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 font-mono text-sm tracking-widest outline-none focus:border-amber-500/60"
+              disabled={!hasRecoveryCode}
+              className="mb-3 mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 font-mono text-sm tracking-widest outline-none focus:border-amber-500/60 disabled:opacity-50"
             />
           </>
         )}
@@ -191,7 +197,8 @@ function OwnerGate() {
           onChange={(e) => setPassword(e.target.value)}
           autoFocus={mode === "signin"}
           placeholder="••••••••"
-          className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+          disabled={mode === "forgot" && !hasRecoveryCode}
+          className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60 disabled:opacity-50"
         />
 
         {(mode === "signup" || mode === "forgot") && (
@@ -204,7 +211,8 @@ function OwnerGate() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="••••••••"
-              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+              disabled={mode === "forgot" && !hasRecoveryCode}
+              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60 disabled:opacity-50"
             />
           </>
         )}
@@ -213,14 +221,35 @@ function OwnerGate() {
 
         <button
           type="submit"
-          disabled={busy}
+          disabled={busy || (mode === "forgot" && !hasRecoveryCode)}
           className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400 disabled:opacity-60"
         >
           {mode === "signup" ? <UserPlus className="h-4 w-4" /> : mode === "forgot" ? <KeyRound className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
           {mode === "signup" ? "Create account" : mode === "forgot" ? "Reset password" : "Sign in"}
         </button>
 
-        {mode === "signin" && hasRecoveryCode && (
+        {mode === "forgot" && !hasRecoveryCode && (
+          <button
+            type="button"
+            onClick={() => {
+              const sure = window.confirm(
+                "Reset this device's owner account? This wipes the stored password and profile so you can create a new account. App data (menu, orders, bookings) is not affected.",
+              );
+              if (!sure) return;
+              try {
+                localStorage.removeItem("baratto.admin.masterHash");
+                localStorage.removeItem("baratto.admin.profile");
+                localStorage.removeItem("baratto.admin.recoveryHash");
+              } catch {}
+              window.location.reload();
+            }}
+            className="mt-2 w-full rounded-xl border border-red-500/30 bg-red-500/10 py-2 text-xs text-red-300 hover:bg-red-500/20"
+          >
+            Reset this device's account
+          </button>
+        )}
+
+        {mode === "signin" && hasAccount && (
           <button
             type="button"
             onClick={() => {
