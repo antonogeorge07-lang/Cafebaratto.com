@@ -195,6 +195,50 @@ function AccountSection() {
         </form>
       </section>
 
+      <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
+        <div className="flex items-center gap-3">
+          <span className="grid h-9 w-9 place-items-center rounded-2xl bg-amber-500/20 text-amber-400">
+            <ShieldCheck className="h-4 w-4" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold">Recovery code</p>
+            <p className="text-xs text-zinc-500">
+              {hasRecoveryCode
+                ? "Generate a new recovery code. The previous code stops working immediately."
+                : "No recovery code is set yet. Generate one now so you can reset your password if you forget it."}
+            </p>
+          </div>
+        </div>
+
+        {issuedRecovery ? (
+          <div className="mt-6">
+            <RecoveryCodeCard
+              code={issuedRecovery}
+              title="Your new recovery code"
+              description="Store this somewhere safe. Your previous code no longer works and this one will not be shown again."
+              onDone={() => setIssuedRecovery(null)}
+            />
+          </div>
+        ) : (
+          <form onSubmit={submitRegenerateRecovery} className="mt-6 grid gap-3">
+            <input
+              type="password"
+              value={recoveryPw}
+              onChange={(e) => setRecoveryPw(e.target.value)}
+              placeholder="Confirm current password"
+              className="w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm outline-none focus:border-amber-500/60"
+            />
+            {recoveryErr && <p className="text-xs text-red-400">{recoveryErr}</p>}
+            <button
+              type="submit"
+              className="w-fit rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-amber-400"
+            >
+              {hasRecoveryCode ? "Generate new recovery code" : "Generate recovery code"}
+            </button>
+          </form>
+        )}
+      </section>
+
       <section className="mt-6 rounded-3xl border border-red-500/20 bg-red-500/5 p-6">
         <div className="flex items-center gap-3">
           <span className="grid h-9 w-9 place-items-center rounded-2xl bg-red-500/20 text-red-400">
