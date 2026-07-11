@@ -11,22 +11,60 @@ import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
 import { trackEvent } from "@/utils/analytics";
 
+const MENU_OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4858d6c7-c750-4111-b15b-042ce66b1b72/id-preview-913363a3--2694da8b-2e39-40c7-aa7b-7862a798f940.lovable.app-1783326888662.png";
+
 export const Route = createFileRoute("/menu")({
   head: () => ({
     meta: [
-      { title: "Menu · Cafetería Baratto — Valencia" },
+      { title: "Authentic Italian Menu in Valencia · Cafetería Baratto" },
       {
         name: "description",
         content:
-          "Full menu at Cafetería Baratto: Italian espresso, breakfast, paninis, signature cocktails and desserts. Filter by category — prices in EUR.",
+          "Full menu at Cafetería Baratto: Italian espresso, breakfast, pressed paninis, signature cocktails and desserts. Filter by category — prices in EUR.",
       },
-      { property: "og:title", content: "Menu · Cafetería Baratto" },
+      { property: "og:title", content: "Authentic Italian Menu in Valencia · Cafetería Baratto" },
       {
         property: "og:description",
-        content: "Filter espresso, paninis, cocktails and desserts. Live from the counter.",
+        content: "Espresso, paninis, cocktails and desserts served fresh in central Valencia.",
       },
+      { property: "og:image", content: MENU_OG_IMAGE },
+      { name: "twitter:image", content: MENU_OG_IMAGE },
+      { property: "og:url", content: "https://cafebaratto.com/menu" },
     ],
     links: [{ rel: "canonical", href: "https://cafebaratto.com/menu" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CafeOrCoffeeShop",
+          name: "Cafetería Baratto",
+          image: MENU_OG_IMAGE,
+          url: "https://cafebaratto.com/menu",
+          telephone: "+34963000000",
+          servesCuisine: ["Italian", "Coffee", "Cocktails"],
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "C. de Vinatea, 20",
+            addressLocality: "València",
+            postalCode: "46001",
+            addressCountry: "ES",
+          },
+          hasMenu: {
+            "@type": "Menu",
+            name: "Cafetería Baratto Menu",
+            url: "https://cafebaratto.com/menu",
+            hasMenuSection: [
+              { "@type": "MenuSection", name: "Coffee" },
+              { "@type": "MenuSection", name: "Breakfast" },
+              { "@type": "MenuSection", name: "Paninis" },
+              { "@type": "MenuSection", name: "Cocktails" },
+              { "@type": "MenuSection", name: "Desserts" },
+            ],
+          },
+        }),
+      },
+    ],
   }),
   component: MenuPage,
 });
@@ -104,9 +142,13 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("menu_eyebrow")}</p>
-          <h1 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("menu_title")}</h1>
-          <p className="mt-4 text-coffee-900/70">{t("menu_sub")}</p>
+          <h1 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">Authentic Italian Menu in Valencia</h1>
+          <p className="mt-4 text-coffee-900/70">
+            From single-origin espresso and pressed paninis to breakfast plates, signature cocktails and house-made desserts — every item is prepared to order with Italian ingredients and technique. Prices in EUR, updated live from the counter.
+          </p>
         </div>
+
+        <h2 className="mt-10 text-center font-serif text-xl text-coffee-900/80">Browse our selection</h2>
 
         {live.error && (
           <div
