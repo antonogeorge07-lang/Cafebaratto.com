@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MenuRouteImport } from './routes/menu'
@@ -17,6 +18,11 @@ import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/owner'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/controls/xd92j7k'
     | '/controls/xd92j7k/settings'
     | '/controls/xd92j7k/'
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/owner'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/controls/xd92j7k/settings'
     | '/controls/xd92j7k'
   id:
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/menu'
     | '/owner'
     | '/reset-password'
+    | '/sitemap.xml'
     | '/controls/xd92j7k/_auth'
     | '/controls/xd92j7k/_auth/settings'
     | '/controls/xd92j7k/_auth/'
@@ -116,11 +128,19 @@ export interface RootRouteChildren {
   MenuRoute: typeof MenuRoute
   OwnerRoute: typeof OwnerRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -191,6 +211,7 @@ const rootRouteChildren: RootRouteChildren = {
   MenuRoute: MenuRoute,
   OwnerRoute: OwnerRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
 }
 export const routeTree = rootRouteImport
