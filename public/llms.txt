@@ -1,0 +1,10 @@
+# Cafetería Baratto
+
+> Authentic Italian cafe in Valencia, Spain — real espresso, fresh paninis, signature cocktails and desserts, near Plaza del Ayuntamiento on Calle de Vinatea.
+
+Cafetería Baratto is an independent Italian-style cafe in central Valencia. We serve espresso and specialty coffee drinks, breakfast, pressed paninis, cocktails and desserts. Our house coffee blends are launching soon.
+
+## Pages
+
+- [Home](/): Overview, hours, location, current specials, and highlights of the menu.
+- [Menu](/menu): Full menu with espresso, breakfast, paninis, cocktails and desserts, filterable by category with EUR prices.

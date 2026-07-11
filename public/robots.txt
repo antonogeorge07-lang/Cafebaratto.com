@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /controls/
+Disallow: /owner
+Disallow: /reset-password
+
+Sitemap: https://cafebaratto.com/sitemap.xml

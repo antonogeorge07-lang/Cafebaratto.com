@@ -19,25 +19,52 @@ import { SpecialOffer } from "@/components/SpecialOffer";
 import { getSettings, subscribe } from "@/lib/admin-store";
 import { trackEvent } from "@/utils/analytics";
 
+const OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4858d6c7-c750-4111-b15b-042ce66b1b72/id-preview-913363a3--2694da8b-2e39-40c7-aa7b-7862a798f940.lovable.app-1783326888662.png";
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cafetería Baratto Italian espresso, paninis & cocktails in Valencia" },
-      {
-        name: "description",
-        content:
-          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails plus our house coffee blends coming soon.",
-      },
-      { property: "og:title", content: "Cafetería Baratto Italian espresso, paninis & cocktails in Valencia" },
-      {
-        property: "og:description",
-        content:
-          "Authentic Italian cafe in Valencia near Plaza del Ayuntamiento. Real espresso, fresh paninis, signature cocktails plus our house coffee blends coming soon.",
-      },
-      { property: "og:image", content: hero },
+      { property: "og:image", content: OG_IMAGE },
+      { name: "twitter:image", content: OG_IMAGE },
       { property: "og:url", content: "https://cafebaratto.com/" },
     ],
     links: [{ rel: "canonical", href: "https://cafebaratto.com/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CafeOrCoffeeShop",
+          name: "Cafetería Baratto",
+          image: OG_IMAGE,
+          url: "https://cafebaratto.com/",
+          telephone: "+34963000000",
+          priceRange: "€€",
+          servesCuisine: ["Italian", "Coffee", "Cocktails"],
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: "C. de Vinatea, 20",
+            addressLocality: "València",
+            postalCode: "46001",
+            addressCountry: "ES",
+          },
+          openingHoursSpecification: [
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+              opens: "07:00",
+              closes: "22:00",
+            },
+            {
+              "@type": "OpeningHoursSpecification",
+              dayOfWeek: ["Saturday", "Sunday"],
+              opens: "09:00",
+              closes: "22:00",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: LandingPage,
 });
