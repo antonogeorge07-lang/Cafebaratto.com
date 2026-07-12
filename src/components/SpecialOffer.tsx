@@ -85,7 +85,13 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
             {ctaLabel && ctaHref && (
               <a
                 href={ctaHref}
-                onClick={() => trackEvent("special_offer_cta_click", { href: ctaHref })}
+                onClick={(e) => {
+                  trackEvent("special_offer_cta_click", { href: ctaHref });
+                  if (ctaHref === "#book" && onBook) {
+                    e.preventDefault();
+                    onBook();
+                  }
+                }}
                 className="inline-flex shrink-0 items-center justify-center rounded-full bg-coffee-900 px-5 py-3 text-sm font-semibold text-oak-50 shadow-sm transition hover:bg-coffee-950"
               >
                 {ctaLabel}
