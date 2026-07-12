@@ -87,7 +87,7 @@ function LandingPage() {
 
       <main>
         <Hero onBook={() => setBookOpen(true)} />
-        <SpecialOffer />
+        <SpecialOffer onBook={() => setBookOpen(true)} />
         {menuVisible && <MenuBridge />}
         <BlendsComingSoon />
 
