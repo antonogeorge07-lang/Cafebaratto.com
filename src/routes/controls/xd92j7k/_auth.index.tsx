@@ -369,18 +369,15 @@ function DashboardPage() {
                               </option>
                             ))}
                           </select>
-                          {draft.category === "custom" && (
+                          {(draft.category === "custom" ||
+                            !BASE_CATEGORIES.find((c) => c.key === draft.category)) && (
                             <input
-                              value={
-                                BASE_CATEGORIES.find((c) => c.key === draft.category)
-                                  ? ""
-                                  : ""
-                              }
+                              value={draft.category === "custom" ? "" : draft.category}
                               placeholder="Custom category key (e.g. brunch)"
                               onChange={(e) =>
                                 setDraft((d) => ({
                                   ...d,
-                                  category: e.target.value.trim() || "custom",
+                                  category: e.target.value || "custom",
                                 }))
                               }
                               className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-xs outline-none focus:border-amber-500/60"
