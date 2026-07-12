@@ -25,42 +25,54 @@ function ResetPasswordPage() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
-    const verifyRecoveryAccess = async () => {
-      try {
-        // 1. Production Safe-Guard: Instantly read raw window properties
-        // to check if this is an authentic incoming recovery redirect link.
-        const rawUrl = window.location.href;
-        const rawHash = window.location.hash;
+    let settled = false;
 
-        const hasRecoveryContext =
-          rawUrl.includes("type=recovery") || rawHash.includes("access_token=") || rawUrl.includes("access_token=");
-
-        // 2. Check if Supabase has already mapped this to an active session
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-
-        if (session || hasRecoveryContext) {
-          setIsAuthorized(true);
-        }
-      } catch (e) {
-        console.error("Auth initialization error:", e);
-      } finally {
-        setCheckingAuth(false);
-      }
+    const authorize = () => {
+      if (settled) return;
+      settled = true;
+      setIsAuthorized(true);
+      setCheckingAuth(false);
     };
 
-    verifyRecoveryAccess();
-
-    // Secondary backup listener in case session maps a fraction of a second later
+    // Listen first so we don't miss the PASSWORD_RECOVERY event
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || session) {
-        setIsAuthorized(true);
+      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN" || session) {
+        authorize();
       }
     });
 
+    (async () => {
+      const rawUrl = window.location.href;
+      const rawHash = window.location.hash;
+      const hasRecoveryContext =
+        rawUrl.includes("type=recovery") ||
+        rawHash.includes("access_token=") ||
+        rawUrl.includes("code=");
+
+      if (hasRecoveryContext) {
+        authorize();
+        return;
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        authorize();
+        return;
+      }
+
+      // Give Supabase a moment to process the recovery link before blocking
+      setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          setCheckingAuth(false);
+        }
+      }, 1500);
+    })();
+
     return () => {
-      if (sub?.subscription) sub.subscription.unsubscribe();
+      sub?.subscription?.unsubscribe();
     };
   }, []);
 
