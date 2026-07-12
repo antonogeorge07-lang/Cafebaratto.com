@@ -16,6 +16,7 @@ import { Route as MenuRouteImport } from './routes/menu'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
@@ -54,6 +55,12 @@ const ControlsXd92j7kAuthIndexRoute =
     path: '/',
     getParentRoute: () => ControlsXd92j7kAuthRoute,
   } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ControlsXd92j7kAuthSettingsRoute =
   ControlsXd92j7kAuthSettingsRouteImport.update({
     id: '/settings',
@@ -69,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesByTo {
@@ -78,6 +86,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesById {
@@ -89,6 +98,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRouteTypes {
@@ -101,6 +111,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/controls/xd92j7k'
     | '/controls/xd92j7k/settings'
+    | '/lovable/email/queue/process'
     | '/controls/xd92j7k/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +121,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/controls/xd92j7k/settings'
+    | '/lovable/email/queue/process'
     | '/controls/xd92j7k'
   id:
     | '__root__'
@@ -120,6 +132,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/controls/xd92j7k/_auth'
     | '/controls/xd92j7k/_auth/settings'
+    | '/lovable/email/queue/process'
     | '/controls/xd92j7k/_auth/'
   fileRoutesById: FileRoutesById
 }
@@ -130,6 +143,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -183,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlsXd92j7kAuthIndexRouteImport
       parentRoute: typeof ControlsXd92j7kAuthRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/controls/xd92j7k/_auth/settings': {
       id: '/controls/xd92j7k/_auth/settings'
       path: '/settings'
@@ -213,6 +234,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
