@@ -34,7 +34,7 @@ export function SiteHeader({
         <ul className="ml-6 hidden items-center gap-6 text-sm text-coffee-900/80 md:flex">
           <li>
             <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "text-coffee-900" }} className="hover:text-coffee-900">
-              {t("nav_home" as never) || "Home"}
+              {t("nav_home")}
             </Link>
           </li>
           <li>
