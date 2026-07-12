@@ -5,6 +5,7 @@ export type Lang = "es" | "en";
 type Dict = Record<string, { es: string; en: string }>;
 
 export const T: Dict = {
+  nav_home: { es: "Inicio", en: "Home" },
   nav_menu: { es: "Carta", en: "Menu" },
   nav_visit: { es: "Visítanos", en: "Visit" },
   nav_book: { es: "Reservar", en: "Book" },
