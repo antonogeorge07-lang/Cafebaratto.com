@@ -7,7 +7,7 @@ import { trackEvent } from "@/utils/analytics";
  * Landing-page Special Offer banner. Renders nothing unless the admin has
  * toggled it on in Controls → Settings → Landing visibility.
  */
-export function SpecialOffer() {
+export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
   const [settings, setSettings] = useState<SiteSettings>(() => getSettings());
   const [copied, setCopied] = useState(false);
 
