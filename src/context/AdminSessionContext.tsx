@@ -116,16 +116,20 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     // Register listener FIRST, then read the current session (Supabase best practice).
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
-      // Defer supabase queries to avoid deadlocking the auth callback.
-      setTimeout(() => void hydrateProfile(s), 0);
+      setTimeout(() => {
+        void hydrateProfile(s);
+        void hydrateRole(s);
+      }, 0);
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
       void hydrateProfile(data.session);
+      void hydrateRole(data.session);
     });
     return () => sub.subscription.unsubscribe();
-  }, [hydrateProfile]);
+  }, [hydrateProfile, hydrateRole]);
+
 
   const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     const { error } = await supabase.auth.signInWithPassword({
