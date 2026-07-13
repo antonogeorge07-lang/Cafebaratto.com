@@ -18,7 +18,7 @@ type Mode = "signin" | "signup" | "forgot";
 
 function OwnerGate() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, signIn, signUp, sendPasswordResetEmail } =
+  const { isAuthenticated, isLoading, ownerExists, signIn, signUp, sendPasswordResetEmail } =
     useAdminSession();
 
   const [mode, setMode] = useState<Mode>("signin");
