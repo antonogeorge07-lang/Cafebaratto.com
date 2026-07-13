@@ -142,6 +142,12 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
 
   const signUp = useCallback(
     async ({ name, email, password }: { name: string; email: string; password: string }): Promise<AuthResult> => {
+      // Bootstrap-only: once an owner exists, public sign-up is disabled.
+      // The database is the source of truth — re-check right before signing up.
+      const { data: exists } = await supabase.rpc("owner_exists");
+      if (exists) {
+        return { ok: false, error: "Sign-up is disabled. Contact the site owner for access." };
+      }
       const redirectTo =
         typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
       const { error } = await supabase.auth.signUp({
@@ -157,6 +163,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     },
     [],
   );
+
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
