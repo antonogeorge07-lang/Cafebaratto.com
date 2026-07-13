@@ -20,6 +20,8 @@ import {
   ImagePlus,
   Eye,
   EyeOff,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 import { trackEvent } from "@/utils/analytics";
