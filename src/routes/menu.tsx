@@ -10,6 +10,7 @@ import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ReservationModal } from "@/components/ReservationModal";
 import { OrderModal } from "@/components/OrderModal";
 import { trackEvent } from "@/utils/analytics";
+import { MascotCompanion } from "@/components/MascotCompanion";
 
 const MENU_OG_IMAGE = "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/4858d6c7-c750-4111-b15b-042ce66b1b72/id-preview-913363a3--2694da8b-2e39-40c7-aa7b-7862a798f940.lovable.app-1783326888662.png";
 
