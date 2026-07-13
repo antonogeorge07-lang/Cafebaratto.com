@@ -51,6 +51,35 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const [isLoading, setLoading] = useState(true);
   const [isEditMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState<OwnerProfile>({ name: "", email: "" });
+  const [isOwner, setIsOwner] = useState(false);
+  const [ownerExists, setOwnerExists] = useState<boolean | null>(null);
+
+  // Public bootstrap check — is there any owner at all yet?
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error } = await supabase.rpc("owner_exists");
+      if (alive && !error) setOwnerExists(!!data);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const hydrateRole = useCallback(async (s: Session | null) => {
+    if (!s?.user) {
+      setIsOwner(false);
+      return;
+    }
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", s.user.id)
+      .eq("role", "owner")
+      .maybeSingle();
+    setIsOwner(!!data);
+  }, []);
+
 
   // Load profile row for the current user (name comes from profiles, email from auth).
   const hydrateProfile = useCallback(async (s: Session | null) => {
