@@ -114,6 +114,7 @@ function MenuPage() {
         lang="en"
         items={live.items.length > 0 ? live.items : MENU}
       />
+      <MascotCompanion />
     </div>
   );
 }
