@@ -198,6 +198,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       isAuthenticated: !!session,
+      isOwner,
+      ownerExists,
       isLoading,
       isEditMode,
       setEditMode,
@@ -211,6 +213,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     }),
     [
       session,
+      isOwner,
+      ownerExists,
       isLoading,
       isEditMode,
       profile,
