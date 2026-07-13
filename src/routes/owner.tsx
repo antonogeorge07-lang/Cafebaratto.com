@@ -245,7 +245,7 @@ function OwnerGate() {
           </button>
         )}
 
-        {mode === "signin" && (
+        {mode === "signin" && ownerExists === false && (
           <button
             type="button"
             onClick={() => {
@@ -257,6 +257,7 @@ function OwnerGate() {
             First time here? Create the owner account
           </button>
         )}
+
 
         <button
           type="button"
