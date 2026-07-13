@@ -16,6 +16,8 @@ type AuthResult = { ok: boolean; error?: string };
 
 type Ctx = {
   isAuthenticated: boolean;
+  isOwner: boolean;
+  ownerExists: boolean | null;
   isLoading: boolean;
   isEditMode: boolean;
   setEditMode: (v: boolean) => void;
@@ -30,6 +32,8 @@ type Ctx = {
 
 const AdminSessionContext = createContext<Ctx>({
   isAuthenticated: false,
+  isOwner: false,
+  ownerExists: null,
   isLoading: true,
   isEditMode: false,
   setEditMode: () => {},
