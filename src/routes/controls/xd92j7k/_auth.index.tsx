@@ -20,6 +20,8 @@ import {
   ImagePlus,
   Eye,
   EyeOff,
+  Plus,
+  Trash2,
 } from "lucide-react";
 
 import { trackEvent } from "@/utils/analytics";
@@ -110,6 +112,36 @@ function DashboardPage() {
     const next = items.map((i) => (i.id === id ? { ...i, hidden: !(i.hidden ?? false) } : i));
     setItems(next);
     setMenu(next);
+  };
+
+  const addItem = () => {
+    const id = `item-${Date.now()}`;
+    const newItem: MenuItem = {
+      id,
+      category: "coffee",
+      name: { en: "New item", es: "Nuevo" },
+      desc: { en: "", es: "" },
+      price: 0,
+      diet: [],
+      image: "",
+      stock: true,
+      hidden: false,
+    };
+    const next = [newItem, ...items];
+    setItems(next);
+    setMenu(next);
+    setEditingId(id);
+    setDraft({ name: newItem.name.en, price: "0", category: "coffee", subcategory: "" });
+  };
+
+  const deleteItem = (id: string) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    if (!confirm(`Delete "${item.name.en}"? This cannot be undone.`)) return;
+    const next = items.filter((i) => i.id !== id);
+    setItems(next);
+    setMenu(next);
+    if (editingId === id) setEditingId(null);
   };
 
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -273,7 +305,16 @@ function DashboardPage() {
               but stay editable here.
             </p>
           </div>
-          <span className="text-xs text-zinc-500">{items.length} items</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-zinc-500">{items.length} items</span>
+            <button
+              type="button"
+              onClick={addItem}
+              className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-[11px] font-medium text-zinc-950 hover:bg-amber-400"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add item
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -471,12 +512,21 @@ function DashboardPage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => startEdit(item)}
-                          className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-zinc-300 hover:bg-white/5"
-                        >
-                          <Pencil className="h-3 w-3" /> Quick edit
-                        </button>
+                        <div className="inline-flex gap-1">
+                          <button
+                            onClick={() => startEdit(item)}
+                            className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-zinc-300 hover:bg-white/5"
+                          >
+                            <Pencil className="h-3 w-3" /> Quick edit
+                          </button>
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            title="Delete item"
+                            className="inline-flex items-center gap-1 rounded-full border border-red-500/30 px-2.5 py-1 text-[11px] text-red-300 hover:bg-red-500/15"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
