@@ -114,6 +114,36 @@ function DashboardPage() {
     setMenu(next);
   };
 
+  const addItem = () => {
+    const id = `item-${Date.now()}`;
+    const newItem: MenuItem = {
+      id,
+      category: "coffee",
+      name: { en: "New item", es: "Nuevo" },
+      desc: { en: "", es: "" },
+      price: 0,
+      diet: [],
+      image: "",
+      stock: true,
+      hidden: false,
+    };
+    const next = [newItem, ...items];
+    setItems(next);
+    setMenu(next);
+    setEditingId(id);
+    setDraft({ name: newItem.name.en, price: "0", category: "coffee", subcategory: "" });
+  };
+
+  const deleteItem = (id: string) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    if (!confirm(`Delete "${item.name.en}"? This cannot be undone.`)) return;
+    const next = items.filter((i) => i.id !== id);
+    setItems(next);
+    setMenu(next);
+    if (editingId === id) setEditingId(null);
+  };
+
   const fileInputs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const triggerUpload = (id: string) => fileInputs.current[id]?.click();
