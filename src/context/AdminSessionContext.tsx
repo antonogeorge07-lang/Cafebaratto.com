@@ -16,6 +16,8 @@ type AuthResult = { ok: boolean; error?: string };
 
 type Ctx = {
   isAuthenticated: boolean;
+  isOwner: boolean;
+  ownerExists: boolean | null;
   isLoading: boolean;
   isEditMode: boolean;
   setEditMode: (v: boolean) => void;
@@ -30,6 +32,8 @@ type Ctx = {
 
 const AdminSessionContext = createContext<Ctx>({
   isAuthenticated: false,
+  isOwner: false,
+  ownerExists: null,
   isLoading: true,
   isEditMode: false,
   setEditMode: () => {},
@@ -47,6 +51,35 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const [isLoading, setLoading] = useState(true);
   const [isEditMode, setEditMode] = useState(false);
   const [profile, setProfile] = useState<OwnerProfile>({ name: "", email: "" });
+  const [isOwner, setIsOwner] = useState(false);
+  const [ownerExists, setOwnerExists] = useState<boolean | null>(null);
+
+  // Public bootstrap check — is there any owner at all yet?
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      const { data, error } = await supabase.rpc("owner_exists");
+      if (alive && !error) setOwnerExists(!!data);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const hydrateRole = useCallback(async (s: Session | null) => {
+    if (!s?.user) {
+      setIsOwner(false);
+      return;
+    }
+    const { data } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", s.user.id)
+      .eq("role", "owner")
+      .maybeSingle();
+    setIsOwner(!!data);
+  }, []);
+
 
   // Load profile row for the current user (name comes from profiles, email from auth).
   const hydrateProfile = useCallback(async (s: Session | null) => {
@@ -83,16 +116,20 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     // Register listener FIRST, then read the current session (Supabase best practice).
     const { data: sub } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s);
-      // Defer supabase queries to avoid deadlocking the auth callback.
-      setTimeout(() => void hydrateProfile(s), 0);
+      setTimeout(() => {
+        void hydrateProfile(s);
+        void hydrateRole(s);
+      }, 0);
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
       void hydrateProfile(data.session);
+      void hydrateRole(data.session);
     });
     return () => sub.subscription.unsubscribe();
-  }, [hydrateProfile]);
+  }, [hydrateProfile, hydrateRole]);
+
 
   const signIn = useCallback(async (email: string, password: string): Promise<AuthResult> => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -105,6 +142,12 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
 
   const signUp = useCallback(
     async ({ name, email, password }: { name: string; email: string; password: string }): Promise<AuthResult> => {
+      // Bootstrap-only: once an owner exists, public sign-up is disabled.
+      // The database is the source of truth — re-check right before signing up.
+      const { data: exists } = await supabase.rpc("owner_exists");
+      if (exists) {
+        return { ok: false, error: "Sign-up is disabled. Contact the site owner for access." };
+      }
       const redirectTo =
         typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
       const { error } = await supabase.auth.signUp({
@@ -120,6 +163,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     },
     [],
   );
+
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -161,6 +205,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       isAuthenticated: !!session,
+      isOwner,
+      ownerExists,
       isLoading,
       isEditMode,
       setEditMode,
@@ -174,6 +220,8 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     }),
     [
       session,
+      isOwner,
+      ownerExists,
       isLoading,
       isEditMode,
       profile,

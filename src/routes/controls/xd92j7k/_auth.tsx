@@ -13,7 +13,7 @@ export const Route = createFileRoute("/controls/xd92j7k/_auth")({
 });
 
 function AuthLayout() {
-  const { isAuthenticated, isLoading, signOut } = useAdminSession();
+  const { isAuthenticated, isOwner, isLoading, signOut } = useAdminSession();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -24,7 +24,7 @@ function AuthLayout() {
     );
   }
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated || !isOwner) {
     return (
       <div className="grid min-h-screen place-items-center bg-zinc-950 px-4 text-zinc-100">
         <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-900/80 p-6 text-center shadow-2xl">
@@ -33,15 +33,30 @@ function AuthLayout() {
           </span>
           <p className="text-sm font-semibold">Owner access required</p>
           <p className="mt-2 text-xs text-zinc-500">
-            Sign in with your owner account to open Controls.
+            {isAuthenticated
+              ? "This account does not have owner privileges."
+              : "Sign in with your owner account to open Controls."}
           </p>
-          <button
-            type="button"
-            onClick={() => navigate({ to: "/owner" })}
-            className="mt-5 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
-          >
-            Go to sign in
-          </button>
+          {isAuthenticated ? (
+            <button
+              type="button"
+              onClick={async () => {
+                await signOut();
+                navigate({ to: "/owner" });
+              }}
+              className="mt-5 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
+            >
+              Sign out
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/owner" })}
+              className="mt-5 w-full rounded-xl bg-amber-500 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
+            >
+              Go to sign in
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate({ to: "/" })}
@@ -53,6 +68,7 @@ function AuthLayout() {
       </div>
     );
   }
+
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100">

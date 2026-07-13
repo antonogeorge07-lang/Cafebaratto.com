@@ -18,7 +18,7 @@ type Mode = "signin" | "signup" | "forgot";
 
 function OwnerGate() {
   const navigate = useNavigate();
-  const { isAuthenticated, isLoading, signIn, signUp, sendPasswordResetEmail } =
+  const { isAuthenticated, isLoading, ownerExists, signIn, signUp, sendPasswordResetEmail } =
     useAdminSession();
 
   const [mode, setMode] = useState<Mode>("signin");
@@ -245,7 +245,7 @@ function OwnerGate() {
           </button>
         )}
 
-        {mode === "signin" && (
+        {mode === "signin" && ownerExists === false && (
           <button
             type="button"
             onClick={() => {
@@ -257,6 +257,7 @@ function OwnerGate() {
             First time here? Create the owner account
           </button>
         )}
+
 
         <button
           type="button"

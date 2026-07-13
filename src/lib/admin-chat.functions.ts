@@ -2,12 +2,24 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateText, type ModelMessage } from "ai";
 
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 export const adminChat = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((data: { messages: ChatMessage[]; context: string }) => data)
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Only the site owner may invoke the paid AI assistant.
+    const { data: isOwner, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "owner",
+    });
+    if (roleError || !isOwner) {
+      throw new Error("Forbidden: owner access required");
+    }
+
+
     const key = process.env.LOVABLE_API_KEY;
     if (!key) throw new Error("LOVABLE_API_KEY not configured");
 
