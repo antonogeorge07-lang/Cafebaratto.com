@@ -512,12 +512,21 @@ function DashboardPage() {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => startEdit(item)}
-                          className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-zinc-300 hover:bg-white/5"
-                        >
-                          <Pencil className="h-3 w-3" /> Quick edit
-                        </button>
+                        <div className="inline-flex gap-1">
+                          <button
+                            onClick={() => startEdit(item)}
+                            className="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[11px] text-zinc-300 hover:bg-white/5"
+                          >
+                            <Pencil className="h-3 w-3" /> Quick edit
+                          </button>
+                          <button
+                            onClick={() => deleteItem(item.id)}
+                            title="Delete item"
+                            className="inline-flex items-center gap-1 rounded-full border border-red-500/30 px-2.5 py-1 text-[11px] text-red-300 hover:bg-red-500/15"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
