@@ -305,7 +305,16 @@ function DashboardPage() {
               but stay editable here.
             </p>
           </div>
-          <span className="text-xs text-zinc-500">{items.length} items</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xs text-zinc-500">{items.length} items</span>
+            <button
+              type="button"
+              onClick={addItem}
+              className="inline-flex items-center gap-1.5 rounded-full bg-amber-500 px-3 py-1.5 text-[11px] font-medium text-zinc-950 hover:bg-amber-400"
+            >
+              <Plus className="h-3.5 w-3.5" /> Add item
+            </button>
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
