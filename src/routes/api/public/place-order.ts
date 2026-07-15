@@ -11,7 +11,7 @@ import { z } from "zod";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 
 
-type AnyClient = ReturnType<typeof createClient>;
+type AnyClient = any;
 
 
 
