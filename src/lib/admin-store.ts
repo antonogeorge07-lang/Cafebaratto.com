@@ -150,24 +150,58 @@ export function resetMenu() {
 }
 
 
-/* ------------- Site settings ------------- */
+/* ------------- Site settings (Supabase-backed) ------------- */
+let settingsCache: SiteSettings | null = null;
+let settingsLoadStarted = false;
+let settingsRealtimeAttached = false;
+
+function refreshSettingsCache() {
+  fetchSettings()
+    .then((s) => {
+      settingsCache = s;
+      emit();
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.warn("[admin-store] fetchSettings failed", err);
+    });
+}
+
+function ensureSettingsSubscription() {
+  if (!isBrowser()) return;
+  if (!settingsLoadStarted) {
+    settingsLoadStarted = true;
+    refreshSettingsCache();
+  }
+  if (settingsRealtimeAttached) return;
+  settingsRealtimeAttached = true;
+  supabase
+    .channel("site_settings-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "site_settings" },
+      () => refreshSettingsCache(),
+    )
+    .subscribe();
+}
+
 export function getSettings(): SiteSettings {
   if (!isBrowser()) return DEFAULT_SETTINGS;
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<SiteSettings>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  ensureSettingsSubscription();
+  return settingsCache ?? DEFAULT_SETTINGS;
 }
 
 export function setSettings(patch: Partial<SiteSettings>) {
   if (!isBrowser()) return;
   const next = { ...getSettings(), ...patch };
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+  // Optimistic local update
+  settingsCache = next;
   broadcast();
+  saveSettings(next).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] saveSettings failed", err);
+    refreshSettingsCache();
+  });
 }
 
 /* ------------- Orders ------------- */
