@@ -146,7 +146,7 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
           <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("menu_eyebrow")}</p>
           <h1 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">Authentic Italian Menu in Valencia</h1>
           <p className="mt-4 text-coffee-900/70">
-            From single-origin espresso and pressed paninis to breakfast plates, signature cocktails and house-made desserts — every item is prepared to order with Italian ingredients and technique. Prices in EUR, updated live from the counter.
+            From single-origin espresso and pressed paninis to breakfast plates, signature cocktails and house-made desserts every item is prepared to order with Italian ingredients and technique. Prices in EUR, updated live from the counter.
           </p>
         </div>
 
