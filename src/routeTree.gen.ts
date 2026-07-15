@@ -18,6 +18,7 @@ import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
+import { Route as ControlsXd92j7kAuthKitchenRouteImport } from './routes/controls/xd92j7k/_auth.kitchen'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -67,6 +68,12 @@ const ControlsXd92j7kAuthSettingsRoute =
     path: '/settings',
     getParentRoute: () => ControlsXd92j7kAuthRoute,
   } as any)
+const ControlsXd92j7kAuthKitchenRoute =
+  ControlsXd92j7kAuthKitchenRouteImport.update({
+    id: '/kitchen',
+    path: '/kitchen',
+    getParentRoute: () => ControlsXd92j7kAuthRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
@@ -85,6 +93,7 @@ export interface FileRoutesByTo {
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
@@ -97,6 +106,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/_auth/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/controls/xd92j7k'
+    | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
     | '/controls/xd92j7k/'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
     | '/controls/xd92j7k'
@@ -131,6 +143,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/controls/xd92j7k/_auth'
+    | '/controls/xd92j7k/_auth/kitchen'
     | '/controls/xd92j7k/_auth/settings'
     | '/lovable/email/queue/process'
     | '/controls/xd92j7k/_auth/'
@@ -211,15 +224,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlsXd92j7kAuthSettingsRouteImport
       parentRoute: typeof ControlsXd92j7kAuthRoute
     }
+    '/controls/xd92j7k/_auth/kitchen': {
+      id: '/controls/xd92j7k/_auth/kitchen'
+      path: '/kitchen'
+      fullPath: '/controls/xd92j7k/kitchen'
+      preLoaderRoute: typeof ControlsXd92j7kAuthKitchenRouteImport
+      parentRoute: typeof ControlsXd92j7kAuthRoute
+    }
   }
 }
 
 interface ControlsXd92j7kAuthRouteChildren {
+  ControlsXd92j7kAuthKitchenRoute: typeof ControlsXd92j7kAuthKitchenRoute
   ControlsXd92j7kAuthSettingsRoute: typeof ControlsXd92j7kAuthSettingsRoute
   ControlsXd92j7kAuthIndexRoute: typeof ControlsXd92j7kAuthIndexRoute
 }
 
 const ControlsXd92j7kAuthRouteChildren: ControlsXd92j7kAuthRouteChildren = {
+  ControlsXd92j7kAuthKitchenRoute: ControlsXd92j7kAuthKitchenRoute,
   ControlsXd92j7kAuthSettingsRoute: ControlsXd92j7kAuthSettingsRoute,
   ControlsXd92j7kAuthIndexRoute: ControlsXd92j7kAuthIndexRoute,
 }
