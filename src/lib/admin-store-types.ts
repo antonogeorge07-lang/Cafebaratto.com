@@ -19,6 +19,21 @@ export type Order = {
   customer?: string;
 };
 
+export type BookingKind = "table" | "event";
+export type Booking = {
+  id: string;
+  kind: BookingKind;
+  name: string;
+  contact: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:MM
+  partySize: number;
+  notes?: string;
+  eventType?: string;
+  createdAt: string;
+};
+
+
 
 export type SiteSettings = {
   offerEnabled: boolean;
