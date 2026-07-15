@@ -89,6 +89,12 @@ function AuthLayout() {
               Kitchen
             </button>
             <button
+              onClick={() => navigate({ to: "/controls/xd92j7k/bookings" })}
+              className="rounded-full px-3 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+            >
+              Bookings
+            </button>
+            <button
               onClick={() => navigate({ to: "/controls/xd92j7k/settings" })}
               className="rounded-full px-3 py-1.5 text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
             >
