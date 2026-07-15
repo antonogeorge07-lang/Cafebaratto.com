@@ -1,61 +1,84 @@
-# Full migration + 4 features
 
-This is a large change. It replaces the current device-local (`localStorage`) owner auth and menu/orders store with a real backend so magic-link email recovery works, then layers the three UI features on top. Existing features stay working end-to-end.
+# Café Baratto — Production Handover Plan
 
-## Order of work
+Goal: keep every existing UI, route, and flow exactly as-is, and replace the browser-local data layer (`localStorage` + `BroadcastChannel` in `src/lib/admin-store.ts`) with Supabase as the single source of truth. Add the missing operational surfaces (kitchen, analytics, automation) on top of the real backend.
 
-### Phase 0 — Backend foundation (prereq for #4)
-1. Enable Lovable Cloud (Supabase + email domain prompt).
-2. Migrations (schema + GRANTs + RLS):
-   - `profiles` (id → auth.users, name, email) with signup trigger.
-   - `app_role` enum + `user_roles` + `has_role()` SECURITY DEFINER.
-   - `menu_items` (id, category_key, category_custom, name_es/en, desc_es/en, price, diet[], image_url, stock, hidden, sort).
-   - `orders` (id, items jsonb, total, status, customer, created_at).
-   - `bookings` (id, kind, name, contact, party, when, notes, status).
-   - `site_settings` singleton (offer_enabled, offer_headline, offer_body, offer_code, offer_cta_label, offer_cta_href, menu_visible).
-   - RLS: public SELECT on `menu_items` (only where `hidden=false`) and `site_settings`; owner-role writes; `orders`/`bookings` insert=anon, select/update=owner.
-3. First-owner bootstrap: server fn that grants `admin` role to the first signup, then locks further self-promotion.
+## Audit summary (what's already done)
 
-### Phase 1 — Auth swap
-4. Add real Supabase email/password auth on `/owner` (sign in + sign up). Keep the same visual shell.
-5. Replace `AdminSessionContext` (localStorage password + recovery code) with Supabase session + `has_role('admin')` gate.
-6. Move `/controls/xd92j7k/_auth` gate to the managed `_authenticated` layout + admin role check. Public site + owner UI keep working; sign-out hygiene per Cloud rules.
-7. **Delete**: recovery-code UI, `RecoveryCodeCard` usage in owner/settings flows, `masterHash`/`profile`/`recoveryHash` reads (kept as a one-time local cleanup on first load).
+- Owner auth: email/password + magic-link reset, role check via `user_roles` + `has_role('owner'/'admin')`.
+- Public site: landing, menu, i18n, mascot, special offer, booking + order modals.
+- Admin shell: `/controls/xd92j7k/*` with settings, dashboard, menu editor — all reading/writing `localStorage`.
+- Transactional email queue (pgmq + cron + `/lovable/email/queue/process`).
+- Tables that exist: `profiles`, `user_roles`, email infra tables. **No** `menu_items`, `orders`, `bookings`, or `site_settings`.
 
-### Phase 2 — #4 Magic-link password reset
-8. Forgot-password view: single email input → `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin + '/reset-password' })`.
-9. New public route `/reset-password`: detects `type=recovery`, shows new-password + confirm, calls `updateUser({ password })`, then redirects into controls.
-10. Wire Lovable Emails so the reset email actually sends (needs verified sender domain — user prompted via setup dialog).
+## Gap → phase mapping
 
-### Phase 3 — #1 Special Offer section
-11. New `SpecialOffer` component on `/` landing, reads `site_settings.offer_*`. Renders only when `offer_enabled=true`. Headline + body + copy-to-clipboard coupon code + CTA button.
-12. SEO/accessibility: semantic `<section>`, aria-labelled, no LCP-blocking image.
+```text
+Phase 1  Schema + RLS + Realtime + Storage       (unblocks 2-8)
+Phase 2  Menu management on Supabase              (replaces MENU + localStorage overrides)
+Phase 3  Site settings on Supabase                (offer + menu visibility)
+Phase 4  Orders end-to-end                        (customer submit → DB → admin live)
+Phase 5  Reservations end-to-end                  (booking modal → DB → admin)
+Phase 6  Kitchen Display (KDS) + status lifecycle
+Phase 7  Owner notifications (email on new order/booking) + optional Telegram hook
+Phase 8  Dashboard analytics from DB              (revenue, top items, prep time)
+Phase 9  Automation                               (auto-close ordering window, stock-aware hide, scheduled digests)
+Phase 10 Hardening + handover                     (RLS audit, error/empty/loading states, docs, runbook)
+```
 
-### Phase 4 — #2 Admin visibility toggles
-13. Extend existing Settings section (no new page) with a "Landing visibility" card:
-   - Show/hide Special Offer (+ inline edit of headline/body/code/CTA).
-   - Show/hide entire public Menu.
-   - Per-item Hide/Show + Out-of-stock toggles on the Menu table (item-level `hidden` already added in schema).
-14. Realtime: subscribe public `Index` + `Menu` pages to `site_settings` and `menu_items` via Supabase Realtime → instant reflection without reload.
+Every phase ends with: build check, targeted smoke test in preview, and a short status update.
 
-### Phase 5 — #3 Category taxonomy + free text
-15. `category_key` enum: `coffee | drinks_juices | food | beverages_desserts | custom`.
-16. Presets per key surfaced in the item form as chips (Coffee: Espresso/Brewed/Pour-over; Food: Snacks/Quick Bites/Breads/Croissants; others: free-text). All presets are non-binding — admin can type any `category_custom` string.
-17. Public menu groups by `category_key` then by `category_custom` sub-label; existing filters keep working because they read `category_key`. Custom parent names use `category_key='custom'` + `category_custom`.
-18. Data migration: map current items (`coffee → coffee`, `breakfast → food`, `paninis → food`, `cocktails → beverages_desserts`, `desserts → beverages_desserts`) with sensible `category_custom` sub-labels.
+## Phase 1 — Backend foundation (single migration)
 
-## What stays untouched
-- Public landing layout, mascot, i18n, booking/order modals (rewired to Supabase inserts, same UX).
-- Route paths for `/`, `/menu`, `/owner`, `/controls/xd92j7k/*`, `/reset-password` (new).
-- Existing analytics + styling tokens.
+New tables (all in `public`, all with `GRANT` + RLS + `updated_at` trigger):
 
-## What gets removed
-- `sha256` master password + recovery code flow, `RecoveryCodeCard` from auth surfaces (component file kept only if reused; otherwise deleted).
-- localStorage menu/orders/bookings stores (kept as read-only fallback for one boot to migrate any pending local data, then cleared).
+- `menu_items(id, category_key, category_custom, name_es, name_en, desc_es, desc_en, price numeric, diet text[], image_url, stock bool, hidden bool, sort int)`
+- `site_settings` — singleton row `id=1` with offer + menu visibility fields matching `SiteSettings` in `admin-store.ts`.
+- `orders(id, code text unique, items jsonb, subtotal numeric, currency text, status text check in ('active','preparing','ready','fulfilled','cancelled'), customer_name, customer_contact, notes, placed_at)`
+- `bookings(id, kind text check in ('table','event'), name, contact, party_size int, when_at timestamptz, notes, event_type, status text check in ('pending','confirmed','cancelled'))`
 
-## Risks / heads-up
-- Email domain: magic-link reset only sends real emails once a sender domain is verified. Setup dialog will appear; until then reset emails won't leave Lovable's default sender.
-- First-owner bootstrap: the very first Supabase signup on the deployed project becomes admin. Any later signup needs an existing admin to grant the role in `user_roles` (I'll add a small grant UI in Settings).
-- This is a one-way migration off localStorage. Existing device-local menu edits, orders, and bookings on your browser will be imported once into the DB on first admin sign-in, then the local store is cleared.
+RLS:
+- `menu_items`, `site_settings`: `SELECT` to `anon` + `authenticated` where `hidden=false` (menu) / always (settings); write only `has_role(auth.uid(),'owner' or 'admin')`.
+- `orders`, `bookings`: `INSERT` to `anon` (customer submit); `SELECT/UPDATE` owner-only.
+- Realtime: `ALTER PUBLICATION supabase_realtime ADD TABLE menu_items, site_settings, orders, bookings`.
 
-Reply "go" and I'll start with Phase 0.
+Storage: create `menu-images` public bucket + owner-only write policy on `storage.objects`.
+
+Seed `site_settings` row and seed `menu_items` from current `MENU` constant in the same migration so the public site keeps rendering.
+
+## Phase 2-9 — thin, per-domain slices
+
+Each phase follows the same shape:
+
+1. Add typed data helpers in `src/lib/data/<domain>.ts` (list/get/insert/update + `useRealtime<Domain>()` hook using `supabase.channel(...).on('postgres_changes',...)` inside `useEffect`).
+2. Swap the existing `admin-store` reader/writer call sites (`getMenu`, `addOrder`, `getSettings`, `addBooking`, `getBookings`, `setOrderStatus`, …) to the new helpers. Keep `admin-store.ts` as a thin re-export shim during the swap so the UI files don't churn.
+3. Delete the localStorage/BroadcastChannel path once every call site is migrated.
+4. New surfaces added only where missing:
+   - **KDS** (`/controls/xd92j7k/_auth.kitchen.tsx`): card lanes for `active → preparing → ready → fulfilled` with big touch targets and audio ping on new order.
+   - **Notifications**: server fn triggered by order/booking insert enqueues an owner email via existing pgmq `transactional_emails` queue.
+   - **Dashboard**: replace localStorage KPIs with SQL views / server fns (`revenue_by_day`, `top_items`, `avg_prep_minutes`).
+   - **Automation**: pg_cron jobs — auto-cancel `active` orders older than N minutes when service closes; auto-hide items with `stock=false` from public menu (already handled at query level); daily owner digest email.
+
+## Phase 10 — hardening + handover
+
+- Supabase linter pass + fix findings.
+- Loading/empty/error states on every DB-backed surface.
+- Mobile QA on `/`, `/menu`, order + booking modals, KDS.
+- `README.md` runbook: env, secrets, restoring from Supabase backup, cron/queue health, how to grant `owner` role.
+
+## Technical notes
+
+- Client reads use TanStack Query; realtime channels invalidate the relevant query key on change.
+- Server writes that must be trusted (status transitions, notification dispatch) go through `createServerFn` with `requireSupabaseAuth` and `has_role` check.
+- Customer-side inserts (`orders`, `bookings`) go through the anon publishable client with `INSERT`-only policies and Zod validation on both client and a `.functions.ts` wrapper.
+- No UI redesign: components keep their current props; only their data source changes.
+
+## Deliverable per phase
+
+At the end of each phase I'll post:
+- What shipped, what tables/policies changed
+- Build status + smoke test result
+- Ticked checkboxes against the milestone list
+- Concrete next-phase task list
+
+Reply **go** and I'll start with Phase 1 (schema migration).
