@@ -74,9 +74,10 @@ export function subscribe(fn: Listener) {
   getChannel(); // ensure channel attached
   ensureMenuSubscription();
   ensureSettingsSubscription();
+  ensureOrdersSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
-      if (e.key === ORDERS_KEY || e.key === CURRENCY_KEY) emit();
+      if (e.key === CURRENCY_KEY) emit();
     };
     window.addEventListener("storage", storage);
     return () => {
