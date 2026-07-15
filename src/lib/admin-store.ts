@@ -14,12 +14,15 @@ import {
   insertOrder,
   updateOrderStatus,
 } from "@/lib/data/orders";
+import { fetchAllBookings, insertBooking } from "@/lib/data/bookings";
 import {
   DEFAULT_SETTINGS,
   type SiteSettings,
   type Order,
   type OrderLine,
   type OrderStatus,
+  type Booking,
+  type BookingKind,
 } from "@/lib/admin-store-types";
 export {
   DEFAULT_SETTINGS,
@@ -27,6 +30,8 @@ export {
   type Order,
   type OrderLine,
   type OrderStatus,
+  type Booking,
+  type BookingKind,
 } from "@/lib/admin-store-types";
 
 
