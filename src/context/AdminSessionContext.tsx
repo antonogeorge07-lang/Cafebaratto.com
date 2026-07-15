@@ -59,8 +59,12 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data, error } = await supabase.rpc("owner_exists");
-      if (alive && !error) setOwnerExists(!!data);
+      try {
+        const { exists } = await checkOwnerExists();
+        if (alive) setOwnerExists(exists);
+      } catch {
+        /* ignore */
+      }
     })();
     return () => {
       alive = false;
