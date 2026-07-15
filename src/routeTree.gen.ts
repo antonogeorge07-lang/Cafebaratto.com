@@ -19,6 +19,7 @@ import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 import { Route as ControlsXd92j7kAuthKitchenRouteImport } from './routes/controls/xd92j7k/_auth.kitchen'
+import { Route as ControlsXd92j7kAuthBookingsRouteImport } from './routes/controls/xd92j7k/_auth.bookings'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
@@ -74,6 +75,12 @@ const ControlsXd92j7kAuthKitchenRoute =
     path: '/kitchen',
     getParentRoute: () => ControlsXd92j7kAuthRoute,
   } as any)
+const ControlsXd92j7kAuthBookingsRoute =
+  ControlsXd92j7kAuthBookingsRouteImport.update({
+    id: '/bookings',
+    path: '/bookings',
+    getParentRoute: () => ControlsXd92j7kAuthRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -93,6 +101,7 @@ export interface FileRoutesByTo {
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -106,6 +115,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/controls/xd92j7k/_auth/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/_auth/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/controls/xd92j7k'
+    | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
@@ -143,6 +155,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/sitemap.xml'
     | '/controls/xd92j7k/_auth'
+    | '/controls/xd92j7k/_auth/bookings'
     | '/controls/xd92j7k/_auth/kitchen'
     | '/controls/xd92j7k/_auth/settings'
     | '/lovable/email/queue/process'
@@ -231,16 +244,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlsXd92j7kAuthKitchenRouteImport
       parentRoute: typeof ControlsXd92j7kAuthRoute
     }
+    '/controls/xd92j7k/_auth/bookings': {
+      id: '/controls/xd92j7k/_auth/bookings'
+      path: '/bookings'
+      fullPath: '/controls/xd92j7k/bookings'
+      preLoaderRoute: typeof ControlsXd92j7kAuthBookingsRouteImport
+      parentRoute: typeof ControlsXd92j7kAuthRoute
+    }
   }
 }
 
 interface ControlsXd92j7kAuthRouteChildren {
+  ControlsXd92j7kAuthBookingsRoute: typeof ControlsXd92j7kAuthBookingsRoute
   ControlsXd92j7kAuthKitchenRoute: typeof ControlsXd92j7kAuthKitchenRoute
   ControlsXd92j7kAuthSettingsRoute: typeof ControlsXd92j7kAuthSettingsRoute
   ControlsXd92j7kAuthIndexRoute: typeof ControlsXd92j7kAuthIndexRoute
 }
 
 const ControlsXd92j7kAuthRouteChildren: ControlsXd92j7kAuthRouteChildren = {
+  ControlsXd92j7kAuthBookingsRoute: ControlsXd92j7kAuthBookingsRoute,
   ControlsXd92j7kAuthKitchenRoute: ControlsXd92j7kAuthKitchenRoute,
   ControlsXd92j7kAuthSettingsRoute: ControlsXd92j7kAuthSettingsRoute,
   ControlsXd92j7kAuthIndexRoute: ControlsXd92j7kAuthIndexRoute,
