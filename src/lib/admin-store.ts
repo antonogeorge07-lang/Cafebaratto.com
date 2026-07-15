@@ -8,12 +8,14 @@
 import { MENU, type MenuItem } from "@/lib/menu-data";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllMenu, syncMenu } from "@/lib/data/menu";
+import { fetchSettings, saveSettings } from "@/lib/data/site-settings";
+import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
+export { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
 
 
 const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const BOOKINGS_KEY = "baratto.bookings.v1";
-const SETTINGS_KEY = "baratto.site.settings.v1";
 const CHANNEL = "baratto-sync";
 
 export type OrderStatus = "active" | "fulfilled" | "history";
@@ -35,29 +37,7 @@ export const FX: Record<Currency, { rate: number; symbol: string }> = {
   GBP: { rate: 0.85, symbol: "£" },
 };
 
-/**
- * Site-wide visibility & content settings controlled from the admin panel.
- * Persisted with the same broadcast/subscribe mechanism as the menu.
- */
-export type SiteSettings = {
-  offerEnabled: boolean;
-  offerHeadline: string;
-  offerBody: string;
-  offerCode: string;
-  offerCtaLabel: string;
-  offerCtaHref: string;
-  menuVisible: boolean;
-};
-
-export const DEFAULT_SETTINGS: SiteSettings = {
-  offerEnabled: false,
-  offerHeadline: "Happy Hour · 2×1 on Spritz",
-  offerBody: "Every Thursday, 6-8pm. Show this code at the counter to unlock the deal.",
-  offerCode: "SPRITZ2X1",
-  offerCtaLabel: "Book a table",
-  offerCtaHref: "#book",
-  menuVisible: true,
-};
+// SiteSettings/DEFAULT_SETTINGS are re-exported from admin-store-types above.
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
@@ -89,14 +69,10 @@ export function subscribe(fn: Listener) {
   listeners.add(fn);
   getChannel(); // ensure channel attached
   ensureMenuSubscription();
+  ensureSettingsSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
-      if (
-        e.key === ORDERS_KEY ||
-        e.key === CURRENCY_KEY ||
-        e.key === SETTINGS_KEY
-      )
-        emit();
+      if (e.key === ORDERS_KEY || e.key === CURRENCY_KEY) emit();
     };
     window.addEventListener("storage", storage);
     return () => {
@@ -174,24 +150,58 @@ export function resetMenu() {
 }
 
 
-/* ------------- Site settings ------------- */
+/* ------------- Site settings (Supabase-backed) ------------- */
+let settingsCache: SiteSettings | null = null;
+let settingsLoadStarted = false;
+let settingsRealtimeAttached = false;
+
+function refreshSettingsCache() {
+  fetchSettings()
+    .then((s) => {
+      settingsCache = s;
+      emit();
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.warn("[admin-store] fetchSettings failed", err);
+    });
+}
+
+function ensureSettingsSubscription() {
+  if (!isBrowser()) return;
+  if (!settingsLoadStarted) {
+    settingsLoadStarted = true;
+    refreshSettingsCache();
+  }
+  if (settingsRealtimeAttached) return;
+  settingsRealtimeAttached = true;
+  supabase
+    .channel("site_settings-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "site_settings" },
+      () => refreshSettingsCache(),
+    )
+    .subscribe();
+}
+
 export function getSettings(): SiteSettings {
   if (!isBrowser()) return DEFAULT_SETTINGS;
-  try {
-    const raw = localStorage.getItem(SETTINGS_KEY);
-    if (!raw) return DEFAULT_SETTINGS;
-    const parsed = JSON.parse(raw) as Partial<SiteSettings>;
-    return { ...DEFAULT_SETTINGS, ...parsed };
-  } catch {
-    return DEFAULT_SETTINGS;
-  }
+  ensureSettingsSubscription();
+  return settingsCache ?? DEFAULT_SETTINGS;
 }
 
 export function setSettings(patch: Partial<SiteSettings>) {
   if (!isBrowser()) return;
   const next = { ...getSettings(), ...patch };
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(next));
+  // Optimistic local update
+  settingsCache = next;
   broadcast();
+  saveSettings(next).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] saveSettings failed", err);
+    refreshSettingsCache();
+  });
 }
 
 /* ------------- Orders ------------- */
