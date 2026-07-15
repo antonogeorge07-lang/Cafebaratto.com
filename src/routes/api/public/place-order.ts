@@ -9,8 +9,10 @@ import { render } from "@react-email/render";
 import * as React from "react";
 import { z } from "zod";
 import { TEMPLATES } from "@/lib/email-templates/registry";
+import type { Database } from "@/integrations/supabase/types";
 
-type AnyClient = SupabaseClient<any, any, any>;
+type AnyClient = SupabaseClient<Database>;
+
 
 
 const LineSchema = z.object({
