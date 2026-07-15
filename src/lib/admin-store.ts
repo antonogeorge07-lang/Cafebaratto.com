@@ -9,26 +9,30 @@ import { MENU, type MenuItem } from "@/lib/menu-data";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllMenu, syncMenu } from "@/lib/data/menu";
 import { fetchSettings, saveSettings } from "@/lib/data/site-settings";
-import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
-export { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
+import {
+  fetchAllOrders,
+  insertOrder,
+  updateOrderStatus,
+} from "@/lib/data/orders";
+import {
+  DEFAULT_SETTINGS,
+  type SiteSettings,
+  type Order,
+  type OrderLine,
+  type OrderStatus,
+} from "@/lib/admin-store-types";
+export {
+  DEFAULT_SETTINGS,
+  type SiteSettings,
+  type Order,
+  type OrderLine,
+  type OrderStatus,
+} from "@/lib/admin-store-types";
 
 
-const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const BOOKINGS_KEY = "baratto.bookings.v1";
 const CHANNEL = "baratto-sync";
-
-export type OrderStatus = "active" | "fulfilled" | "history";
-export type OrderLine = { id: string; name: string; qty: number; unitPrice: number; lineTotal: number };
-export type Order = {
-  id: string;
-  placedAt: string;
-  lineItems: OrderLine[];
-  subtotal: number;
-  currency: string;
-  status: OrderStatus;
-  customer?: string;
-};
 
 export type Currency = "EUR" | "USD" | "GBP";
 export const FX: Record<Currency, { rate: number; symbol: string }> = {
