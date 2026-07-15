@@ -67,8 +67,6 @@ function broadcast() {
 
 export function subscribe(fn: Listener) {
   listeners.add(fn);
-export function subscribe(fn: Listener) {
-  listeners.add(fn);
   getChannel(); // ensure channel attached
   ensureMenuSubscription();
   ensureSettingsSubscription();
