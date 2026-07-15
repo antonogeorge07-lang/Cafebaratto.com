@@ -36,7 +36,7 @@ export {
 
 
 const CURRENCY_KEY = "baratto.currency.v1";
-const BOOKINGS_KEY = "baratto.bookings.v1";
+
 const CHANNEL = "baratto-sync";
 
 export type Currency = "EUR" | "USD" | "GBP";
