@@ -80,6 +80,7 @@ export function subscribe(fn: Listener) {
   ensureMenuSubscription();
   ensureSettingsSubscription();
   ensureOrdersSubscription();
+  ensureBookingsSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
       if (e.key === CURRENCY_KEY) emit();
