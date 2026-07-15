@@ -276,48 +276,68 @@ export function setOrderStatus(id: string, status: OrderStatus) {
   });
 }
 
-/* ------------- Bookings (table & event) ------------- */
-export type BookingKind = "table" | "event";
-export type Booking = {
-  id: string;
-  kind: BookingKind;
-  name: string;
-  contact: string;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:MM
-  partySize: number;
-  notes?: string;
-  eventType?: string;
-  createdAt: string;
-};
+/* ------------- Bookings (Supabase-backed) ------------- */
+let bookingsCache: Booking[] | null = null;
+let bookingsLoadStarted = false;
+let bookingsRealtimeAttached = false;
+
+function refreshBookingsCache() {
+  fetchAllBookings()
+    .then((rows) => {
+      bookingsCache = rows;
+      emit();
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.warn("[admin-store] fetchAllBookings failed", err);
+    });
+}
+
+function ensureBookingsSubscription() {
+  if (!isBrowser()) return;
+  if (!bookingsLoadStarted) {
+    bookingsLoadStarted = true;
+    refreshBookingsCache();
+  }
+  if (bookingsRealtimeAttached) return;
+  bookingsRealtimeAttached = true;
+  supabase
+    .channel("bookings-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "bookings" },
+      () => refreshBookingsCache(),
+    )
+    .subscribe();
+}
 
 export function getBookings(): Booking[] {
   if (!isBrowser()) return [];
-  try {
-    const raw = localStorage.getItem(BOOKINGS_KEY);
-    return raw ? (JSON.parse(raw) as Booking[]) : [];
-  } catch {
-    return [];
-  }
+  ensureBookingsSubscription();
+  return bookingsCache ?? [];
 }
 
 export function addBooking(b: Omit<Booking, "id" | "createdAt">) {
   if (!isBrowser()) return;
-  const list = getBookings();
-  const next: Booking = {
+  const optimistic: Booking = {
     ...b,
     id: `BKG-${Date.now()}`,
     createdAt: new Date().toISOString(),
   };
-  list.unshift(next);
-  localStorage.setItem(BOOKINGS_KEY, JSON.stringify(list.slice(0, 500)));
+  bookingsCache = [optimistic, ...(bookingsCache ?? [])].slice(0, 1000);
   broadcast();
-  return next;
+  insertBooking(b).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] insertBooking failed", err);
+    refreshBookingsCache();
+  });
+  return optimistic;
 }
 
 export function getBookingsForDate(date: string): Booking[] {
   return getBookings().filter((b) => b.date === date);
 }
+
 
 export function getCurrency(): Currency {
   if (!isBrowser()) return "EUR";
