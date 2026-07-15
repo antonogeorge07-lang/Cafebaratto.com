@@ -14,8 +14,12 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
+import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
+import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
+import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 import { Route as ControlsXd92j7kAuthKitchenRouteImport } from './routes/controls/xd92j7k/_auth.kitchen'
@@ -46,6 +50,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EmailUnsubscribeRoute = EmailUnsubscribeRouteImport.update({
+  id: '/email/unsubscribe',
+  path: '/email/unsubscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailSuppressionRoute = LovableEmailSuppressionRouteImport.update({
+  id: '/lovable/email/suppression',
+  path: '/lovable/email/suppression',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlsXd92j7kAuthRoute = ControlsXd92j7kAuthRouteImport.update({
   id: '/controls/xd92j7k/_auth',
   path: '/controls/xd92j7k',
@@ -56,6 +70,18 @@ const ControlsXd92j7kAuthIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => ControlsXd92j7kAuthRoute,
+  } as any)
+const LovableEmailTransactionalSendRoute =
+  LovableEmailTransactionalSendRouteImport.update({
+    id: '/lovable/email/transactional/send',
+    path: '/lovable/email/transactional/send',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const LovableEmailTransactionalPreviewRoute =
+  LovableEmailTransactionalPreviewRouteImport.update({
+    id: '/lovable/email/transactional/preview',
+    path: '/lovable/email/transactional/preview',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const LovableEmailQueueProcessRoute =
   LovableEmailQueueProcessRouteImport.update({
@@ -88,11 +114,15 @@ export interface FileRoutesByFullPath {
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/controls/xd92j7k/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesByTo {
@@ -101,10 +131,14 @@ export interface FileRoutesByTo {
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRoutesById {
@@ -114,11 +148,15 @@ export interface FileRoutesById {
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/email/unsubscribe': typeof EmailUnsubscribeRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
+  '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/controls/xd92j7k/_auth/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/_auth/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
+  '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
+  '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
   '/controls/xd92j7k/_auth/': typeof ControlsXd92j7kAuthIndexRoute
 }
 export interface FileRouteTypes {
@@ -129,11 +167,15 @@ export interface FileRouteTypes {
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/email/unsubscribe'
     | '/controls/xd92j7k'
+    | '/lovable/email/suppression'
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/controls/xd92j7k/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -142,10 +184,14 @@ export interface FileRouteTypes {
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/email/unsubscribe'
+    | '/lovable/email/suppression'
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/controls/xd92j7k'
   id:
     | '__root__'
@@ -154,11 +200,15 @@ export interface FileRouteTypes {
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
+    | '/email/unsubscribe'
     | '/controls/xd92j7k/_auth'
+    | '/lovable/email/suppression'
     | '/controls/xd92j7k/_auth/bookings'
     | '/controls/xd92j7k/_auth/kitchen'
     | '/controls/xd92j7k/_auth/settings'
     | '/lovable/email/queue/process'
+    | '/lovable/email/transactional/preview'
+    | '/lovable/email/transactional/send'
     | '/controls/xd92j7k/_auth/'
   fileRoutesById: FileRoutesById
 }
@@ -168,8 +218,12 @@ export interface RootRouteChildren {
   OwnerRoute: typeof OwnerRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
+  LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
+  LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
+  LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -209,6 +263,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/email/unsubscribe': {
+      id: '/email/unsubscribe'
+      path: '/email/unsubscribe'
+      fullPath: '/email/unsubscribe'
+      preLoaderRoute: typeof EmailUnsubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/suppression': {
+      id: '/lovable/email/suppression'
+      path: '/lovable/email/suppression'
+      fullPath: '/lovable/email/suppression'
+      preLoaderRoute: typeof LovableEmailSuppressionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/controls/xd92j7k/_auth': {
       id: '/controls/xd92j7k/_auth'
       path: '/controls/xd92j7k'
@@ -222,6 +290,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/controls/xd92j7k/'
       preLoaderRoute: typeof ControlsXd92j7kAuthIndexRouteImport
       parentRoute: typeof ControlsXd92j7kAuthRoute
+    }
+    '/lovable/email/transactional/send': {
+      id: '/lovable/email/transactional/send'
+      path: '/lovable/email/transactional/send'
+      fullPath: '/lovable/email/transactional/send'
+      preLoaderRoute: typeof LovableEmailTransactionalSendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/transactional/preview': {
+      id: '/lovable/email/transactional/preview'
+      path: '/lovable/email/transactional/preview'
+      fullPath: '/lovable/email/transactional/preview'
+      preLoaderRoute: typeof LovableEmailTransactionalPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/lovable/email/queue/process': {
       id: '/lovable/email/queue/process'
@@ -277,8 +359,12 @@ const rootRouteChildren: RootRouteChildren = {
   OwnerRoute: OwnerRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  EmailUnsubscribeRoute: EmailUnsubscribeRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
+  LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
+  LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
+  LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
