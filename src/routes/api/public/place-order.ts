@@ -51,7 +51,7 @@ function token32() {
 }
 
 async function enqueueEmail(opts: {
-  supabase: ReturnType<typeof createClient>;
+  supabase: any;
   templateName: string;
   recipient: string;
   data: Record<string, unknown>;
@@ -126,7 +126,7 @@ async function enqueueEmail(opts: {
 }
 
 async function resolveOwnerEmail(
-  supabase: ReturnType<typeof createClient>,
+  supabase: any,
 ): Promise<string | null> {
   // Owner is the first user with role='owner'; grab their profile email.
   const { data: role } = await supabase
