@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          contact: string
+          created_at: string
+          event_type: string | null
+          id: string
+          kind: string
+          name: string
+          notes: string | null
+          party_size: number
+          status: string
+          updated_at: string
+          when_at: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          event_type?: string | null
+          id?: string
+          kind: string
+          name: string
+          notes?: string | null
+          party_size?: number
+          status?: string
+          updated_at?: string
+          when_at: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          event_type?: string | null
+          id?: string
+          kind?: string
+          name?: string
+          notes?: string | null
+          party_size?: number
+          status?: string
+          updated_at?: string
+          when_at?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
@@ -101,6 +143,102 @@ export type Database = {
         }
         Relationships: []
       }
+      menu_items: {
+        Row: {
+          category_custom: string | null
+          category_key: string
+          created_at: string
+          desc_en: string
+          desc_es: string
+          diet: string[]
+          hidden: boolean
+          id: string
+          image_url: string | null
+          name_en: string
+          name_es: string
+          price: number
+          sort: number
+          stock: boolean
+          updated_at: string
+        }
+        Insert: {
+          category_custom?: string | null
+          category_key: string
+          created_at?: string
+          desc_en?: string
+          desc_es?: string
+          diet?: string[]
+          hidden?: boolean
+          id: string
+          image_url?: string | null
+          name_en: string
+          name_es: string
+          price?: number
+          sort?: number
+          stock?: boolean
+          updated_at?: string
+        }
+        Update: {
+          category_custom?: string | null
+          category_key?: string
+          created_at?: string
+          desc_en?: string
+          desc_es?: string
+          diet?: string[]
+          hidden?: boolean
+          id?: string
+          image_url?: string | null
+          name_en?: string
+          name_es?: string
+          price?: number
+          sort?: number
+          stock?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          code: string
+          currency: string
+          customer_contact: string | null
+          customer_name: string | null
+          id: string
+          items: Json
+          notes: string | null
+          placed_at: string
+          status: string
+          subtotal: number
+          updated_at: string
+        }
+        Insert: {
+          code?: string
+          currency?: string
+          customer_contact?: string | null
+          customer_name?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          placed_at?: string
+          status?: string
+          subtotal?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          currency?: string
+          customer_contact?: string | null
+          customer_name?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          placed_at?: string
+          status?: string
+          subtotal?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -119,6 +257,42 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+        }
+        Relationships: []
+      }
+      site_settings: {
+        Row: {
+          id: number
+          menu_visible: boolean
+          offer_body: string
+          offer_code: string
+          offer_cta_href: string
+          offer_cta_label: string
+          offer_enabled: boolean
+          offer_headline: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          menu_visible?: boolean
+          offer_body?: string
+          offer_code?: string
+          offer_cta_href?: string
+          offer_cta_label?: string
+          offer_enabled?: boolean
+          offer_headline?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          menu_visible?: boolean
+          offer_body?: string
+          offer_code?: string
+          offer_cta_href?: string
+          offer_cta_label?: string
+          offer_enabled?: boolean
+          offer_headline?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -188,6 +362,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
