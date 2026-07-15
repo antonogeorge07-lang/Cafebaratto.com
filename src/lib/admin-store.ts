@@ -1,8 +1,15 @@
-// Shared client-side store for menu overrides + live orders + site settings.
-// Persisted to localStorage and broadcast across tabs via BroadcastChannel.
+// Shared client-side store.
+//
+// Menu items are backed by Supabase (`menu_items` table) with a module-level
+// cache kept in sync via realtime; the sync `getMenu()` API is preserved so
+// existing consumers do not need to change. Orders, bookings, and site
+// settings still use localStorage in this phase; they move to Supabase in
+// later phases of the production plan.
 import { MENU, type MenuItem } from "@/lib/menu-data";
+import { supabase } from "@/integrations/supabase/client";
+import { fetchAllMenu, syncMenu } from "@/lib/data/menu";
 
-const MENU_KEY = "baratto.menu.v1";
+
 const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const BOOKINGS_KEY = "baratto.bookings.v1";
