@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { X, UtensilsCrossed, ShoppingBag, CalendarDays, PartyPopper } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { useI18n } from "@/lib/i18n";
 import { useLiveMenu } from "@/lib/useLiveMenu";
 import { OrderModal } from "@/components/OrderModal";
 import { BookingModal } from "@/components/BookingModal";
 import mascot from "@/assets/mascot-cutout.png";
+
 
 const MESSAGES: Record<string, { title: string; body: string }> = {
   top: { title: "¡Hola! I'm Vito 👋", body: "Order, reserve a table or plan an event tap me." },
@@ -21,6 +23,7 @@ type Sheet = null | "menu-actions" | "order" | "table" | "event";
 export function MascotCompanion() {
   const { lang } = useI18n();
   const live = useLiveMenu();
+  const navigate = useNavigate();
   const [section, setSection] = useState("top");
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(true);
@@ -51,8 +54,13 @@ export function MascotCompanion() {
   const scrollToMenu = () => {
     setSheet(null);
     const el = document.getElementById("menu");
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      navigate({ to: "/menu" });
+    }
   };
+
 
   return (
     <>
