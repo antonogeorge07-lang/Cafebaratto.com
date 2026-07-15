@@ -9,26 +9,30 @@ import { MENU, type MenuItem } from "@/lib/menu-data";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchAllMenu, syncMenu } from "@/lib/data/menu";
 import { fetchSettings, saveSettings } from "@/lib/data/site-settings";
-import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
-export { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
+import {
+  fetchAllOrders,
+  insertOrder,
+  updateOrderStatus,
+} from "@/lib/data/orders";
+import {
+  DEFAULT_SETTINGS,
+  type SiteSettings,
+  type Order,
+  type OrderLine,
+  type OrderStatus,
+} from "@/lib/admin-store-types";
+export {
+  DEFAULT_SETTINGS,
+  type SiteSettings,
+  type Order,
+  type OrderLine,
+  type OrderStatus,
+} from "@/lib/admin-store-types";
 
 
-const ORDERS_KEY = "baratto.orders.v1";
 const CURRENCY_KEY = "baratto.currency.v1";
 const BOOKINGS_KEY = "baratto.bookings.v1";
 const CHANNEL = "baratto-sync";
-
-export type OrderStatus = "active" | "fulfilled" | "history";
-export type OrderLine = { id: string; name: string; qty: number; unitPrice: number; lineTotal: number };
-export type Order = {
-  id: string;
-  placedAt: string;
-  lineItems: OrderLine[];
-  subtotal: number;
-  currency: string;
-  status: OrderStatus;
-  customer?: string;
-};
 
 export type Currency = "EUR" | "USD" | "GBP";
 export const FX: Record<Currency, { rate: number; symbol: string }> = {
@@ -70,9 +74,10 @@ export function subscribe(fn: Listener) {
   getChannel(); // ensure channel attached
   ensureMenuSubscription();
   ensureSettingsSubscription();
+  ensureOrdersSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
-      if (e.key === ORDERS_KEY || e.key === CURRENCY_KEY) emit();
+      if (e.key === CURRENCY_KEY) emit();
     };
     window.addEventListener("storage", storage);
     return () => {
@@ -204,31 +209,71 @@ export function setSettings(patch: Partial<SiteSettings>) {
   });
 }
 
-/* ------------- Orders ------------- */
+/* ------------- Orders (Supabase-backed) ------------- */
+let ordersCache: Order[] | null = null;
+let ordersLoadStarted = false;
+let ordersRealtimeAttached = false;
+
+function refreshOrdersCache() {
+  fetchAllOrders()
+    .then((rows) => {
+      ordersCache = rows;
+      emit();
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.warn("[admin-store] fetchAllOrders failed", err);
+    });
+}
+
+function ensureOrdersSubscription() {
+  if (!isBrowser()) return;
+  if (!ordersLoadStarted) {
+    ordersLoadStarted = true;
+    refreshOrdersCache();
+  }
+  if (ordersRealtimeAttached) return;
+  ordersRealtimeAttached = true;
+  supabase
+    .channel("orders-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "orders" },
+      () => refreshOrdersCache(),
+    )
+    .subscribe();
+}
+
 export function getOrders(): Order[] {
   if (!isBrowser()) return [];
-  try {
-    const raw = localStorage.getItem(ORDERS_KEY);
-    return raw ? (JSON.parse(raw) as Order[]) : [];
-  } catch {
-    return [];
-  }
+  ensureOrdersSubscription();
+  return ordersCache ?? [];
 }
 
 export function addOrder(order: Omit<Order, "status">) {
   if (!isBrowser()) return;
-  const orders = getOrders();
-  const next: Order = { ...order, status: "active" };
-  orders.unshift(next);
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders.slice(0, 200)));
+  // Optimistic local update; realtime will confirm.
+  const optimistic: Order = { ...order, status: "active" };
+  ordersCache = [optimistic, ...(ordersCache ?? [])].slice(0, 500);
   broadcast();
+  insertOrder(order).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] insertOrder failed", err);
+    refreshOrdersCache();
+  });
 }
 
 export function setOrderStatus(id: string, status: OrderStatus) {
   if (!isBrowser()) return;
-  const orders = getOrders().map((o) => (o.id === id ? { ...o, status } : o));
-  localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  ordersCache = (ordersCache ?? []).map((o) =>
+    o.id === id ? { ...o, status } : o,
+  );
   broadcast();
+  updateOrderStatus(id, status).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] updateOrderStatus failed", err);
+    refreshOrdersCache();
+  });
 }
 
 /* ------------- Bookings (table & event) ------------- */
