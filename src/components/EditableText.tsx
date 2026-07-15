@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { useAdminSession } from "@/context/AdminSessionContext";
 import { trackEvent } from "@/utils/analytics";
+
 
 const CONTENT_KEY = "baratto.cms.v1";
 
@@ -123,8 +125,12 @@ export function SaveCapsule() {
 /* ---------- Edit-mode toggle (only shown to signed-in admins) ---------- */
 
 export function EditModeToggle() {
-  const { isAuthenticated, isEditMode, setEditMode } = useAdminSession();
-  if (!isAuthenticated) return null;
+  const { isAuthenticated, isOwner, isEditMode, setEditMode } = useAdminSession();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // Only expose the inline editor to signed-in owners while they're inside
+  // the admin console — never on public marketing / menu pages.
+  const inAdmin = pathname.startsWith("/controls/");
+  if (!isAuthenticated || !isOwner || !inAdmin) return null;
   return (
     <button
       onClick={() => setEditMode(!isEditMode)}
@@ -138,3 +144,4 @@ export function EditModeToggle() {
     </button>
   );
 }
+
