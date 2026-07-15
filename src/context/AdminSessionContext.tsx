@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { checkOwnerExists } from "@/lib/auth-bootstrap.functions";
 
 export type OwnerProfile = { name: string; email: string };
 
