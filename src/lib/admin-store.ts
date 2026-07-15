@@ -88,10 +88,10 @@ function broadcast() {
 export function subscribe(fn: Listener) {
   listeners.add(fn);
   getChannel(); // ensure channel attached
+  ensureMenuSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
       if (
-        e.key === MENU_KEY ||
         e.key === ORDERS_KEY ||
         e.key === CURRENCY_KEY ||
         e.key === SETTINGS_KEY
@@ -107,17 +107,45 @@ export function subscribe(fn: Listener) {
   return () => listeners.delete(fn);
 }
 
-/* ------------- Menu ------------- */
+/* ------------- Menu (Supabase-backed) ------------- */
+let menuCache: MenuItem[] | null = null;
+let menuLoadStarted = false;
+let menuRealtimeAttached = false;
+
+function refreshMenuCache() {
+  fetchAllMenu()
+    .then((items) => {
+      menuCache = items;
+      emit();
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.warn("[admin-store] fetchAllMenu failed", err);
+    });
+}
+
+function ensureMenuSubscription() {
+  if (!isBrowser()) return;
+  if (!menuLoadStarted) {
+    menuLoadStarted = true;
+    refreshMenuCache();
+  }
+  if (menuRealtimeAttached) return;
+  menuRealtimeAttached = true;
+  supabase
+    .channel("menu_items-sync")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "menu_items" },
+      () => refreshMenuCache(),
+    )
+    .subscribe();
+}
+
 export function getMenu(): MenuItem[] {
   if (!isBrowser()) return MENU;
-  try {
-    const raw = localStorage.getItem(MENU_KEY);
-    if (!raw) return MENU;
-    const parsed = JSON.parse(raw) as MenuItem[];
-    return Array.isArray(parsed) && parsed.length ? parsed : MENU;
-  } catch {
-    return MENU;
-  }
+  ensureMenuSubscription();
+  return menuCache ?? MENU;
 }
 
 /** Menu items visible on the public site (hidden ones filtered out). */
@@ -125,17 +153,26 @@ export function getPublicMenu(): MenuItem[] {
   return getMenu().filter((i) => !i.hidden);
 }
 
+/** Sync the given items array to Supabase (diff upsert + delete removed). */
 export function setMenu(items: MenuItem[]) {
   if (!isBrowser()) return;
-  localStorage.setItem(MENU_KEY, JSON.stringify(items));
+  // Optimistic local update so the UI reflects the change instantly.
+  menuCache = items;
   broadcast();
+  syncMenu(items).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] syncMenu failed", err);
+    refreshMenuCache();
+  });
 }
 
+/** Reset local cache and re-fetch from DB (does NOT re-seed rows). */
 export function resetMenu() {
   if (!isBrowser()) return;
-  localStorage.removeItem(MENU_KEY);
-  broadcast();
+  menuCache = null;
+  refreshMenuCache();
 }
+
 
 /* ------------- Site settings ------------- */
 export function getSettings(): SiteSettings {
