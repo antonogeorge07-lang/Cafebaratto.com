@@ -4,11 +4,14 @@
 // receipt to the customer and notification to the owner. Any email failure
 // is logged but never blocks the order from being created.
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { render } from "@react-email/render";
 import * as React from "react";
 import { z } from "zod";
 import { TEMPLATES } from "@/lib/email-templates/registry";
+
+type AnyClient = SupabaseClient<any, any, any>;
+
 
 const LineSchema = z.object({
   id: z.string().min(1).max(120),
