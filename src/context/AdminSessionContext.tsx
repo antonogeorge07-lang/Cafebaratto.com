@@ -9,6 +9,7 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { checkOwnerExists } from "@/lib/auth-bootstrap.functions";
 
 export type OwnerProfile = { name: string; email: string };
 
@@ -58,8 +59,12 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const { data, error } = await supabase.rpc("owner_exists");
-      if (alive && !error) setOwnerExists(!!data);
+      try {
+        const { exists } = await checkOwnerExists();
+        if (alive) setOwnerExists(exists);
+      } catch {
+        /* ignore */
+      }
     })();
     return () => {
       alive = false;
@@ -144,7 +149,7 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
     async ({ name, email, password }: { name: string; email: string; password: string }): Promise<AuthResult> => {
       // Bootstrap-only: once an owner exists, public sign-up is disabled.
       // The database is the source of truth — re-check right before signing up.
-      const { data: exists } = await supabase.rpc("owner_exists");
+      const { exists } = await checkOwnerExists().catch(() => ({ exists: false }));
       if (exists) {
         return { ok: false, error: "Sign-up is disabled. Contact the site owner for access." };
       }
