@@ -67,16 +67,14 @@ function broadcast() {
 
 export function subscribe(fn: Listener) {
   listeners.add(fn);
+export function subscribe(fn: Listener) {
+  listeners.add(fn);
   getChannel(); // ensure channel attached
   ensureMenuSubscription();
+  ensureSettingsSubscription();
   if (isBrowser()) {
     const storage = (e: StorageEvent) => {
-      if (
-        e.key === ORDERS_KEY ||
-        e.key === CURRENCY_KEY ||
-        e.key === SETTINGS_KEY
-      )
-        emit();
+      if (e.key === ORDERS_KEY || e.key === CURRENCY_KEY) emit();
     };
     window.addEventListener("storage", storage);
     return () => {
