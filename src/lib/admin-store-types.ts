@@ -17,7 +17,11 @@ export type Order = {
   currency: string;
   status: OrderStatus;
   customer?: string;
+  contact?: string;
+  email?: string;
+  notes?: string;
 };
+
 
 export type BookingKind = "table" | "event";
 export type Booking = {

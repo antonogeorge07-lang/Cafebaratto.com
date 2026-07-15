@@ -49,9 +49,12 @@ export async function insertOrder(order: Omit<Order, "status">): Promise<void> {
     currency: order.currency,
     status: "active",
     customer_name: order.customer ?? null,
+    customer_contact: order.contact ?? null,
+    notes: order.notes ?? null,
   });
   if (error) throw error;
 }
+
 
 export async function updateOrderStatus(code: string, status: OrderStatus): Promise<void> {
   const { error } = await supabase

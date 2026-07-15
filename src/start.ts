@@ -5,7 +5,7 @@ import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
 
 const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
   const url = new URL(request.url);
-  if (url.pathname.startsWith("/lovable/")) {
+  if (url.pathname.startsWith("/lovable/") || url.pathname === "/email/unsubscribe") {
     return next();
   }
   try {
@@ -21,6 +21,7 @@ const errorMiddleware = createMiddleware().server(async ({ next, request }) => {
     });
   }
 });
+
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
