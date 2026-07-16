@@ -316,7 +316,7 @@ export function BookingModal({
                 disabled={!canSubmit}
                 className="mt-auto w-full rounded-full bg-coffee-900 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950 disabled:opacity-40"
               >
-                Confirm reservation
+                {submitting ? "Sending…" : "Confirm reservation"}
               </button>
             </div>
           </div>
