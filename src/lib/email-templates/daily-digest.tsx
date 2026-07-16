@@ -43,7 +43,7 @@ const DailyDigestEmail = ({
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>
-      Daily digest {date} · {orders_total} orders · {currency} {Number(revenue).toFixed(2)}
+      {`Daily digest ${date} · ${orders_total} orders · ${currency} ${Number(revenue).toFixed(2)}`}
     </Preview>
     <Body style={main}>
       <Container style={container}>
@@ -52,17 +52,18 @@ const DailyDigestEmail = ({
 
         <Section style={card}>
           <Heading as="h2" style={h2}>Orders</Heading>
-          <Text style={row}><strong>Total:</strong> {orders_total}</Text>
-          <Text style={row}><strong>Fulfilled:</strong> {orders_fulfilled}</Text>
-          <Text style={row}><strong>Cancelled:</strong> {orders_cancelled}</Text>
-          <Text style={row}><strong>Revenue:</strong> {currency} {Number(revenue).toFixed(2)}</Text>
+          <Text style={row}><strong>Total:</strong> {String(orders_total)}</Text>
+          <Text style={row}><strong>Fulfilled:</strong> {String(orders_fulfilled)}</Text>
+          <Text style={row}><strong>Cancelled:</strong> {String(orders_cancelled)}</Text>
+          <Text style={row}><strong>Revenue:</strong> {`${currency} ${Number(revenue).toFixed(2)}`}</Text>
         </Section>
 
         <Section style={card}>
           <Heading as="h2" style={h2}>Bookings</Heading>
-          <Text style={row}><strong>New:</strong> {bookings_new}</Text>
-          <Text style={row}><strong>Confirmed:</strong> {bookings_confirmed}</Text>
+          <Text style={row}><strong>New:</strong> {String(bookings_new)}</Text>
+          <Text style={row}><strong>Confirmed:</strong> {String(bookings_confirmed)}</Text>
         </Section>
+
 
         {top_items.length > 0 ? (
           <>
