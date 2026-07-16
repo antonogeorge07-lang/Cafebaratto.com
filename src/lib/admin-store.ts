@@ -325,21 +325,69 @@ export function getBookings(): Booking[] {
   return bookingsCache ?? [];
 }
 
-export function addBooking(b: Omit<Booking, "id" | "createdAt">) {
-  if (!isBrowser()) return;
+export type NewBooking = Omit<Booking, "id" | "createdAt" | "status"> & {
+  email?: string;
+};
+
+export async function addBooking(b: NewBooking): Promise<Booking> {
   const optimistic: Booking = {
-    ...b,
+    kind: b.kind,
+    name: b.name,
+    contact: b.contact,
+    date: b.date,
+    time: b.time,
+    partySize: b.partySize,
+    notes: b.notes,
+    eventType: b.eventType,
+    status: "pending",
     id: `BKG-${Date.now()}`,
     createdAt: new Date().toISOString(),
   };
-  bookingsCache = [optimistic, ...(bookingsCache ?? [])].slice(0, 1000);
-  broadcast();
-  insertBooking(b).catch((err) => {
+  if (isBrowser()) {
+    bookingsCache = [optimistic, ...(bookingsCache ?? [])].slice(0, 1000);
+    broadcast();
+  }
+  try {
+    const res = await fetch("/api/public/place-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        kind: b.kind,
+        name: b.name,
+        contact: b.contact,
+        date: b.date,
+        time: b.time,
+        partySize: b.partySize,
+        notes: b.notes,
+        eventType: b.eventType,
+        email: b.email,
+      }),
+    });
+    if (!res.ok) throw new Error(`place-booking ${res.status}`);
+  } catch (err) {
     // eslint-disable-next-line no-console
-    console.error("[admin-store] insertBooking failed", err);
+    console.error("[admin-store] place-booking failed, falling back to direct insert", err);
+    try {
+      await insertBooking(optimistic);
+    } catch (err2) {
+      // eslint-disable-next-line no-console
+      console.error("[admin-store] insertBooking fallback failed", err2);
+    }
+  }
+  refreshBookingsCache();
+  return optimistic;
+}
+
+export function updateBookingStatus(id: string, status: BookingStatus) {
+  if (bookingsCache) {
+    bookingsCache = bookingsCache.map((b) => (b.id === id ? { ...b, status } : b));
+    broadcast();
+  }
+  updateBookingStatusRow(id, status).catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[admin-store] updateBookingStatus failed", err);
     refreshBookingsCache();
   });
-  return optimistic;
 }
 
 export function getBookingsForDate(date: string): Booking[] {
