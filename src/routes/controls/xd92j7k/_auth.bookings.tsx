@@ -58,8 +58,9 @@ function BookingsPage() {
     return bookings
       .filter((b) => (dateFilter ? b.date === dateFilter : true))
       .filter((b) => (kindFilter === "all" ? true : b.kind === kindFilter))
+      .filter((b) => (statusFilter === "all" ? true : b.status === statusFilter))
       .sort((a, b) => a.time.localeCompare(b.time));
-  }, [bookings, dateFilter, kindFilter]);
+  }, [bookings, dateFilter, kindFilter, statusFilter]);
 
   const upcoming = useMemo(() => {
     const key = todayKey();
