@@ -29,10 +29,10 @@ import {
   getMenu,
   setMenu,
   subscribe,
-  getOrders,
   FX,
   getCurrency,
 } from "@/lib/admin-store";
+import { supabase } from "@/integrations/supabase/client";
 import { BASE_CATEGORIES, categoryLabel, type MenuItem } from "@/lib/menu-data";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/")({
@@ -41,23 +41,33 @@ export const Route = createFileRoute("/controls/xd92j7k/_auth/")({
 
 type TrendPoint = { day: string; sales: number; orders: number };
 
-function buildTrend(): TrendPoint[] {
-  const orders = getOrders();
+async function loadTrend(): Promise<TrendPoint[]> {
+  const { data, error } = await supabase
+    .from("revenue_by_day")
+    .select("day, orders_count, revenue")
+    .order("day", { ascending: true });
+  if (error || !data) return [];
+  // Build a continuous 30-day window filled with zeros for missing days.
+  const map = new Map<string, { sales: number; orders: number }>();
+  for (const row of data as Array<{ day: string; orders_count: number; revenue: number | string }>) {
+    map.set(row.day, { sales: Number(row.revenue) || 0, orders: Number(row.orders_count) || 0 });
+  }
   const days: TrendPoint[] = [];
   const today = new Date();
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(today.getDate() - i);
     const key = d.toISOString().slice(0, 10);
-    const dayOrders = orders.filter((o) => o.placedAt.slice(0, 10) === key);
+    const hit = map.get(key) ?? { sales: 0, orders: 0 };
     days.push({
       day: d.toLocaleDateString("en", { month: "short", day: "numeric" }),
-      sales: dayOrders.reduce((s, o) => s + o.subtotal, 0),
-      orders: dayOrders.length,
+      sales: hit.sales,
+      orders: hit.orders,
     });
   }
   return days;
 }
+
 
 function DashboardPage() {
   const [items, setItems] = useState<MenuItem[]>(() => getMenu());
