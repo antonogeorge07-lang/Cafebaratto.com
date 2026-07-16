@@ -238,12 +238,24 @@ export function BookingModal({
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-coffee-900/50">
-                  Phone or email
+                  Phone
                 </label>
                 <input
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="+34 ... / you@example.com"
+                  placeholder="+34 ..."
+                  className="mt-1 w-full rounded-xl border border-oak-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-coffee-900/40"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-coffee-900/50">
+                  Email (for confirmation)
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                   className="mt-1 w-full rounded-xl border border-oak-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-coffee-900/40"
                 />
               </div>
