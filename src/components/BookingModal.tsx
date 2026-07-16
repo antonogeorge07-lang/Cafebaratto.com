@@ -45,10 +45,12 @@ export function BookingModal({
   const [time, setTime] = useState<string>("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
   const [party, setParty] = useState(2);
   const [notes, setNotes] = useState("");
   const [eventType, setEventType] = useState(EVENT_TYPES[0]);
   const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const cells = useMemo(() => buildCalendar(month), [month]);
   const selectedKey = selected ? fmtDate(selected) : "";
@@ -56,21 +58,27 @@ export function BookingModal({
 
   if (!open) return null;
 
-  const canSubmit = !!selected && !!time && name.trim().length > 1 && contact.trim().length > 3;
+  const canSubmit = !!selected && !!time && name.trim().length > 1 && contact.trim().length > 3 && !submitting;
 
-  const submit = () => {
+  const submit = async () => {
     if (!canSubmit || !selected) return;
-    addBooking({
-      kind,
-      name: name.trim(),
-      contact: contact.trim(),
-      date: fmtDate(selected),
-      time,
-      partySize: party,
-      notes: notes.trim() || undefined,
-      eventType: kind === "event" ? eventType : undefined,
-    });
-    setDone(true);
+    setSubmitting(true);
+    try {
+      await addBooking({
+        kind,
+        name: name.trim(),
+        contact: contact.trim(),
+        date: fmtDate(selected),
+        time,
+        partySize: party,
+        notes: notes.trim() || undefined,
+        eventType: kind === "event" ? eventType : undefined,
+        email: email.trim() || undefined,
+      });
+      setDone(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const reset = () => {
@@ -78,6 +86,7 @@ export function BookingModal({
     setTime("");
     setName("");
     setContact("");
+    setEmail("");
     setParty(2);
     setNotes("");
   };

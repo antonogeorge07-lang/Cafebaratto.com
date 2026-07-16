@@ -19,6 +19,7 @@ import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
 import { Route as ApiPublicPlaceOrderRouteImport } from './routes/api/public/place-order'
+import { Route as ApiPublicPlaceBookingRouteImport } from './routes/api/public/place-booking'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -77,6 +78,11 @@ const ApiPublicPlaceOrderRoute = ApiPublicPlaceOrderRouteImport.update({
   path: '/api/public/place-order',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicPlaceBookingRoute = ApiPublicPlaceBookingRouteImport.update({
+  id: '/api/public/place-booking',
+  path: '/api/public/place-booking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlsXd92j7kAuthIndexRoute =
   ControlsXd92j7kAuthIndexRouteImport.update({
     id: '/',
@@ -128,6 +134,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
@@ -166,6 +174,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -187,6 +196,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/controls/xd92j7k'
     | '/lovable/email/suppression'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/lovable/email/suppression'
     | '/controls/xd92j7k/bookings'
@@ -224,6 +235,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/controls/xd92j7k/_auth'
     | '/lovable/email/suppression'
@@ -244,6 +256,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  ApiPublicPlaceBookingRoute: typeof ApiPublicPlaceBookingRoute
   ApiPublicPlaceOrderRoute: typeof ApiPublicPlaceOrderRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -324,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPlaceOrderRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/place-booking': {
+      id: '/api/public/place-booking'
+      path: '/api/public/place-booking'
+      fullPath: '/api/public/place-booking'
+      preLoaderRoute: typeof ApiPublicPlaceBookingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/controls/xd92j7k/_auth/': {
       id: '/controls/xd92j7k/_auth/'
       path: '/'
@@ -401,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  ApiPublicPlaceBookingRoute: ApiPublicPlaceBookingRoute,
   ApiPublicPlaceOrderRoute: ApiPublicPlaceOrderRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
