@@ -25,11 +25,34 @@ function BookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>(() => getBookings());
   const [dateFilter, setDateFilter] = useState<string>(todayKey());
   const [kindFilter, setKindFilter] = useState<"all" | "table" | "event">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | BookingStatus>("all");
+  const [pending, setPending] = useState<Record<string, BookingStatus | undefined>>({});
+  const [toast, setToast] = useState<{ tone: "ok" | "err"; msg: string } | null>(null);
 
   useEffect(() => {
     const unsub = subscribe(() => setBookings(getBookings()));
     return unsub;
   }, []);
+
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 2400);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const transition = async (id: string, next: BookingStatus) => {
+    setPending((p) => ({ ...p, [id]: next }));
+    try {
+      updateBookingStatus(id, next);
+      setToast({ tone: "ok", msg: next === "confirmed" ? "Booking confirmed" : "Booking cancelled" });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(err);
+      setToast({ tone: "err", msg: "Update failed. Try again." });
+    } finally {
+      setTimeout(() => setPending((p) => ({ ...p, [id]: undefined })), 500);
+    }
+  };
 
   const filtered = useMemo(() => {
     return bookings
