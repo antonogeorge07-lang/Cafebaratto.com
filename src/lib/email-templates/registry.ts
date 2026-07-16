@@ -3,6 +3,7 @@ import { template as orderCustomer } from './order-customer'
 import { template as orderOwner } from './order-owner'
 import { template as bookingCustomer } from './booking-customer'
 import { template as bookingOwner } from './booking-owner'
+import { template as dailyDigest } from './daily-digest'
 
 export interface TemplateEntry {
   component: ComponentType<any>
@@ -22,4 +23,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'order-owner': orderOwner,
   'booking-customer': bookingCustomer,
   'booking-owner': bookingOwner,
+  'daily-digest': dailyDigest,
 }

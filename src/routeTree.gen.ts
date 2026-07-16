@@ -28,6 +28,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 import { Route as ControlsXd92j7kAuthKitchenRouteImport } from './routes/controls/xd92j7k/_auth.kitchen'
 import { Route as ControlsXd92j7kAuthBookingsRouteImport } from './routes/controls/xd92j7k/_auth.bookings'
+import { Route as ApiPublicHooksDailyDigestRouteImport } from './routes/api/public/hooks/daily-digest'
 
 const UnsubscribeRoute = UnsubscribeRouteImport.update({
   id: '/unsubscribe',
@@ -131,6 +132,12 @@ const ControlsXd92j7kAuthBookingsRoute =
     path: '/bookings',
     getParentRoute: () => ControlsXd92j7kAuthRoute,
   } as any)
+const ApiPublicHooksDailyDigestRoute =
+  ApiPublicHooksDailyDigestRouteImport.update({
+    id: '/api/public/hooks/daily-digest',
+    path: '/api/public/hooks/daily-digest',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
@@ -165,6 +173,7 @@ export interface FileRoutesByTo {
   '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
@@ -187,6 +196,7 @@ export interface FileRoutesById {
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
+  '/api/public/hooks/daily-digest': typeof ApiPublicHooksDailyDigestRoute
   '/controls/xd92j7k/_auth/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/_auth/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/api/public/place-order'
     | '/controls/xd92j7k'
     | '/lovable/email/suppression'
+    | '/api/public/hooks/daily-digest'
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
@@ -230,6 +241,7 @@ export interface FileRouteTypes {
     | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/lovable/email/suppression'
+    | '/api/public/hooks/daily-digest'
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
@@ -251,6 +263,7 @@ export interface FileRouteTypes {
     | '/api/public/place-order'
     | '/controls/xd92j7k/_auth'
     | '/lovable/email/suppression'
+    | '/api/public/hooks/daily-digest'
     | '/controls/xd92j7k/_auth/bookings'
     | '/controls/xd92j7k/_auth/kitchen'
     | '/controls/xd92j7k/_auth/settings'
@@ -273,6 +286,7 @@ export interface RootRouteChildren {
   ApiPublicPlaceOrderRoute: typeof ApiPublicPlaceOrderRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
+  ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -413,6 +427,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ControlsXd92j7kAuthBookingsRouteImport
       parentRoute: typeof ControlsXd92j7kAuthRoute
     }
+    '/api/public/hooks/daily-digest': {
+      id: '/api/public/hooks/daily-digest'
+      path: '/api/public/hooks/daily-digest'
+      fullPath: '/api/public/hooks/daily-digest'
+      preLoaderRoute: typeof ApiPublicHooksDailyDigestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -446,6 +467,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPlaceOrderRoute: ApiPublicPlaceOrderRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
+  ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
