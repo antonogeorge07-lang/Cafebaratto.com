@@ -1,10 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { CalendarDays, Users, Phone, StickyNote } from "lucide-react";
+import { CalendarDays, Users, Phone, StickyNote, Check, X, Loader2 } from "lucide-react";
 import {
   getBookings,
   subscribe,
+  updateBookingStatus,
   type Booking,
+  type BookingStatus,
 } from "@/lib/admin-store";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/bookings")({
