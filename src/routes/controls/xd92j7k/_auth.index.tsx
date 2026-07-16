@@ -71,7 +71,7 @@ async function loadTrend(): Promise<TrendPoint[]> {
 
 function DashboardPage() {
   const [items, setItems] = useState<MenuItem[]>(() => getMenu());
-  const [trend, setTrend] = useState<TrendPoint[]>(() => buildTrend());
+  const [trend, setTrend] = useState<TrendPoint[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<{
     name: string;
@@ -87,12 +87,18 @@ function DashboardPage() {
 
   useEffect(() => {
     trackEvent("admin_dashboard_view", {});
+    let alive = true;
+    loadTrend().then((t) => alive && setTrend(t));
     const unsub = subscribe(() => {
       setItems(getMenu());
-      setTrend(buildTrend());
+      loadTrend().then((t) => alive && setTrend(t));
     });
-    return unsub;
+    return () => {
+      alive = false;
+      unsub();
+    };
   }, []);
+
 
   const currency = getCurrency();
   const sym = FX[currency].symbol;
