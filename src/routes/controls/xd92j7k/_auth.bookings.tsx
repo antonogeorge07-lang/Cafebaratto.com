@@ -291,6 +291,31 @@ function BookingsPage() {
           </ul>
         )}
       </section>
+
+      {toast && (
+        <div
+          className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-full border px-4 py-2 text-xs shadow-2xl ${
+            toast.tone === "ok"
+              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+              : "border-rose-500/40 bg-rose-500/10 text-rose-200"
+          }`}
+        >
+          {toast.msg}
+        </div>
+      )}
     </main>
+  );
+}
+
+function StatusPill({ status }: { status: BookingStatus }) {
+  const styles: Record<BookingStatus, string> = {
+    pending: "border-zinc-500/40 text-zinc-300",
+    confirmed: "border-emerald-500/40 text-emerald-300",
+    cancelled: "border-rose-500/40 text-rose-300",
+  };
+  return (
+    <span className={`rounded-full border px-2 py-0.5 text-[11px] capitalize ${styles[status]}`}>
+      {status}
+    </span>
   );
 }
