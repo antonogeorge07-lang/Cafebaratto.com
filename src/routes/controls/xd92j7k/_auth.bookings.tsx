@@ -113,6 +113,22 @@ function BookingsPage() {
               </button>
             ))}
           </div>
+          <div className="ml-2 flex rounded-full border border-white/10 p-0.5">
+            {(["all", "pending", "confirmed", "cancelled"] as const).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setStatusFilter(s)}
+                className={`rounded-full px-2.5 py-1 capitalize ${
+                  statusFilter === s
+                    ? "bg-emerald-500 text-zinc-950"
+                    : "text-zinc-400 hover:text-zinc-100"
+                }`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -131,14 +147,16 @@ function BookingsPage() {
                 <th className="px-3 py-3 font-medium">Guest</th>
                 <th className="px-3 py-3 font-medium">Party</th>
                 <th className="px-3 py-3 font-medium">Kind</th>
+                <th className="px-3 py-3 font-medium">Status</th>
                 <th className="px-3 py-3 font-medium">Contact</th>
-                <th className="px-5 py-3 font-medium">Notes</th>
+                <th className="px-3 py-3 font-medium">Notes</th>
+                <th className="px-5 py-3 font-medium text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-5 py-10 text-center text-xs text-zinc-500">
+                  <td colSpan={8} className="px-5 py-10 text-center text-xs text-zinc-500">
                     No reservations for this view.
                   </td>
                 </tr>
