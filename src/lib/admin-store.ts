@@ -14,7 +14,7 @@ import {
   insertOrder,
   updateOrderStatus,
 } from "@/lib/data/orders";
-import { fetchAllBookings, insertBooking } from "@/lib/data/bookings";
+import { fetchAllBookings, insertBooking, updateBookingStatusRow } from "@/lib/data/bookings";
 import {
   DEFAULT_SETTINGS,
   type SiteSettings,
@@ -23,6 +23,7 @@ import {
   type OrderStatus,
   type Booking,
   type BookingKind,
+  type BookingStatus,
 } from "@/lib/admin-store-types";
 export {
   DEFAULT_SETTINGS,
@@ -32,6 +33,7 @@ export {
   type OrderStatus,
   type Booking,
   type BookingKind,
+  type BookingStatus,
 } from "@/lib/admin-store-types";
 
 
