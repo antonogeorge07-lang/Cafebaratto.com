@@ -192,13 +192,16 @@ function BookingsPage() {
                         {b.kind}
                       </span>
                     </td>
+                    <td className="px-3 py-3">
+                      <StatusPill status={b.status} />
+                    </td>
                     <td className="px-3 py-3 text-xs text-zinc-400">
                       <span className="inline-flex items-center gap-1">
                         <Phone className="h-3 w-3 text-zinc-500" />
                         {b.contact}
                       </span>
                     </td>
-                    <td className="px-5 py-3 text-xs text-zinc-400">
+                    <td className="px-3 py-3 text-xs text-zinc-400">
                       {b.notes ? (
                         <span className="inline-flex items-start gap-1">
                           <StickyNote className="mt-0.5 h-3 w-3 shrink-0 text-zinc-500" />
@@ -207,6 +210,40 @@ function BookingsPage() {
                       ) : (
                         <span className="text-zinc-600">—</span>
                       )}
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <div className="inline-flex items-center gap-1.5">
+                        {b.status !== "confirmed" && (
+                          <button
+                            type="button"
+                            disabled={!!pending[b.id]}
+                            onClick={() => transition(b.id, "confirmed")}
+                            className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 px-2.5 py-1 text-[11px] text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-50"
+                          >
+                            {pending[b.id] === "confirmed" ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Check className="h-3 w-3" />
+                            )}
+                            Confirm
+                          </button>
+                        )}
+                        {b.status !== "cancelled" && (
+                          <button
+                            type="button"
+                            disabled={!!pending[b.id]}
+                            onClick={() => transition(b.id, "cancelled")}
+                            className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 px-2.5 py-1 text-[11px] text-rose-300 hover:bg-rose-500/10 disabled:opacity-50"
+                          >
+                            {pending[b.id] === "cancelled" ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <X className="h-3 w-3" />
+                            )}
+                            Cancel
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
