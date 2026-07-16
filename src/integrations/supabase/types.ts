@@ -343,9 +343,38 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      avg_prep_minutes: {
+        Row: {
+          avg_minutes: number | null
+          day: string | null
+          fulfilled_count: number | null
+        }
+        Relationships: []
+      }
+      revenue_by_day: {
+        Row: {
+          cancelled_count: number | null
+          currency: string | null
+          day: string | null
+          fulfilled_count: number | null
+          orders_count: number | null
+          revenue: number | null
+        }
+        Relationships: []
+      }
+      top_items: {
+        Row: {
+          item_id: string | null
+          name: string | null
+          qty_sold: number | null
+          revenue: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      cancel_stale_orders: { Args: never; Returns: number }
+      daily_digest_stats: { Args: never; Returns: Json }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
