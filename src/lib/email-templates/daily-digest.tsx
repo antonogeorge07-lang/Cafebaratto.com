@@ -71,7 +71,7 @@ const DailyDigestEmail = ({
             {top_items.map((t, i) => (
               <Text key={i} style={line}>
                 <span>{t.name}</span>
-                <span style={{ float: "right" }}>{t.qty}</span>
+                <span style={{ float: "right" }}>{String(t.qty)}</span>
               </Text>
             ))}
             <Hr style={hr} />
