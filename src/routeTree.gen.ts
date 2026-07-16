@@ -14,11 +14,13 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as OwnerRouteImport } from './routes/owner'
 import { Route as MenuRouteImport } from './routes/menu'
+import { Route as BookRouteImport } from './routes/book'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as EmailUnsubscribeRouteImport } from './routes/email/unsubscribe'
 import { Route as LovableEmailSuppressionRouteImport } from './routes/lovable/email/suppression'
 import { Route as ControlsXd92j7kAuthRouteImport } from './routes/controls/xd92j7k/_auth'
 import { Route as ApiPublicPlaceOrderRouteImport } from './routes/api/public/place-order'
+import { Route as ApiPublicPlaceBookingRouteImport } from './routes/api/public/place-booking'
 import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/xd92j7k/_auth.index'
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
@@ -52,6 +54,11 @@ const MenuRoute = MenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BookRoute = BookRouteImport.update({
+  id: '/book',
+  path: '/book',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -75,6 +82,11 @@ const ControlsXd92j7kAuthRoute = ControlsXd92j7kAuthRouteImport.update({
 const ApiPublicPlaceOrderRoute = ApiPublicPlaceOrderRouteImport.update({
   id: '/api/public/place-order',
   path: '/api/public/place-order',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPlaceBookingRoute = ApiPublicPlaceBookingRouteImport.update({
+  id: '/api/public/place-booking',
+  path: '/api/public/place-booking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ControlsXd92j7kAuthIndexRoute =
@@ -122,12 +134,14 @@ const ControlsXd92j7kAuthBookingsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/book': typeof BookRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -141,12 +155,14 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/book': typeof BookRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
@@ -160,12 +176,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/book': typeof BookRoute
   '/menu': typeof MenuRoute
   '/owner': typeof OwnerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/unsubscribe': typeof UnsubscribeRoute
   '/email/unsubscribe': typeof EmailUnsubscribeRoute
+  '/api/public/place-booking': typeof ApiPublicPlaceBookingRoute
   '/api/public/place-order': typeof ApiPublicPlaceOrderRoute
   '/controls/xd92j7k/_auth': typeof ControlsXd92j7kAuthRouteWithChildren
   '/lovable/email/suppression': typeof LovableEmailSuppressionRoute
@@ -181,12 +199,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/book'
     | '/menu'
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/controls/xd92j7k'
     | '/lovable/email/suppression'
@@ -200,12 +220,14 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/book'
     | '/menu'
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/lovable/email/suppression'
     | '/controls/xd92j7k/bookings'
@@ -218,12 +240,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/book'
     | '/menu'
     | '/owner'
     | '/reset-password'
     | '/sitemap.xml'
     | '/unsubscribe'
     | '/email/unsubscribe'
+    | '/api/public/place-booking'
     | '/api/public/place-order'
     | '/controls/xd92j7k/_auth'
     | '/lovable/email/suppression'
@@ -238,12 +262,14 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BookRoute: typeof BookRoute
   MenuRoute: typeof MenuRoute
   OwnerRoute: typeof OwnerRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   UnsubscribeRoute: typeof UnsubscribeRoute
   EmailUnsubscribeRoute: typeof EmailUnsubscribeRoute
+  ApiPublicPlaceBookingRoute: typeof ApiPublicPlaceBookingRoute
   ApiPublicPlaceOrderRoute: typeof ApiPublicPlaceOrderRoute
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
@@ -289,6 +315,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MenuRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/book': {
+      id: '/book'
+      path: '/book'
+      fullPath: '/book'
+      preLoaderRoute: typeof BookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -322,6 +355,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/place-order'
       fullPath: '/api/public/place-order'
       preLoaderRoute: typeof ApiPublicPlaceOrderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/place-booking': {
+      id: '/api/public/place-booking'
+      path: '/api/public/place-booking'
+      fullPath: '/api/public/place-booking'
+      preLoaderRoute: typeof ApiPublicPlaceBookingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/controls/xd92j7k/_auth/': {
@@ -395,12 +435,14 @@ const ControlsXd92j7kAuthRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BookRoute: BookRoute,
   MenuRoute: MenuRoute,
   OwnerRoute: OwnerRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   UnsubscribeRoute: UnsubscribeRoute,
   EmailUnsubscribeRoute: EmailUnsubscribeRoute,
+  ApiPublicPlaceBookingRoute: ApiPublicPlaceBookingRoute,
   ApiPublicPlaceOrderRoute: ApiPublicPlaceOrderRoute,
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
@@ -411,13 +453,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

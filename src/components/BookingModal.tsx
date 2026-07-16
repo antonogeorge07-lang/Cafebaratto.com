@@ -45,10 +45,12 @@ export function BookingModal({
   const [time, setTime] = useState<string>("");
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
+  const [email, setEmail] = useState("");
   const [party, setParty] = useState(2);
   const [notes, setNotes] = useState("");
   const [eventType, setEventType] = useState(EVENT_TYPES[0]);
   const [done, setDone] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const cells = useMemo(() => buildCalendar(month), [month]);
   const selectedKey = selected ? fmtDate(selected) : "";
@@ -56,21 +58,27 @@ export function BookingModal({
 
   if (!open) return null;
 
-  const canSubmit = !!selected && !!time && name.trim().length > 1 && contact.trim().length > 3;
+  const canSubmit = !!selected && !!time && name.trim().length > 1 && contact.trim().length > 3 && !submitting;
 
-  const submit = () => {
+  const submit = async () => {
     if (!canSubmit || !selected) return;
-    addBooking({
-      kind,
-      name: name.trim(),
-      contact: contact.trim(),
-      date: fmtDate(selected),
-      time,
-      partySize: party,
-      notes: notes.trim() || undefined,
-      eventType: kind === "event" ? eventType : undefined,
-    });
-    setDone(true);
+    setSubmitting(true);
+    try {
+      await addBooking({
+        kind,
+        name: name.trim(),
+        contact: contact.trim(),
+        date: fmtDate(selected),
+        time,
+        partySize: party,
+        notes: notes.trim() || undefined,
+        eventType: kind === "event" ? eventType : undefined,
+        email: email.trim() || undefined,
+      });
+      setDone(true);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const reset = () => {
@@ -78,6 +86,7 @@ export function BookingModal({
     setTime("");
     setName("");
     setContact("");
+    setEmail("");
     setParty(2);
     setNotes("");
   };
@@ -229,12 +238,24 @@ export function BookingModal({
               </div>
               <div>
                 <label className="text-[10px] uppercase tracking-widest text-coffee-900/50">
-                  Phone or email
+                  Phone
                 </label>
                 <input
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  placeholder="+34 ... / you@example.com"
+                  placeholder="+34 ..."
+                  className="mt-1 w-full rounded-xl border border-oak-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-coffee-900/40"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] uppercase tracking-widest text-coffee-900/50">
+                  Email (for confirmation)
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
                   className="mt-1 w-full rounded-xl border border-oak-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-coffee-900/40"
                 />
               </div>
@@ -295,7 +316,7 @@ export function BookingModal({
                 disabled={!canSubmit}
                 className="mt-auto w-full rounded-full bg-coffee-900 py-3 text-sm font-medium text-oak-50 transition hover:bg-coffee-950 disabled:opacity-40"
               >
-                Confirm reservation
+                {submitting ? "Sending…" : "Confirm reservation"}
               </button>
             </div>
           </div>

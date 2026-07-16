@@ -24,6 +24,7 @@ export type Order = {
 
 
 export type BookingKind = "table" | "event";
+export type BookingStatus = "pending" | "confirmed" | "cancelled";
 export type Booking = {
   id: string;
   kind: BookingKind;
@@ -34,6 +35,7 @@ export type Booking = {
   partySize: number;
   notes?: string;
   eventType?: string;
+  status: BookingStatus;
   createdAt: string;
 };
 

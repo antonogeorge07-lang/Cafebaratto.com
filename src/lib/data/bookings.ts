@@ -1,7 +1,7 @@
 // Bookings backed by Supabase (`bookings` table). Anon can INSERT via anon
-// policy; staff read via authenticated policies.
+// policy; staff read/update via authenticated policies.
 import { supabase } from "@/integrations/supabase/client";
-import type { Booking, BookingKind } from "@/lib/admin-store-types";
+import type { Booking, BookingKind, BookingStatus } from "@/lib/admin-store-types";
 
 type Row = {
   id: string;
@@ -24,6 +24,11 @@ function rowToBooking(r: Row): Booking {
   const dd = String(d.getDate()).padStart(2, "0");
   const hh = String(d.getHours()).padStart(2, "0");
   const mi = String(d.getMinutes()).padStart(2, "0");
+  const status = (["pending", "confirmed", "cancelled"] as const).includes(
+    r.status as BookingStatus,
+  )
+    ? (r.status as BookingStatus)
+    : "pending";
   return {
     id: r.id,
     kind: (r.kind as BookingKind) ?? "table",
@@ -34,6 +39,7 @@ function rowToBooking(r: Row): Booking {
     partySize: r.party_size ?? 1,
     notes: r.notes ?? undefined,
     eventType: r.event_type ?? undefined,
+    status,
     createdAt: r.created_at,
   };
 }
@@ -48,7 +54,7 @@ export async function fetchAllBookings(): Promise<Booking[]> {
   return (data as Row[] | null)?.map(rowToBooking) ?? [];
 }
 
-export async function insertBooking(b: Omit<Booking, "id" | "createdAt">): Promise<void> {
+export async function insertBooking(b: Omit<Booking, "id" | "createdAt" | "status">): Promise<void> {
   const whenAt = new Date(`${b.date}T${b.time}:00`).toISOString();
   const { error } = await supabase.from("bookings").insert({
     kind: b.kind,
@@ -59,5 +65,16 @@ export async function insertBooking(b: Omit<Booking, "id" | "createdAt">): Promi
     notes: b.notes ?? null,
     event_type: b.eventType ?? null,
   });
+  if (error) throw error;
+}
+
+export async function updateBookingStatusRow(
+  id: string,
+  status: BookingStatus,
+): Promise<void> {
+  const { error } = await supabase
+    .from("bookings")
+    .update({ status })
+    .eq("id", id);
   if (error) throw error;
 }
