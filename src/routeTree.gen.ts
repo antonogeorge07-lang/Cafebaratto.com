@@ -25,6 +25,8 @@ import { Route as ControlsXd92j7kAuthIndexRouteImport } from './routes/controls/
 import { Route as LovableEmailTransactionalSendRouteImport } from './routes/lovable/email/transactional/send'
 import { Route as LovableEmailTransactionalPreviewRouteImport } from './routes/lovable/email/transactional/preview'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
+import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
+import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ControlsXd92j7kAuthSettingsRouteImport } from './routes/controls/xd92j7k/_auth.settings'
 import { Route as ControlsXd92j7kAuthKitchenRouteImport } from './routes/controls/xd92j7k/_auth.kitchen'
 import { Route as ControlsXd92j7kAuthBookingsRouteImport } from './routes/controls/xd92j7k/_auth.bookings'
@@ -114,6 +116,16 @@ const LovableEmailQueueProcessRoute =
     path: '/lovable/email/queue/process',
     getParentRoute: () => rootRouteImport,
   } as any)
+const LovableEmailAuthWebhookRoute = LovableEmailAuthWebhookRouteImport.update({
+  id: '/lovable/email/auth/webhook',
+  path: '/lovable/email/auth/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LovableEmailAuthPreviewRoute = LovableEmailAuthPreviewRouteImport.update({
+  id: '/lovable/email/auth/preview',
+  path: '/lovable/email/auth/preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ControlsXd92j7kAuthSettingsRoute =
   ControlsXd92j7kAuthSettingsRouteImport.update({
     id: '/settings',
@@ -156,6 +168,8 @@ export interface FileRoutesByFullPath {
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -177,6 +191,8 @@ export interface FileRoutesByTo {
   '/controls/xd92j7k/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -200,6 +216,8 @@ export interface FileRoutesById {
   '/controls/xd92j7k/_auth/bookings': typeof ControlsXd92j7kAuthBookingsRoute
   '/controls/xd92j7k/_auth/kitchen': typeof ControlsXd92j7kAuthKitchenRoute
   '/controls/xd92j7k/_auth/settings': typeof ControlsXd92j7kAuthSettingsRoute
+  '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
+  '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/lovable/email/transactional/preview': typeof LovableEmailTransactionalPreviewRoute
   '/lovable/email/transactional/send': typeof LovableEmailTransactionalSendRoute
@@ -224,6 +242,8 @@ export interface FileRouteTypes {
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -245,6 +265,8 @@ export interface FileRouteTypes {
     | '/controls/xd92j7k/bookings'
     | '/controls/xd92j7k/kitchen'
     | '/controls/xd92j7k/settings'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -267,6 +289,8 @@ export interface FileRouteTypes {
     | '/controls/xd92j7k/_auth/bookings'
     | '/controls/xd92j7k/_auth/kitchen'
     | '/controls/xd92j7k/_auth/settings'
+    | '/lovable/email/auth/preview'
+    | '/lovable/email/auth/webhook'
     | '/lovable/email/queue/process'
     | '/lovable/email/transactional/preview'
     | '/lovable/email/transactional/send'
@@ -287,6 +311,8 @@ export interface RootRouteChildren {
   ControlsXd92j7kAuthRoute: typeof ControlsXd92j7kAuthRouteWithChildren
   LovableEmailSuppressionRoute: typeof LovableEmailSuppressionRoute
   ApiPublicHooksDailyDigestRoute: typeof ApiPublicHooksDailyDigestRoute
+  LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
+  LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
   LovableEmailTransactionalPreviewRoute: typeof LovableEmailTransactionalPreviewRoute
   LovableEmailTransactionalSendRoute: typeof LovableEmailTransactionalSendRoute
@@ -406,6 +432,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lovable/email/auth/webhook': {
+      id: '/lovable/email/auth/webhook'
+      path: '/lovable/email/auth/webhook'
+      fullPath: '/lovable/email/auth/webhook'
+      preLoaderRoute: typeof LovableEmailAuthWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lovable/email/auth/preview': {
+      id: '/lovable/email/auth/preview'
+      path: '/lovable/email/auth/preview'
+      fullPath: '/lovable/email/auth/preview'
+      preLoaderRoute: typeof LovableEmailAuthPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/controls/xd92j7k/_auth/settings': {
       id: '/controls/xd92j7k/_auth/settings'
       path: '/settings'
@@ -468,6 +508,8 @@ const rootRouteChildren: RootRouteChildren = {
   ControlsXd92j7kAuthRoute: ControlsXd92j7kAuthRouteWithChildren,
   LovableEmailSuppressionRoute: LovableEmailSuppressionRoute,
   ApiPublicHooksDailyDigestRoute: ApiPublicHooksDailyDigestRoute,
+  LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
+  LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
   LovableEmailTransactionalPreviewRoute: LovableEmailTransactionalPreviewRoute,
   LovableEmailTransactionalSendRoute: LovableEmailTransactionalSendRoute,
@@ -475,13 +517,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
