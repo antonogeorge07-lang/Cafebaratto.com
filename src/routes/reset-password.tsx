@@ -34,41 +34,72 @@ function ResetPasswordPage() {
       setCheckingAuth(false);
     };
 
-    // Listen first so we don't miss the PASSWORD_RECOVERY event
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      setCheckingAuth(false);
+    };
+
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN" || session) {
+      if (event === "PASSWORD_RECOVERY" || (session && event === "SIGNED_IN")) {
         authorize();
       }
     });
 
     (async () => {
-      const rawUrl = window.location.href;
-      const rawHash = window.location.hash;
-      const hasRecoveryContext =
-        rawUrl.includes("type=recovery") ||
-        rawHash.includes("access_token=") ||
-        rawUrl.includes("code=");
+      const url = new URL(window.location.href);
+      const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
-      if (hasRecoveryContext) {
-        authorize();
-        return;
+      const code = url.searchParams.get("code");
+      const tokenHash = url.searchParams.get("token_hash") ?? hash.get("token_hash");
+      const type = url.searchParams.get("type") ?? hash.get("type");
+      const accessToken = hash.get("access_token");
+      const refreshToken = hash.get("refresh_token");
+      const errorDesc = url.searchParams.get("error_description") ?? hash.get("error_description");
+
+      if (errorDesc) {
+        setErr(decodeURIComponent(errorDesc));
+        return fail();
       }
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        authorize();
-        return;
-      }
-
-      // Give Supabase a moment to process the recovery link before blocking
-      setTimeout(() => {
-        if (!settled) {
-          settled = true;
-          setCheckingAuth(false);
+      try {
+        if (accessToken && refreshToken) {
+          const { error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) throw error;
+          window.history.replaceState(null, "", window.location.pathname);
+          return authorize();
         }
-      }, 1500);
+
+        if (code) {
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+          window.history.replaceState(null, "", window.location.pathname);
+          return authorize();
+        }
+
+        if (tokenHash) {
+          const { error } = await supabase.auth.verifyOtp({
+            type: (type as "recovery") || "recovery",
+            token_hash: tokenHash,
+          });
+          if (error) throw error;
+          window.history.replaceState(null, "", window.location.pathname);
+          return authorize();
+        }
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) return authorize();
+
+        setTimeout(fail, 1500);
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Reset link is invalid or expired.");
+        fail();
+      }
     })();
 
     return () => {
