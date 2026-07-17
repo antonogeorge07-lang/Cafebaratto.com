@@ -160,6 +160,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AdminSessionProvider>
         <I18nProvider>
+          <PasswordRecoveryRedirect />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <SaveCapsule />
