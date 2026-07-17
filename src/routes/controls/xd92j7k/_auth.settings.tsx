@@ -41,6 +41,7 @@ function AccountSection() {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [nextPw, setNextPw] = useState("");
   const [confirm, setConfirm] = useState("");
