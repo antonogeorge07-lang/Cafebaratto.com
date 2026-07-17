@@ -14,6 +14,41 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AdminSessionProvider } from "@/context/AdminSessionContext";
 import { I18nProvider } from "@/lib/i18n";
 import { SaveCapsule, EditModeToggle } from "@/components/EditableText";
+import { supabase } from "@/integrations/supabase/client";
+
+function PasswordRecoveryRedirect() {
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const goToReset = () => {
+      if (window.location.pathname === "/reset-password") return;
+      const hash = window.location.hash || "";
+      const search = window.location.search || "";
+      window.location.replace(`/reset-password${search}${hash}`);
+    };
+
+    // 1) Handle landing here from the email link (hash or ?code=)
+    const href = window.location.href;
+    const hash = window.location.hash || "";
+    if (
+      window.location.pathname !== "/reset-password" &&
+      (hash.includes("type=recovery") ||
+        hash.includes("access_token=") ||
+        href.includes("code=") ||
+        href.includes("type=recovery"))
+    ) {
+      goToReset();
+      return;
+    }
+
+    // 2) Handle the Supabase-fired recovery event
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") goToReset();
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
+  return null;
+}
 
 function NotFoundComponent() {
   return (
@@ -125,6 +160,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AdminSessionProvider>
         <I18nProvider>
+          <PasswordRecoveryRedirect />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <SaveCapsule />
