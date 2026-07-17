@@ -52,9 +52,26 @@ function AccountSection() {
   }, [profile.name, profile.email]);
 
   const saveProfile = async () => {
-    await updateProfile({ name: name.trim(), email: email.trim() });
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 1600);
+    setProfileSaved(false);
+    setProfileMsg(null);
+    try {
+      const emailChanged = email.trim().toLowerCase() !== profile.email.trim().toLowerCase();
+      await updateProfile({ name: name.trim(), email: email.trim() });
+      if (emailChanged) {
+        setProfileMsg({
+          ok: true,
+          text: `Confirmation link sent to ${email.trim()}. Click it to activate this address — password resets will then be sent there.`,
+        });
+      } else {
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 1600);
+      }
+    } catch (err) {
+      setProfileMsg({
+        ok: false,
+        text: err instanceof Error ? err.message : "Could not update email.",
+      });
+    }
   };
 
   const submitPassword = async (e: React.FormEvent) => {
