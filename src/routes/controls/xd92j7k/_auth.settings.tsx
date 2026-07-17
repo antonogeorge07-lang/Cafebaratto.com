@@ -117,9 +117,13 @@ function AccountSection() {
             <input
               type="email"
               value={email}
-              disabled
-              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-400 outline-none"
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-500/60"
             />
+            <p className="mt-1.5 text-[11px] text-zinc-500">
+              Password reset emails are sent to this address. Changing it requires confirming a link from your new inbox.
+            </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-3">
@@ -135,6 +139,11 @@ function AccountSection() {
             </span>
           )}
         </div>
+        {profileMsg && (
+          <p className={`mt-3 text-xs ${profileMsg.ok ? "text-emerald-400" : "text-red-400"}`}>
+            {profileMsg.text}
+          </p>
+        )}
       </section>
 
       <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">
