@@ -41,6 +41,7 @@ function AccountSection() {
   const [name, setName] = useState(profile.name);
   const [email, setEmail] = useState(profile.email);
   const [profileSaved, setProfileSaved] = useState(false);
+  const [profileMsg, setProfileMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const [nextPw, setNextPw] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -52,9 +53,26 @@ function AccountSection() {
   }, [profile.name, profile.email]);
 
   const saveProfile = async () => {
-    await updateProfile({ name: name.trim(), email: email.trim() });
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 1600);
+    setProfileSaved(false);
+    setProfileMsg(null);
+    try {
+      const emailChanged = email.trim().toLowerCase() !== profile.email.trim().toLowerCase();
+      await updateProfile({ name: name.trim(), email: email.trim() });
+      if (emailChanged) {
+        setProfileMsg({
+          ok: true,
+          text: `Confirmation link sent to ${email.trim()}. Click it to activate this address — password resets will then be sent there.`,
+        });
+      } else {
+        setProfileSaved(true);
+        setTimeout(() => setProfileSaved(false), 1600);
+      }
+    } catch (err) {
+      setProfileMsg({
+        ok: false,
+        text: err instanceof Error ? err.message : "Could not update email.",
+      });
+    }
   };
 
   const submitPassword = async (e: React.FormEvent) => {
@@ -99,9 +117,13 @@ function AccountSection() {
             <input
               type="email"
               value={email}
-              disabled
-              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-400 outline-none"
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className="mt-2 w-full rounded-xl border border-white/10 bg-zinc-950 px-3 py-2.5 text-sm text-zinc-100 outline-none focus:border-amber-500/60"
             />
+            <p className="mt-1.5 text-[11px] text-zinc-500">
+              Password reset emails are sent to this address. Changing it requires confirming a link from your new inbox.
+            </p>
           </div>
         </div>
         <div className="mt-4 flex items-center gap-3">
@@ -117,6 +139,11 @@ function AccountSection() {
             </span>
           )}
         </div>
+        {profileMsg && (
+          <p className={`mt-3 text-xs ${profileMsg.ok ? "text-emerald-400" : "text-red-400"}`}>
+            {profileMsg.text}
+          </p>
+        )}
       </section>
 
       <section className="mt-6 rounded-3xl border border-white/10 bg-zinc-900/60 p-6">

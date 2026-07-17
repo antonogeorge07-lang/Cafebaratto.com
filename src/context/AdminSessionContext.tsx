@@ -182,6 +182,19 @@ export function AdminSessionProvider({ children }: { children: ReactNode }) {
         name: patch.name ?? profile.name,
         email: patch.email ?? profile.email,
       };
+      const emailChanged =
+        typeof patch.email === "string" &&
+        patch.email.trim().length > 0 &&
+        patch.email.trim().toLowerCase() !== (session.user.email ?? "").toLowerCase();
+      if (emailChanged) {
+        const redirectTo =
+          typeof window !== "undefined" ? `${window.location.origin}/reset-password` : undefined;
+        const { error } = await supabase.auth.updateUser(
+          { email: next.email.trim() },
+          redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+        );
+        if (error) throw new Error(error.message);
+      }
       setProfile(next);
       await supabase
         .from("profiles")
