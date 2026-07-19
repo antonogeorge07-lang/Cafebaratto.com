@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks } from "lucide-react";
+import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
 import {
@@ -10,6 +10,8 @@ import {
   DEFAULT_SETTINGS,
   type SiteSettings,
 } from "@/lib/admin-store";
+import { OFFER_SLOT_COUNT, normalizeOfferSlots, type OfferSlot } from "@/lib/admin-store-types";
+
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/settings")({
   component: SettingsPage,
