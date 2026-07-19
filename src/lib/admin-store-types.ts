@@ -41,6 +41,22 @@ export type Booking = {
 
 
 
+export type OfferSlot = {
+  visible: boolean;
+  title: string;
+  price: number;
+  imageUrl: string;
+};
+
+export const OFFER_SLOT_COUNT = 5;
+
+export const EMPTY_OFFER_SLOT: OfferSlot = {
+  visible: false,
+  title: "",
+  price: 0,
+  imageUrl: "",
+};
+
 export type SiteSettings = {
   offerEnabled: boolean;
   offerHeadline: string;
@@ -48,6 +64,7 @@ export type SiteSettings = {
   offerCode: string;
   offerCtaLabel: string;
   offerCtaHref: string;
+  offerSlots: OfferSlot[];
   menuVisible: boolean;
 };
 
@@ -58,5 +75,20 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   offerCode: "SPRITZ2X1",
   offerCtaLabel: "Book a table",
   offerCtaHref: "#book",
+  offerSlots: Array.from({ length: OFFER_SLOT_COUNT }, () => ({ ...EMPTY_OFFER_SLOT })),
   menuVisible: true,
 };
+
+export function normalizeOfferSlots(input: unknown): OfferSlot[] {
+  const arr = Array.isArray(input) ? input : [];
+  return Array.from({ length: OFFER_SLOT_COUNT }, (_, i) => {
+    const raw = (arr[i] ?? {}) as Partial<OfferSlot>;
+    return {
+      visible: Boolean(raw.visible),
+      title: typeof raw.title === "string" ? raw.title : "",
+      price: typeof raw.price === "number" && Number.isFinite(raw.price) ? raw.price : 0,
+      imageUrl: typeof raw.imageUrl === "string" ? raw.imageUrl : "",
+    };
+  });
+}
+
