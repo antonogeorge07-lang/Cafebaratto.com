@@ -38,7 +38,7 @@ function rowToSettings(r: Partial<Row> | null | undefined): SiteSettings {
   };
 }
 
-function settingsToRow(s: SiteSettings): Omit<Row, "id" | "updated_at"> {
+function settingsToRow(s: SiteSettings): Writable {
   return {
     menu_visible: s.menuVisible,
     offer_body: s.offerBody,
@@ -50,6 +50,7 @@ function settingsToRow(s: SiteSettings): Omit<Row, "id" | "updated_at"> {
     offer_slots: normalizeOfferSlots(s.offerSlots),
   };
 }
+
 
 export async function fetchSettings(): Promise<SiteSettings> {
   const { data, error } = await supabase
