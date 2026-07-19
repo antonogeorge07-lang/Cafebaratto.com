@@ -287,7 +287,13 @@ function LandingVisibilitySection() {
             onChange={(v) => update({ offerCtaHref: v })}
             placeholder={DEFAULT_SETTINGS.offerCtaHref}
           />
+
+          <OfferSlotsEditor
+            slots={normalizeOfferSlots(s.offerSlots)}
+            onChange={(slots) => update({ offerSlots: slots })}
+          />
         </div>
+
       </section>
 
       {/* Menu visibility */}
