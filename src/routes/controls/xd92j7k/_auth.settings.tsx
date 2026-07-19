@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks } from "lucide-react";
+import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon } from "lucide-react";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
 import {
@@ -10,6 +10,8 @@ import {
   DEFAULT_SETTINGS,
   type SiteSettings,
 } from "@/lib/admin-store";
+import { OFFER_SLOT_COUNT, normalizeOfferSlots, type OfferSlot } from "@/lib/admin-store-types";
+
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/settings")({
   component: SettingsPage,
@@ -285,7 +287,13 @@ function LandingVisibilitySection() {
             onChange={(v) => update({ offerCtaHref: v })}
             placeholder={DEFAULT_SETTINGS.offerCtaHref}
           />
+
+          <OfferSlotsEditor
+            slots={normalizeOfferSlots(s.offerSlots)}
+            onChange={(slots) => update({ offerSlots: slots })}
+          />
         </div>
+
       </section>
 
       {/* Menu visibility */}
@@ -405,3 +413,106 @@ function LabeledTextarea({
     </label>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Offer slots editor (5 fixed slots, each with image/title/price/toggle) */
+/* ------------------------------------------------------------------ */
+
+function OfferSlotsEditor({
+  slots,
+  onChange,
+}: {
+  slots: OfferSlot[];
+  onChange: (slots: OfferSlot[]) => void;
+}) {
+  const updateSlot = (index: number, patch: Partial<OfferSlot>) => {
+    const next = slots.map((slot, i) => (i === index ? { ...slot, ...patch } : slot));
+    onChange(next);
+  };
+
+  const visibleCount = slots.filter((s) => s.visible).length;
+
+  return (
+    <div className="mt-2 rounded-2xl border border-white/10 bg-zinc-950/60 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold text-zinc-200">Offer slots</p>
+          <p className="text-[11px] text-zinc-500">
+            Up to {OFFER_SLOT_COUNT} featured items. Active slots auto-arrange on the landing page.
+          </p>
+        </div>
+        <span className="shrink-0 rounded-full border border-white/10 px-2.5 py-0.5 text-[10px] uppercase tracking-widest text-zinc-400">
+          {visibleCount}/{OFFER_SLOT_COUNT} visible
+        </span>
+      </div>
+
+      <ul className="mt-4 grid gap-3">
+        {slots.map((slot, i) => (
+          <li
+            key={i}
+            className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/60 p-3"
+          >
+            <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/10 bg-zinc-950">
+              {slot.imageUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={slot.imageUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display = "none";
+                  }}
+                />
+              ) : (
+                <ImageIcon className="h-4 w-4 text-zinc-600" />
+              )}
+            </div>
+
+            <div className="grid min-w-0 gap-2">
+              <input
+                type="text"
+                value={slot.title}
+                onChange={(e) => updateSlot(i, { title: e.target.value })}
+                placeholder={`Slot ${i + 1} title`}
+                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-sm outline-none focus:border-amber-500/60"
+              />
+              <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
+                <input
+                  type="url"
+                  value={slot.imageUrl}
+                  onChange={(e) => updateSlot(i, { imageUrl: e.target.value })}
+                  placeholder="Image URL"
+                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                />
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">
+                    €
+                  </span>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    min={0}
+                    step="0.01"
+                    value={Number.isFinite(slot.price) ? slot.price : 0}
+                    onChange={(e) =>
+                      updateSlot(i, { price: parseFloat(e.target.value) || 0 })
+                    }
+                    placeholder="0.00"
+                    className="w-full rounded-lg border border-white/10 bg-zinc-950 pl-5 pr-2 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <ToggleSwitch
+              checked={slot.visible}
+              onChange={(v) => updateSlot(i, { visible: v })}
+              label={slot.visible ? "Show" : "Hide"}
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
