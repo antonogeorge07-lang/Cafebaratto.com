@@ -1,6 +1,10 @@
 // Site settings backed by Supabase (`site_settings` table, single row id=1).
 import { supabase } from "@/integrations/supabase/client";
-import { DEFAULT_SETTINGS, type SiteSettings } from "@/lib/admin-store-types";
+import {
+  DEFAULT_SETTINGS,
+  normalizeOfferSlots,
+  type SiteSettings,
+} from "@/lib/admin-store-types";
 
 type Row = {
   id: number;
@@ -11,6 +15,7 @@ type Row = {
   offer_cta_label: string;
   offer_enabled: boolean;
   offer_headline: string;
+  offer_slots: unknown;
   updated_at: string;
 };
 
@@ -23,6 +28,7 @@ function rowToSettings(r: Partial<Row> | null | undefined): SiteSettings {
     offerCode: r.offer_code ?? DEFAULT_SETTINGS.offerCode,
     offerCtaLabel: r.offer_cta_label ?? DEFAULT_SETTINGS.offerCtaLabel,
     offerCtaHref: r.offer_cta_href ?? DEFAULT_SETTINGS.offerCtaHref,
+    offerSlots: normalizeOfferSlots(r.offer_slots),
     menuVisible: r.menu_visible ?? DEFAULT_SETTINGS.menuVisible,
   };
 }
@@ -36,6 +42,7 @@ function settingsToRow(s: SiteSettings): Omit<Row, "id" | "updated_at"> {
     offer_cta_label: s.offerCtaLabel,
     offer_enabled: s.offerEnabled,
     offer_headline: s.offerHeadline,
+    offer_slots: normalizeOfferSlots(s.offerSlots),
   };
 }
 
