@@ -516,4 +516,3 @@ function OfferSlotsEditor({
   );
 }
 
-}
