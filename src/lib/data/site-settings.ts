@@ -19,6 +19,11 @@ type Row = {
   updated_at: string;
 };
 
+type Writable = Omit<Row, "id" | "updated_at" | "offer_slots"> & {
+  offer_slots: ReturnType<typeof normalizeOfferSlots>;
+};
+
+
 function rowToSettings(r: Partial<Row> | null | undefined): SiteSettings {
   if (!r) return DEFAULT_SETTINGS;
   return {
