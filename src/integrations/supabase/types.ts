@@ -270,6 +270,7 @@ export type Database = {
           offer_cta_label: string
           offer_enabled: boolean
           offer_headline: string
+          offer_slots: Json
           updated_at: string
         }
         Insert: {
@@ -281,6 +282,7 @@ export type Database = {
           offer_cta_label?: string
           offer_enabled?: boolean
           offer_headline?: string
+          offer_slots?: Json
           updated_at?: string
         }
         Update: {
@@ -292,6 +294,7 @@ export type Database = {
           offer_cta_label?: string
           offer_enabled?: boolean
           offer_headline?: string
+          offer_slots?: Json
           updated_at?: string
         }
         Relationships: []
