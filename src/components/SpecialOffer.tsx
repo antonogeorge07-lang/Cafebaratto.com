@@ -78,7 +78,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
               {code && (
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-dashed border-coffee-900/40 bg-oak-50 px-3 py-1.5">
                   <span className="text-[11px] uppercase tracking-widest text-coffee-900/60">
-                    Code
+                    {t("offer_code")}
                   </span>
                   <code className="select-all font-mono text-sm font-semibold tracking-wider text-coffee-900">
                     {code}
