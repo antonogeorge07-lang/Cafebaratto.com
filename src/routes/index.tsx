@@ -326,6 +326,7 @@ function WaitlistForm() {
 /* ------------------------- Menu bridge card ------------------------- */
 
 function MenuBridge() {
+  const { t } = useI18n();
   return (
     <section className="bg-oak-50 py-20 lg:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-10">
@@ -338,16 +339,16 @@ function MenuBridge() {
             <Coffee className="h-6 w-6" />
           </span>
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-[0.25em] text-oak-300">The full menu</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-oak-300">{t("bridge_eyebrow")}</p>
             <h3 className="mt-1 font-serif text-2xl sm:text-3xl">
-              Espresso, paninis, cocktails & desserts
+              {t("bridge_title")}
             </h3>
             <p className="mt-2 max-w-xl text-sm text-oak-100/80">
-              Filter by category. Prices in euros. Updated live from the counter.
+              {t("bridge_sub")}
             </p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-oak-50 px-4 py-2.5 text-sm font-semibold text-coffee-900 transition group-hover:bg-oak-100">
-            View the menu <ArrowRight className="h-4 w-4" />
+            {t("bridge_cta")} <ArrowRight className="h-4 w-4" />
           </span>
         </Link>
       </div>
