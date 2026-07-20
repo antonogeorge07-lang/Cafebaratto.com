@@ -253,6 +253,7 @@ function BlendsComingSoon() {
 }
 
 function WaitlistForm() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
@@ -282,13 +283,10 @@ function WaitlistForm() {
   return (
     <div className="mx-auto mt-6 max-w-md rounded-xl border border-oak-200 bg-oak-50 px-3 py-3 text-center shadow-md sm:px-4">
       <h3 className="font-serif text-base">
-        <EditableText id="waitlist.title" initial="Be first in line" />
+        <EditableText id="waitlist.title" initial={t("waitlist_title")} />
       </h3>
       <p className="mt-0.5 text-[11px] text-coffee-900/70">
-        <EditableText
-          id="waitlist.sub"
-          initial="Drop your email we'll ping you the day the first bags ship."
-        />
+        <EditableText id="waitlist.sub" initial={t("waitlist_sub")} />
       </p>
 
       <form onSubmit={submit} className="mt-2 flex flex-col gap-1.5 sm:flex-row">
@@ -303,7 +301,7 @@ function WaitlistForm() {
             setEmail(e.target.value);
             if (state !== "idle") setState("idle");
           }}
-          placeholder="you@email.com"
+          placeholder={t("waitlist_placeholder")}
           className="flex-1 rounded-full border border-oak-300 bg-oak-50 px-3 py-1.5 text-xs text-coffee-900 outline-none focus:border-coffee-900/60"
         />
         <button
@@ -311,14 +309,14 @@ function WaitlistForm() {
           disabled={state === "loading"}
           className="rounded-full bg-coffee-900 px-3 py-1.5 text-xs font-semibold text-oak-50 transition hover:bg-coffee-950 disabled:opacity-60"
         >
-          {state === "loading" ? "Sending…" : "Notify me"}
+          {state === "loading" ? t("waitlist_sending") : t("waitlist_notify")}
         </button>
       </form>
       {state === "done" && (
-        <p className="mt-1.5 text-[11px] text-sage-700">You're on the list. We'll be in touch.</p>
+        <p className="mt-1.5 text-[11px] text-sage-700">{t("waitlist_done")}</p>
       )}
       {state === "error" && (
-        <p className="mt-1.5 text-[11px] text-oak-700">Please enter a valid email.</p>
+        <p className="mt-1.5 text-[11px] text-oak-700">{t("waitlist_invalid")}</p>
       )}
     </div>
   );
