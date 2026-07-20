@@ -204,21 +204,19 @@ const BLENDS = [
 ];
 
 function BlendsComingSoon() {
+  const { t } = useI18n();
   return (
     <section id="blends" className="bg-oak-100 py-8 lg:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-oak-50">
-            <Sparkles className="h-3 w-3" /> Coming soon
+            <Sparkles className="h-3 w-3" /> {t("blends_coming")}
           </p>
           <h2 className="mt-3 font-serif text-2xl sm:text-3xl">
-            <EditableText id="blends.title" initial="Our In-House Coffee Blends" />
+            <EditableText id="blends.title" initial={t("blends_title")} />
           </h2>
           <p className="mt-2 max-w-md mx-auto text-sm text-coffee-900/70">
-            <EditableText
-              id="blends.sub"
-              initial="Three signature roasts developed with our Valencia roaster. Bagged, dated, delivered to your door."
-            />
+            <EditableText id="blends.sub" initial={t("blends_sub")} />
           </p>
         </div>
 
@@ -237,7 +235,7 @@ function BlendsComingSoon() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/60 via-transparent to-transparent" />
                 <span className="absolute right-2 top-2 rounded-full bg-oak-50/90 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-coffee-900">
-                  Preview
+                  {t("blends_preview")}
                 </span>
               </div>
               <div className="p-2.5">
