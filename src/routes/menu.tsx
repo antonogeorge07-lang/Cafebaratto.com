@@ -144,13 +144,13 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-oak-700">{t("menu_eyebrow")}</p>
-          <h1 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">Authentic Italian Menu in Valencia</h1>
+          <h1 className="mt-3 font-serif text-3xl sm:text-4xl lg:text-5xl">{t("menu_h1")}</h1>
           <p className="mt-4 text-coffee-900/70">
-            From single-origin espresso and pressed paninis to breakfast plates, signature cocktails and house-made desserts every item is prepared to order with Italian ingredients and technique. Prices in EUR, updated live from the counter.
+            {t("menu_intro")}
           </p>
         </div>
 
-        <h2 className="mt-10 text-center font-serif text-xl text-coffee-900/80">Browse our selection</h2>
+        <h2 className="mt-10 text-center font-serif text-xl text-coffee-900/80">{t("menu_browse")}</h2>
 
         {live.error && (
           <div
