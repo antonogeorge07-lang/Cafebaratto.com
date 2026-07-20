@@ -141,7 +141,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
                   )}
                   <div className="flex flex-1 items-start justify-between gap-3 p-3">
                     <p className="min-w-0 flex-1 truncate text-sm font-medium text-coffee-900">
-                      {slot.title || "Untitled"}
+                      {slot.title || t("offer_untitled")}
                     </p>
                     {slot.price > 0 && (
                       <span className="shrink-0 text-sm font-semibold text-coffee-900">
