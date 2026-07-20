@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
 import {
