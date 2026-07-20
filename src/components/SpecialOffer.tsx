@@ -10,6 +10,7 @@ import { trackEvent } from "@/utils/analytics";
  * 5 configurable slots (image + title + price), each individually visible.
  */
 export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
+  const { t } = useI18n();
   const [settings, setSettings] = useState<SiteSettings>(() => getSettings());
   const [copied, setCopied] = useState(false);
 
