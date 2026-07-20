@@ -168,7 +168,7 @@ function Hero({ onBook }: { onBook: () => void }) {
               rel="noopener noreferrer"
               className="rounded-full border border-coffee-900/15 px-5 py-3 text-sm font-medium text-coffee-900/80 transition hover:border-coffee-900/40"
             >
-              Directions
+              {t("hero_directions")}
             </a>
           </div>
         </div>
