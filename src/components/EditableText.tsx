@@ -27,8 +27,11 @@ export function useContent(id: string, initial: string) {
   const [value, setValue] = useState(initial);
   useEffect(() => {
     const stored = readAll()[id];
-    if (typeof stored === "string") setValue(stored);
-  }, [id]);
+    // If an admin has saved an override, honour it. Otherwise mirror the
+    // latest `initial` so language toggles (which change the source string)
+    // propagate to the rendered copy instead of freezing the first value.
+    setValue(typeof stored === "string" ? stored : initial);
+  }, [id, initial]);
   return [value, setValue] as const;
 }
 

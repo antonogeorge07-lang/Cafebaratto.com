@@ -70,6 +70,7 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const { t, lang } = useI18n();
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(() => getSettings().menuVisible);
@@ -99,7 +100,7 @@ function LandingPage() {
       <OrderModal
         open={orderOpen}
         onClose={() => setOrderOpen(false)}
-        lang="en"
+        lang={lang}
         items={live.items.length > 0 ? live.items : MENU}
       />
       <MascotCompanion />
@@ -111,13 +112,13 @@ function LandingPage() {
             to="/menu"
             className="flex-1 rounded-full border border-coffee-900/20 py-2.5 text-center text-sm font-medium text-coffee-900"
           >
-            Menu
+            {t("nav_menu")}
           </Link>
           <button
             onClick={() => setBookOpen(true)}
             className="flex-1 rounded-full bg-coffee-900 py-2.5 text-sm font-medium text-oak-50"
           >
-            Book
+            {t("nav_book")}
           </button>
         </div>
       </div>
@@ -168,7 +169,7 @@ function Hero({ onBook }: { onBook: () => void }) {
               rel="noopener noreferrer"
               className="rounded-full border border-coffee-900/15 px-5 py-3 text-sm font-medium text-coffee-900/80 transition hover:border-coffee-900/40"
             >
-              Directions
+              {t("hero_directions")}
             </a>
           </div>
         </div>
@@ -204,21 +205,19 @@ const BLENDS = [
 ];
 
 function BlendsComingSoon() {
+  const { t } = useI18n();
   return (
     <section id="blends" className="bg-oak-100 py-8 lg:py-10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-10">
         <div className="mx-auto max-w-2xl text-center">
           <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-oak-50">
-            <Sparkles className="h-3 w-3" /> Coming soon
+            <Sparkles className="h-3 w-3" /> {t("blends_coming")}
           </p>
           <h2 className="mt-3 font-serif text-2xl sm:text-3xl">
-            <EditableText id="blends.title" initial="Our In-House Coffee Blends" />
+            <EditableText id="blends.title" initial={t("blends_title")} />
           </h2>
           <p className="mt-2 max-w-md mx-auto text-sm text-coffee-900/70">
-            <EditableText
-              id="blends.sub"
-              initial="Three signature roasts developed with our Valencia roaster. Bagged, dated, delivered to your door."
-            />
+            <EditableText id="blends.sub" initial={t("blends_sub")} />
           </p>
         </div>
 
@@ -237,7 +236,7 @@ function BlendsComingSoon() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-coffee-950/60 via-transparent to-transparent" />
                 <span className="absolute right-2 top-2 rounded-full bg-oak-50/90 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-widest text-coffee-900">
-                  Preview
+                  {t("blends_preview")}
                 </span>
               </div>
               <div className="p-2.5">
@@ -255,6 +254,7 @@ function BlendsComingSoon() {
 }
 
 function WaitlistForm() {
+  const { t } = useI18n();
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
 
@@ -284,13 +284,10 @@ function WaitlistForm() {
   return (
     <div className="mx-auto mt-6 max-w-md rounded-xl border border-oak-200 bg-oak-50 px-3 py-3 text-center shadow-md sm:px-4">
       <h3 className="font-serif text-base">
-        <EditableText id="waitlist.title" initial="Be first in line" />
+        <EditableText id="waitlist.title" initial={t("waitlist_title")} />
       </h3>
       <p className="mt-0.5 text-[11px] text-coffee-900/70">
-        <EditableText
-          id="waitlist.sub"
-          initial="Drop your email we'll ping you the day the first bags ship."
-        />
+        <EditableText id="waitlist.sub" initial={t("waitlist_sub")} />
       </p>
 
       <form onSubmit={submit} className="mt-2 flex flex-col gap-1.5 sm:flex-row">
@@ -305,7 +302,7 @@ function WaitlistForm() {
             setEmail(e.target.value);
             if (state !== "idle") setState("idle");
           }}
-          placeholder="you@email.com"
+          placeholder={t("waitlist_placeholder")}
           className="flex-1 rounded-full border border-oak-300 bg-oak-50 px-3 py-1.5 text-xs text-coffee-900 outline-none focus:border-coffee-900/60"
         />
         <button
@@ -313,14 +310,14 @@ function WaitlistForm() {
           disabled={state === "loading"}
           className="rounded-full bg-coffee-900 px-3 py-1.5 text-xs font-semibold text-oak-50 transition hover:bg-coffee-950 disabled:opacity-60"
         >
-          {state === "loading" ? "Sending…" : "Notify me"}
+          {state === "loading" ? t("waitlist_sending") : t("waitlist_notify")}
         </button>
       </form>
       {state === "done" && (
-        <p className="mt-1.5 text-[11px] text-sage-700">You're on the list. We'll be in touch.</p>
+        <p className="mt-1.5 text-[11px] text-sage-700">{t("waitlist_done")}</p>
       )}
       {state === "error" && (
-        <p className="mt-1.5 text-[11px] text-oak-700">Please enter a valid email.</p>
+        <p className="mt-1.5 text-[11px] text-oak-700">{t("waitlist_invalid")}</p>
       )}
     </div>
   );
@@ -330,6 +327,7 @@ function WaitlistForm() {
 /* ------------------------- Menu bridge card ------------------------- */
 
 function MenuBridge() {
+  const { t } = useI18n();
   return (
     <section className="bg-oak-50 py-20 lg:py-24">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-10">
@@ -342,16 +340,16 @@ function MenuBridge() {
             <Coffee className="h-6 w-6" />
           </span>
           <div className="flex-1">
-            <p className="text-xs uppercase tracking-[0.25em] text-oak-300">The full menu</p>
+            <p className="text-xs uppercase tracking-[0.25em] text-oak-300">{t("bridge_eyebrow")}</p>
             <h3 className="mt-1 font-serif text-2xl sm:text-3xl">
-              Espresso, paninis, cocktails & desserts
+              {t("bridge_title")}
             </h3>
             <p className="mt-2 max-w-xl text-sm text-oak-100/80">
-              Filter by category. Prices in euros. Updated live from the counter.
+              {t("bridge_sub")}
             </p>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full bg-oak-50 px-4 py-2.5 text-sm font-semibold text-coffee-900 transition group-hover:bg-oak-100">
-            View the menu <ArrowRight className="h-4 w-4" />
+            {t("bridge_cta")} <ArrowRight className="h-4 w-4" />
           </span>
         </Link>
       </div>

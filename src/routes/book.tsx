@@ -2,6 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { BookingModal } from "@/components/BookingModal";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
+import { useI18n } from "@/lib/i18n";
 import type { BookingKind } from "@/lib/admin-store-types";
 
 export const Route = createFileRoute("/book")({
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/book")({
 });
 
 function BookPage() {
+  const { t } = useI18n();
   const [kind, setKind] = useState<BookingKind>("table");
   const navigate = useNavigate();
   return (
@@ -27,10 +29,10 @@ function BookPage() {
       <main className="px-4 py-10">
         <div className="mx-auto max-w-xl">
           <header className="mb-6 text-center">
-            <p className="text-[11px] uppercase tracking-[0.28em] text-coffee-900/50">Café Baratto</p>
-            <h1 className="mt-2 font-serif text-3xl text-coffee-900">Reserve your spot</h1>
+            <p className="text-[11px] uppercase tracking-[0.28em] text-coffee-900/50">{t("book_eyebrow")}</p>
+            <h1 className="mt-2 font-serif text-3xl text-coffee-900">{t("book_title")}</h1>
             <p className="mt-2 text-sm text-coffee-900/70">
-              Pick a date, share your details, and we'll email a confirmation.
+              {t("book_sub")}
             </p>
           </header>
           <div className="mb-4 flex justify-center">
@@ -43,7 +45,7 @@ function BookPage() {
                     kind === k ? "bg-coffee-900 text-oak-50" : "text-coffee-900 hover:bg-oak-100"
                   }`}
                 >
-                  {k === "table" ? "Table" : "Event"}
+                  {k === "table" ? t("book_kind_table") : t("book_kind_event")}
                 </button>
               ))}
             </div>
@@ -55,3 +57,4 @@ function BookPage() {
     </div>
   );
 }
+

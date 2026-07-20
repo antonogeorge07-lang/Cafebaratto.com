@@ -91,6 +91,57 @@ export const T: Dict = {
     en: "Cafeteria Baratto was born from a love of real espresso — hand-picked beans, perfectly textured milk, and paninis pressed to order. Beside the children's park, we're a meeting spot for neighbours, travellers and families.",
   },
 
+  hero_directions: { es: "Cómo llegar", en: "Directions" },
+
+  blends_coming: { es: "Muy pronto", en: "Coming soon" },
+  blends_title: { es: "Nuestros blends de café", en: "Our In-House Coffee Blends" },
+  blends_sub: {
+    es: "Tres tuestes de firma desarrollados con nuestro tostador en Valencia. Envasados, fechados y entregados en tu puerta.",
+    en: "Three signature roasts developed with our Valencia roaster. Bagged, dated, delivered to your door.",
+  },
+  blends_preview: { es: "Vista previa", en: "Preview" },
+
+  waitlist_title: { es: "Sé el primero", en: "Be first in line" },
+  waitlist_sub: {
+    es: "Déjanos tu email y te avisamos el día que enviemos las primeras bolsas.",
+    en: "Drop your email we'll ping you the day the first bags ship.",
+  },
+  waitlist_placeholder: { es: "tu@email.com", en: "you@email.com" },
+  waitlist_notify: { es: "Avísame", en: "Notify me" },
+  waitlist_sending: { es: "Enviando…", en: "Sending…" },
+  waitlist_done: { es: "¡Estás en la lista! Te escribiremos.", en: "You're on the list. We'll be in touch." },
+  waitlist_invalid: { es: "Introduce un email válido.", en: "Please enter a valid email." },
+
+  bridge_eyebrow: { es: "La carta completa", en: "The full menu" },
+  bridge_title: { es: "Espresso, paninis, cócteles y postres", en: "Espresso, paninis, cocktails & desserts" },
+  bridge_sub: {
+    es: "Filtra por categoría. Precios en euros. Actualizado en vivo desde la barra.",
+    en: "Filter by category. Prices in euros. Updated live from the counter.",
+  },
+  bridge_cta: { es: "Ver la carta", en: "View the menu" },
+
+  menu_h1: { es: "Auténtica carta italiana en Valencia", en: "Authentic Italian Menu in Valencia" },
+  menu_intro: {
+    es: "Desde espresso de origen único y paninis prensados hasta desayunos, cócteles de firma y postres caseros cada plato se prepara al momento con ingredientes y técnica italianos. Precios en EUR, actualizados en vivo desde la barra.",
+    en: "From single-origin espresso and pressed paninis to breakfast plates, signature cocktails and house-made desserts every item is prepared to order with Italian ingredients and technique. Prices in EUR, updated live from the counter.",
+  },
+  menu_browse: { es: "Explora nuestra selección", en: "Browse our selection" },
+
+  book_eyebrow: { es: "Café Baratto", en: "Café Baratto" },
+  book_title: { es: "Reserva tu sitio", en: "Reserve your spot" },
+  book_sub: {
+    es: "Elige fecha, comparte tus datos y te enviaremos la confirmación por email.",
+    en: "Pick a date, share your details, and we'll email a confirmation.",
+  },
+  book_kind_table: { es: "Mesa", en: "Table" },
+  book_kind_event: { es: "Evento", en: "Event" },
+
+  offer_badge: { es: "Oferta especial", en: "Special offer" },
+  offer_code: { es: "Código", en: "Code" },
+  offer_copy: { es: "Copiar", en: "Copy" },
+  offer_copied: { es: "Copiado", en: "Copied" },
+  offer_untitled: { es: "Sin título", en: "Untitled" },
+
   footer_tagline: { es: "Tu café de barrio en Valencia.", en: "Your neighborhood cafe in Valencia." },
   footer_rights: { es: "Todos los derechos reservados.", en: "All rights reserved." },
 };

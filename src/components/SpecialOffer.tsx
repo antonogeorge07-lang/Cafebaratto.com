@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Copy, Check, Sparkles } from "lucide-react";
 import { getSettings, subscribe, type SiteSettings } from "@/lib/admin-store";
+import { useI18n } from "@/lib/i18n";
 import { trackEvent } from "@/utils/analytics";
 
 /**
@@ -9,6 +10,7 @@ import { trackEvent } from "@/utils/analytics";
  * 5 configurable slots (image + title + price), each individually visible.
  */
 export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
+  const { t } = useI18n();
   const [settings, setSettings] = useState<SiteSettings>(() => getSettings());
   const [copied, setCopied] = useState(false);
 
@@ -61,7 +63,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
           <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-oak-50">
-                <Sparkles className="h-3 w-3" /> Special offer
+                <Sparkles className="h-3 w-3" /> {t("offer_badge")}
               </p>
               <h2
                 id="special-offer-heading"
@@ -76,7 +78,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
               {code && (
                 <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-dashed border-coffee-900/40 bg-oak-50 px-3 py-1.5">
                   <span className="text-[11px] uppercase tracking-widest text-coffee-900/60">
-                    Code
+                    {t("offer_code")}
                   </span>
                   <code className="select-all font-mono text-sm font-semibold tracking-wider text-coffee-900">
                     {code}
@@ -85,10 +87,10 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
                     type="button"
                     onClick={copyCode}
                     className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] text-coffee-900/70 hover:bg-oak-200"
-                    aria-label={copied ? "Code copied" : "Copy code"}
+                    aria-label={copied ? t("offer_copied") : t("offer_copy")}
                   >
                     {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    {copied ? "Copied" : "Copy"}
+                    {copied ? t("offer_copied") : t("offer_copy")}
                   </button>
                 </div>
               )}
@@ -139,7 +141,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
                   )}
                   <div className="flex flex-1 items-start justify-between gap-3 p-3">
                     <p className="min-w-0 flex-1 truncate text-sm font-medium text-coffee-900">
-                      {slot.title || "Untitled"}
+                      {slot.title || t("offer_untitled")}
                     </p>
                     {slot.price > 0 && (
                       <span className="shrink-0 text-sm font-semibold text-coffee-900">
