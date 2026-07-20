@@ -70,6 +70,7 @@ export const Route = createFileRoute("/")({
 });
 
 function LandingPage() {
+  const { t, lang } = useI18n();
   const [bookOpen, setBookOpen] = useState(false);
   const [orderOpen, setOrderOpen] = useState(false);
   const [menuVisible, setMenuVisible] = useState(() => getSettings().menuVisible);
