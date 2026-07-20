@@ -63,7 +63,7 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
           <div className="relative grid gap-5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-1.5 rounded-full bg-coffee-900 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-oak-50">
-                <Sparkles className="h-3 w-3" /> Special offer
+                <Sparkles className="h-3 w-3" /> {t("offer_badge")}
               </p>
               <h2
                 id="special-offer-heading"
