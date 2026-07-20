@@ -100,7 +100,7 @@ function LandingPage() {
       <OrderModal
         open={orderOpen}
         onClose={() => setOrderOpen(false)}
-        lang="en"
+        lang={lang}
         items={live.items.length > 0 ? live.items : MENU}
       />
       <MascotCompanion />
@@ -112,13 +112,13 @@ function LandingPage() {
             to="/menu"
             className="flex-1 rounded-full border border-coffee-900/20 py-2.5 text-center text-sm font-medium text-coffee-900"
           >
-            Menu
+            {t("nav_menu")}
           </Link>
           <button
             onClick={() => setBookOpen(true)}
             className="flex-1 rounded-full bg-coffee-900 py-2.5 text-sm font-medium text-oak-50"
           >
-            Book
+            {t("nav_book")}
           </button>
         </div>
       </div>
