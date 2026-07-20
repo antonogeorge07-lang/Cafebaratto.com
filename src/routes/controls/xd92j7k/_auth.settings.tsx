@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Check, KeyRound, UserCog, Eye, EyeOff, Sparkles, ListChecks, Image as ImageIcon, Upload, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { trackEvent } from "@/utils/analytics";
 import { useAdminSession } from "@/context/AdminSessionContext";
 import {
@@ -476,13 +477,17 @@ function OfferSlotsEditor({
                 placeholder={`Slot ${i + 1} title`}
                 className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-sm outline-none focus:border-amber-500/60"
               />
-              <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_100px] gap-2">
                 <input
                   type="url"
                   value={slot.imageUrl}
                   onChange={(e) => updateSlot(i, { imageUrl: e.target.value })}
-                  placeholder="Image URL"
-                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                  placeholder="Image URL or upload →"
+                  className="w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                />
+                <SlotUploadButton
+                  index={i}
+                  onUploaded={(url) => updateSlot(i, { imageUrl: url })}
                 />
                 <div className="relative">
                   <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">
@@ -515,4 +520,72 @@ function OfferSlotsEditor({
     </div>
   );
 }
+
+// 10 years in seconds — long-lived signed URL for public display of a private bucket object.
+const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 10;
+
+function SlotUploadButton({
+  index,
+  onUploaded,
+}: {
+  index: number;
+  onUploaded: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const handleFile = async (file: File) => {
+    setErr(null);
+    setBusy(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `slot-${index + 1}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("offer-images")
+        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
+      if (upErr) throw upErr;
+      const { data, error: signErr } = await supabase.storage
+        .from("offer-images")
+        .createSignedUrl(path, SIGNED_URL_TTL);
+      if (signErr || !data?.signedUrl) throw signErr ?? new Error("Could not sign URL");
+      onUploaded(data.signedUrl);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        title={err ?? "Upload image"}
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition ${
+          err
+            ? "border-red-500/50 bg-red-500/10 text-red-300"
+            : "border-white/10 bg-zinc-950 text-zinc-300 hover:border-amber-500/60 hover:text-amber-300"
+        } disabled:opacity-60`}
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+        <span>{busy ? "Uploading" : "Upload"}</span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+        }}
+      />
+    </>
+  );
+}
+
 
