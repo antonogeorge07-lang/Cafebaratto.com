@@ -477,13 +477,17 @@ function OfferSlotsEditor({
                 placeholder={`Slot ${i + 1} title`}
                 className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-sm outline-none focus:border-amber-500/60"
               />
-              <div className="grid grid-cols-[minmax(0,1fr)_100px] gap-2">
+              <div className="grid grid-cols-[minmax(0,1fr)_auto_100px] gap-2">
                 <input
                   type="url"
                   value={slot.imageUrl}
                   onChange={(e) => updateSlot(i, { imageUrl: e.target.value })}
-                  placeholder="Image URL"
-                  className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                  placeholder="Image URL or upload →"
+                  className="w-full min-w-0 rounded-lg border border-white/10 bg-zinc-950 px-2.5 py-1.5 text-xs text-zinc-300 outline-none focus:border-amber-500/60"
+                />
+                <SlotUploadButton
+                  index={i}
+                  onUploaded={(url) => updateSlot(i, { imageUrl: url })}
                 />
                 <div className="relative">
                   <span className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-[11px] text-zinc-500">
