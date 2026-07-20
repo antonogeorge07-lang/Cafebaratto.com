@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Copy, Check, Sparkles } from "lucide-react";
 import { getSettings, subscribe, type SiteSettings } from "@/lib/admin-store";
+import { useI18n } from "@/lib/i18n";
 import { trackEvent } from "@/utils/analytics";
 
 /**
