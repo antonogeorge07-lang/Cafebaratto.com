@@ -521,3 +521,71 @@ function OfferSlotsEditor({
   );
 }
 
+// 10 years in seconds — long-lived signed URL for public display of a private bucket object.
+const SIGNED_URL_TTL = 60 * 60 * 24 * 365 * 10;
+
+function SlotUploadButton({
+  index,
+  onUploaded,
+}: {
+  index: number;
+  onUploaded: (url: string) => void;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const handleFile = async (file: File) => {
+    setErr(null);
+    setBusy(true);
+    try {
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "") || "jpg";
+      const path = `slot-${index + 1}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage
+        .from("offer-images")
+        .upload(path, file, { contentType: file.type || "image/jpeg", upsert: true });
+      if (upErr) throw upErr;
+      const { data, error: signErr } = await supabase.storage
+        .from("offer-images")
+        .createSignedUrl(path, SIGNED_URL_TTL);
+      if (signErr || !data?.signedUrl) throw signErr ?? new Error("Could not sign URL");
+      onUploaded(data.signedUrl);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        title={err ?? "Upload image"}
+        className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-[11px] transition ${
+          err
+            ? "border-red-500/50 bg-red-500/10 text-red-300"
+            : "border-white/10 bg-zinc-950 text-zinc-300 hover:border-amber-500/60 hover:text-amber-300"
+        } disabled:opacity-60`}
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+        <span>{busy ? "Uploading" : "Upload"}</span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) void handleFile(file);
+        }}
+      />
+    </>
+  );
+}
+
+
