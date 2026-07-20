@@ -87,10 +87,10 @@ export function SpecialOffer({ onBook }: { onBook?: () => void } = {}) {
                     type="button"
                     onClick={copyCode}
                     className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] text-coffee-900/70 hover:bg-oak-200"
-                    aria-label={copied ? "Code copied" : "Copy code"}
+                    aria-label={copied ? t("offer_copied") : t("offer_copy")}
                   >
                     {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                    {copied ? "Copied" : "Copy"}
+                    {copied ? t("offer_copied") : t("offer_copy")}
                   </button>
                 </div>
               )}
