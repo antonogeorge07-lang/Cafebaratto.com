@@ -59,6 +59,17 @@ export const Route = createFileRoute("/lovable/email/transactional/send")({
           return Response.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
+        // Only staff/owner may send templated emails — templates allow
+        // arbitrary recipients and content, so restrict to trusted accounts.
+        const { data: isOwner, error: roleError } = await supabase.rpc('has_role', {
+          _user_id: user.id,
+          _role: 'owner',
+        })
+        if (roleError || !isOwner) {
+          return Response.json({ error: 'Forbidden' }, { status: 403 })
+        }
+
+
         // Parse request body
         let templateName: string
         let recipientEmail: string
