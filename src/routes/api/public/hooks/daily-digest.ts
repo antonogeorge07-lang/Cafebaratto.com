@@ -20,12 +20,24 @@ function token32() {
 export const Route = createFileRoute("/api/public/hooks/daily-digest")({
   server: {
     handlers: {
-      POST: async () => {
+      POST: async ({ request }) => {
         const url = process.env.SUPABASE_URL ?? import.meta.env.VITE_SUPABASE_URL;
         const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
         if (!url || !key) {
           return Response.json({ error: "server_misconfigured" }, { status: 500 });
         }
+
+        // Require service-role bearer token (same pattern as /lovable/email/queue/process).
+        // pg_cron sends this Authorization header from a vault-stored secret.
+        const authHeader = request.headers.get("Authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return Response.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        const token = authHeader.slice("Bearer ".length).trim();
+        if (token !== key) {
+          return Response.json({ error: "Forbidden" }, { status: 403 });
+        }
+
         const supabase: any = createClient(url, key, {
           auth: { persistSession: false, autoRefreshToken: false },
         });
@@ -35,6 +47,7 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
           console.error("[daily-digest] stats failed", statsErr);
           return Response.json({ error: "stats_failed" }, { status: 500 });
         }
+
 
         const date = (stats as any).date as string;
         const recipient = OWNER_EMAIL.toLowerCase();
