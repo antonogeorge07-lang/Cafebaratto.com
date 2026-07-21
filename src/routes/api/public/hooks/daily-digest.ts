@@ -120,7 +120,7 @@ export const Route = createFileRoute("/api/public/hooks/daily-digest")({
           return Response.json({ error: "enqueue_failed" }, { status: 500 });
         }
 
-        return Response.json({ ok: true, date, stats });
+        return Response.json({ ok: true });
       },
     },
   },
