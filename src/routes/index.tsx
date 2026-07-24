@@ -181,6 +181,8 @@ function Hero({ onBook }: { onBook: () => void }) {
               alt="Inside Cafetería Baratto"
               width={1600}
               height={1200}
+              fetchPriority="high"
+              decoding="async"
               className="h-[360px] w-full object-cover sm:h-[480px]"
             />
           </div>
