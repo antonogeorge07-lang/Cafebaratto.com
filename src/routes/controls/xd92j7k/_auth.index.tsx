@@ -188,12 +188,27 @@ function DashboardPage() {
 
   const startEdit = (item: MenuItem) => {
     setEditingId(item.id);
+    setCustomTag("");
     setDraft({
       name: item.name.en,
       price: String(item.price),
       category: item.category,
       subcategory: item.subcategory ?? "",
+      diet: [...(item.diet ?? [])],
     });
+  };
+
+  const toggleDraftTag = (key: string) =>
+    setDraft((d) => ({
+      ...d,
+      diet: d.diet.includes(key) ? d.diet.filter((k) => k !== key) : [...d.diet, key],
+    }));
+
+  const addCustomTag = () => {
+    const key = customTag.trim().toLowerCase().replace(/\s+/g, "_");
+    if (!key) return;
+    setDraft((d) => (d.diet.includes(key) ? d : { ...d, diet: [...d.diet, key] }));
+    setCustomTag("");
   };
 
   const saveEdit = (id: string) => {
@@ -205,6 +220,7 @@ function DashboardPage() {
             price: Number(draft.price) || i.price,
             category: draft.category || i.category,
             subcategory: draft.subcategory.trim() || undefined,
+            diet: draft.diet,
           }
         : i,
     );
