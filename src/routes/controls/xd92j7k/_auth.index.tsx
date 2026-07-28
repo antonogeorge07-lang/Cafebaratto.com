@@ -150,7 +150,8 @@ function DashboardPage() {
     setItems(next);
     setMenu(next);
     setEditingId(id);
-    setDraft({ name: newItem.name.en, price: "0", category: "coffee", subcategory: "" });
+    setCustomTag("");
+    setDraft({ name: newItem.name.en, price: "0", category: "coffee", subcategory: "", diet: [] });
   };
 
   const deleteItem = (id: string) => {
