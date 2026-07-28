@@ -78,12 +78,15 @@ function DashboardPage() {
     price: string;
     category: string;
     subcategory: string;
+    diet: string[];
   }>({
     name: "",
     price: "",
     category: "",
     subcategory: "",
+    diet: [],
   });
+  const [customTag, setCustomTag] = useState("");
 
   useEffect(() => {
     trackEvent("admin_dashboard_view", {});
