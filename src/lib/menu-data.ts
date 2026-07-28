@@ -1,4 +1,31 @@
-export type Diet = "vegan" | "gf" | "nuts" | "veg";
+/**
+ * Dietary / attribute tags. Kept as a free-form string so the admin can add
+ * custom tags without breaking type-safety, while the registry below drives
+ * the labels and ordering of the well-known ones.
+ */
+export type Diet = string;
+
+export const DIET_TAGS: { key: string; en: string; es: string }[] = [
+  { key: "vegan", en: "Vegan", es: "Vegano" },
+  { key: "veg", en: "Vegetarian", es: "Vegetariano" },
+  { key: "gf", en: "Gluten-Free", es: "Sin gluten" },
+  { key: "df", en: "Dairy-Free", es: "Sin lactosa" },
+  { key: "nuts", en: "Contains Nuts", es: "Contiene frutos secos" },
+  { key: "nut_free", en: "Nut-Free", es: "Sin frutos secos" },
+  { key: "halal", en: "Halal", es: "Halal" },
+  { key: "organic", en: "Organic", es: "Ecológico" },
+  { key: "spicy", en: "Spicy", es: "Picante" },
+  { key: "sugar_free", en: "Sugar-Free", es: "Sin azúcar" },
+  { key: "low_cal", en: "Low Calorie", es: "Bajo en calorías" },
+  { key: "house_special", en: "House Special", es: "Especial de la casa" },
+];
+
+/** Human-readable label for a diet tag (falls back to a nice-cased key). */
+export function dietLabel(key: string, lang: "en" | "es" = "en"): string {
+  const hit = DIET_TAGS.find((d) => d.key === key);
+  if (hit) return lang === "es" ? hit.es : hit.en;
+  return key.replace(/[_-]+/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+}
 
 /**
  * Category is a free-form string keyed by the taxonomy below. We keep it as
