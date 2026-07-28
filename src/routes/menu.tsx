@@ -1,10 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Leaf, Nut, Salad, Wheat, EyeOff } from "lucide-react";
+import {
+  Leaf,
+  Nut,
+  Salad,
+  Wheat,
+  EyeOff,
+  Milk,
+  BadgeCheck,
+  Sprout,
+  Flame,
+  Candy,
+  Feather,
+  Star,
+  Tag,
+} from "lucide-react";
 
 import { useI18n } from "@/lib/i18n";
 import { useLiveMenu } from "@/lib/useLiveMenu";
-import { MENU, categoryLabel, type Category, type Diet } from "@/lib/menu-data";
+import { MENU, categoryLabel, dietLabel, type Category } from "@/lib/menu-data";
 import { getSettings, subscribe } from "@/lib/admin-store";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ReservationModal } from "@/components/ReservationModal";
