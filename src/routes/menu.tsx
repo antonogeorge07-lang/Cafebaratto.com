@@ -1,10 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { Leaf, Nut, Salad, Wheat, EyeOff } from "lucide-react";
+import {
+  Leaf,
+  Nut,
+  Salad,
+  Wheat,
+  EyeOff,
+  Milk,
+  BadgeCheck,
+  Sprout,
+  Flame,
+  Candy,
+  Feather,
+  Star,
+  Tag,
+} from "lucide-react";
 
 import { useI18n } from "@/lib/i18n";
 import { useLiveMenu } from "@/lib/useLiveMenu";
-import { MENU, categoryLabel, type Category, type Diet } from "@/lib/menu-data";
+import { MENU, categoryLabel, dietLabel, type Category } from "@/lib/menu-data";
 import { getSettings, subscribe } from "@/lib/admin-store";
 import { SiteHeader, SiteFooter } from "@/components/SiteChrome";
 import { ReservationModal } from "@/components/ReservationModal";
@@ -70,11 +84,19 @@ export const Route = createFileRoute("/menu")({
   component: MenuPage,
 });
 
-const DIET_META: Record<Diet, { icon: React.ComponentType<{ className?: string }>; key: string }> = {
-  vegan: { icon: Leaf, key: "diet_vegan" },
-  gf: { icon: Wheat, key: "diet_gf" },
-  nuts: { icon: Nut, key: "diet_nuts" },
-  veg: { icon: Salad, key: "diet_veg" },
+const DIET_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  vegan: Leaf,
+  veg: Salad,
+  gf: Wheat,
+  df: Milk,
+  nuts: Nut,
+  nut_free: Nut,
+  halal: BadgeCheck,
+  organic: Sprout,
+  spicy: Flame,
+  sugar_free: Candy,
+  low_cal: Feather,
+  house_special: Star,
 };
 
 function MenuPage() {
@@ -224,15 +246,14 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
                     {m.diet.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {m.diet.map((d) => {
-                          const M = DIET_META[d];
-                          const Icon = M.icon;
+                          const Icon = DIET_ICONS[d] ?? Tag;
                           return (
                             <span
                               key={d}
                               className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
                             >
                               <Icon className="h-3 w-3" />
-                              {t(M.key as never)}
+                              {dietLabel(d, lang)}
                             </span>
                           );
                         })}
