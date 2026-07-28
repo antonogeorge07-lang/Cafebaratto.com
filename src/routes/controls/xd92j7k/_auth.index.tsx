@@ -33,7 +33,13 @@ import {
   getCurrency,
 } from "@/lib/admin-store";
 import { supabase } from "@/integrations/supabase/client";
-import { BASE_CATEGORIES, categoryLabel, type MenuItem } from "@/lib/menu-data";
+import {
+  BASE_CATEGORIES,
+  DIET_TAGS,
+  categoryLabel,
+  dietLabel,
+  type MenuItem,
+} from "@/lib/menu-data";
 
 export const Route = createFileRoute("/controls/xd92j7k/_auth/")({
   component: DashboardPage,
