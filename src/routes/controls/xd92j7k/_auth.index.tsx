@@ -409,15 +409,87 @@ function DashboardPage() {
                     </td>
                     <td className="px-3 py-3">
                       {isEditing ? (
-                        <input
-                          value={draft.name}
-                          onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
-                          className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-sm outline-none focus:border-amber-500/60"
-                        />
+                        <div className="min-w-[260px] space-y-2">
+                          <input
+                            value={draft.name}
+                            onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))}
+                            className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-sm outline-none focus:border-amber-500/60"
+                          />
+                          <div>
+                            <p className="mb-1 text-[10px] uppercase tracking-[0.2em] text-zinc-500">
+                              Dietary tags
+                            </p>
+                            <div className="flex flex-wrap gap-1">
+                              {DIET_TAGS.map((tag) => {
+                                const on = draft.diet.includes(tag.key);
+                                return (
+                                  <button
+                                    key={tag.key}
+                                    type="button"
+                                    onClick={() => toggleDraftTag(tag.key)}
+                                    aria-pressed={on}
+                                    className={`rounded-full border px-2 py-0.5 text-[11px] font-medium transition ${
+                                      on
+                                        ? "border-amber-500/60 bg-amber-500/20 text-amber-200"
+                                        : "border-white/10 text-zinc-400 hover:border-white/25 hover:text-zinc-200"
+                                    }`}
+                                  >
+                                    {tag.en}
+                                  </button>
+                                );
+                              })}
+                              {draft.diet
+                                .filter((k) => !DIET_TAGS.some((t) => t.key === k))
+                                .map((k) => (
+                                  <button
+                                    key={k}
+                                    type="button"
+                                    onClick={() => toggleDraftTag(k)}
+                                    className="rounded-full border border-amber-500/60 bg-amber-500/20 px-2 py-0.5 text-[11px] font-medium text-amber-200"
+                                  >
+                                    {dietLabel(k)} ×
+                                  </button>
+                                ))}
+                            </div>
+                            <div className="mt-1.5 flex gap-1.5">
+                              <input
+                                value={customTag}
+                                onChange={(e) => setCustomTag(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    e.preventDefault();
+                                    addCustomTag();
+                                  }
+                                }}
+                                placeholder="Custom tag (e.g. keto)"
+                                className="w-full rounded-lg border border-white/10 bg-zinc-950 px-2 py-1.5 text-[11px] outline-none focus:border-amber-500/60"
+                              />
+                              <button
+                                type="button"
+                                onClick={addCustomTag}
+                                className="shrink-0 rounded-lg border border-white/10 px-2 py-1.5 text-[11px] text-zinc-300 hover:border-white/25"
+                              >
+                                Add
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                       ) : (
                         <div>
                           <div className="font-medium text-zinc-100">{item.name.en}</div>
                           <div className="text-[11px] text-zinc-500">{item.name.es}</div>
+                          {(item.diet ?? []).length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {item.diet.map((d) => (
+                                <span
+                                  key={d}
+                                  className="rounded-full border border-white/10 px-2 py-0.5 text-[11px] font-medium text-zinc-400"
+                                >
+                                  {dietLabel(d)}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       )}
                     </td>
