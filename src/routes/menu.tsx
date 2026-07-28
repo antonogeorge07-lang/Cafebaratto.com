@@ -246,15 +246,14 @@ function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
                     {m.diet.length > 0 && (
                       <div className="mt-3 flex flex-wrap gap-1.5">
                         {m.diet.map((d) => {
-                          const M = DIET_META[d];
-                          const Icon = M.icon;
+                          const Icon = DIET_ICONS[d] ?? Tag;
                           return (
                             <span
                               key={d}
                               className="inline-flex items-center gap-1 rounded-full bg-sage-100 px-2 py-0.5 text-[11px] font-medium text-sage-700"
                             >
                               <Icon className="h-3 w-3" />
-                              {t(M.key as never)}
+                              {dietLabel(d, lang)}
                             </span>
                           );
                         })}
