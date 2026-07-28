@@ -70,11 +70,19 @@ export const Route = createFileRoute("/menu")({
   component: MenuPage,
 });
 
-const DIET_META: Record<Diet, { icon: React.ComponentType<{ className?: string }>; key: string }> = {
-  vegan: { icon: Leaf, key: "diet_vegan" },
-  gf: { icon: Wheat, key: "diet_gf" },
-  nuts: { icon: Nut, key: "diet_nuts" },
-  veg: { icon: Salad, key: "diet_veg" },
+const DIET_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  vegan: Leaf,
+  veg: Salad,
+  gf: Wheat,
+  df: Milk,
+  nuts: Nut,
+  nut_free: Nut,
+  halal: BadgeCheck,
+  organic: Sprout,
+  spicy: Flame,
+  sugar_free: Candy,
+  low_cal: Feather,
+  house_special: Star,
 };
 
 function MenuPage() {
