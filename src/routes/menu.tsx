@@ -144,7 +144,7 @@ function MenuPage() {
 function MenuSection({ live }: { live: ReturnType<typeof useLiveMenu> }) {
   const { t, lang } = useI18n();
   const [cat, setCat] = useState<Category | "all">("all");
-  const source = live.items.length > 0 ? live.items : MENU;
+  const source = live.loading && live.items.length === 0 ? MENU : live.items;
   const activeSource = useMemo(() => source.filter((m) => m.stock !== false), [source]);
   const items = useMemo(
     () => (cat === "all" ? activeSource : activeSource.filter((m) => m.category === cat)),
