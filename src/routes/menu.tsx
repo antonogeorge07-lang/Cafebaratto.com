@@ -134,7 +134,7 @@ function MenuPage() {
         open={orderOpen}
         onClose={() => setOrderOpen(false)}
         lang="en"
-        items={live.items.length > 0 ? live.items : MENU}
+        items={live.loading && live.items.length === 0 ? MENU : live.items}
       />
       <MascotCompanion />
     </div>
