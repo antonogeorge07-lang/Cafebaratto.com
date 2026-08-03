@@ -100,11 +100,18 @@ export function subscribe(fn: Listener) {
 let menuCache: MenuItem[] | null = null;
 let menuLoadStarted = false;
 let menuRealtimeAttached = false;
+let menuLoaded = false;
+
+/** True once the menu has been read from the database at least once. */
+export function isMenuLoaded() {
+  return menuLoaded;
+}
 
 function refreshMenuCache() {
   fetchAllMenu()
     .then((items) => {
       menuCache = items;
+      menuLoaded = true;
       emit();
     })
     .catch((err) => {
@@ -145,9 +152,17 @@ export function getPublicMenu(): MenuItem[] {
 /** Sync the given items array to Supabase (diff upsert + delete removed). */
 export function setMenu(items: MenuItem[]) {
   if (!isBrowser()) return;
+  if (!menuLoaded) {
+    // The DB snapshot has not arrived yet; writing now would push the bundled
+    // seed menu over the owner's real data (and delete rows missing from it).
+    // eslint-disable-next-line no-console
+    console.warn("[admin-store] setMenu ignored: menu not loaded from DB yet");
+    return;
+  }
   // Optimistic local update so the UI reflects the change instantly.
   menuCache = items;
   broadcast();
+
   syncMenu(items).catch((err) => {
     // eslint-disable-next-line no-console
     console.error("[admin-store] syncMenu failed", err);

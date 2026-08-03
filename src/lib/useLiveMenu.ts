@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { MENU, type MenuItem } from "@/lib/menu-data";
-import { getPublicMenu, subscribe } from "@/lib/admin-store";
+import { getPublicMenu, isMenuLoaded, subscribe } from "@/lib/admin-store";
 
 export type LiveMenuState = {
   items: MenuItem[];
@@ -10,8 +10,8 @@ export type LiveMenuState = {
 
 /**
  * Loads the PUBLIC menu (hidden items filtered out) from the shared admin
- * store, falling back to the in-memory MENU. Subscribes to live updates so
- * admin edits propagate instantly across the site.
+ * store, falling back to the in-memory MENU only until the database snapshot
+ * arrives. Subscribes to live updates so admin edits propagate instantly.
  */
 export function useLiveMenu(): LiveMenuState {
   const [state, setState] = useState<LiveMenuState>({
@@ -21,12 +21,13 @@ export function useLiveMenu(): LiveMenuState {
   });
 
   useEffect(() => {
-    setState({ items: getPublicMenu(), loading: false, error: null });
-    const unsub = subscribe(() => {
-      setState({ items: getPublicMenu(), loading: false, error: null });
-    });
+    const read = () =>
+      setState({ items: getPublicMenu(), loading: !isMenuLoaded(), error: null });
+    read();
+    const unsub = subscribe(read);
     return unsub;
   }, []);
 
   return state;
 }
+

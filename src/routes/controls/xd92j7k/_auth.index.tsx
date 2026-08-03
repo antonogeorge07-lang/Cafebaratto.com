@@ -218,11 +218,14 @@ function DashboardPage() {
   };
 
   const saveEdit = (id: string) => {
+    const newName = draft.name.trim();
     const next = items.map((i) =>
       i.id === id
         ? {
             ...i,
-            name: { ...i.name, en: draft.name || i.name.en },
+            // Apply the name to both languages so the change is visible
+            // whichever language the visitor has selected.
+            name: newName ? { en: newName, es: newName } : i.name,
             price: Number(draft.price) || i.price,
             category: draft.category || i.category,
             subcategory: draft.subcategory.trim() || undefined,
@@ -234,6 +237,7 @@ function DashboardPage() {
     setMenu(next);
     setEditingId(null);
   };
+
 
   const presetsFor = (key: string) =>
     BASE_CATEGORIES.find((c) => c.key === key)?.presets ?? [];
